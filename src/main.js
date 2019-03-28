@@ -4,7 +4,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+import locale from 'element-ui/lib/locale/lang/zh-CN' // lang i18n
 
 import '@/styles/index.scss' // global css
 
@@ -24,6 +24,22 @@ import '@/permission' // permission control
  * If you remove `../mock` it will automatically request easy-mock data.
  */
 import '../mock' // simulation data
+
+import VuePreview from 'vue-preview'
+
+// defalut vue-preview
+// Vue.use(VuePreview)
+
+Vue.use(VuePreview, {
+  mainClass: 'pswp--minimal--dark',
+  barsSize: { top: 0, bottom: 0 },
+  captionEl: false,
+  fullscreenEl: true,
+  shareEl: false,
+  bgOpacity: 0.85,
+  tapToClose: true,
+  tapToToggleControls: false
+})
 
 Vue.use(ElementUI, { locale })
 
