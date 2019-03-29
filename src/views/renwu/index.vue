@@ -258,10 +258,10 @@
       <div class="dialogForm">
         <el-row class="row">
           <el-col :span="12">
-            <label for="" class="label">状态：</label>
-            <el-select v-model="value" placeholder="请选择">
+            <label for="" class="label">任务状态：</label>
+            <el-select v-model="taskTypeChecked" placeholder="请选择">
               <el-option
-                v-for="item in options"
+                v-for="item in taskType"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
@@ -269,12 +269,12 @@
           </el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="12"><label for="" class="label">任务编号：</label><el-input class="input" placeholder=""/></el-col>
+          <el-col :span="12"><label for="" class="label">任务编号：</label><el-input class="input" placeholder="请输入任务编号"/></el-col>
           <el-col :span="12">
             <label for="" class="label">状态：</label>
-            <el-select v-model="value" placeholder="请选择">
+            <el-select v-model="statusChecked" placeholder="请选择">
               <el-option
-                v-for="item in options"
+                v-for="item in status"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
@@ -282,19 +282,20 @@
           </el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="12"><label for="" class="label">使用单位：</label><el-input class="input" placeholder=""/></el-col>
-          <el-col :span="12"><label for="" class="label">指令书编号：</label><el-input class="input" placeholder=""/></el-col>
+          <el-col :span="12"><label for="" class="label">使用单位：</label><el-input class="input" placeholder="请输入使用单位"/></el-col>
+          <el-col :span="12"><label for="" class="label">指令书编号：</label><el-input class="input" placeholder="请输入指令书编号"/></el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="12"><label for="" class="label">使用登记证：</label><el-input class="input" placeholder=""/></el-col>
-          <el-col :span="12"><label for="" class="label">任务派发部门：</label><el-input class="input" placeholder=""/></el-col>
+          <el-col :span="12"><label for="" class="label">使用登记证：</label><el-input class="input" placeholder="请输入使用登记证"/></el-col>
+          <el-col :span="12"><label for="" class="label">任务派发部门：</label><el-input class="input" placeholder="请输入任务派发部门"/></el-col>
         </el-row>
         <el-row class="row">
           <el-col>
             <label for="" class="label">年检日期：</label>
             <el-date-picker
+              v-model="dateChecked"
               type="daterange"
-              range-separator="至"
+              range-separator="~"
               start-placeholder="年/月/日"
               end-placeholder="年/月/日"/>
           </el-col>
@@ -430,17 +431,86 @@
             <label for="" class="label"><span class="red">*</span>设备描述</label>
             <el-input type="textarea" placeholder="请输入设备描述"/>
           </el-row>
-          <!-- <el-row type="flex" align="middle" class="row">
+          <el-row type="flex" align="middle" class="row">
             <label for="" class="label">隐患描述</label>
-            <el-select v-model="value5" multiple placeholder="请选择">
+            <el-select v-model="value5" multiple placeholder="请选择" style="flex:1">
               <el-option
                 v-for="item in options"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
             </el-select>
-          </el-row> -->
-          <img src="@/assets/rewu1.png" alt="" srcset="" style="width:100%">
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <label for="" class="label"><span class="red">*</span>违反条例</label>
+            <div class="cont">
+              <el-select v-model="value5" multiple placeholder="请选择" class="select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+              <el-input type="textarea" class="area"/>
+            </div>
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <label for="" class="label"><span class="red">*</span>处罚依据条例</label>
+            <div class="cont">
+              <el-select v-model="value5" multiple placeholder="请选择" class="select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+              <el-input type="textarea" class="area"/>
+            </div>
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <label for="" class="label"><span class="red">*</span>整改措施</label>
+            <div class="cont">
+              <el-select v-model="value5" multiple placeholder="请选择" class="select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+              <el-input type="textarea" class="area"/>
+            </div>
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <el-col :span="12">
+              <label for="" class="label"><span class="red">*</span>整改截止日期</label>
+              <el-date-picker
+                type="date"
+                placeholder="选择日期"/>
+            </el-col>
+            <el-col :span="12">
+              <label for="" class="label"><span class="red">*</span>指令书日期</label>
+              <el-date-picker
+                type="date"
+                placeholder="选择日期"/>
+            </el-col>
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <label for="" class="label">监察指令书</label>
+            <el-upload
+              :show-file-list="false"
+              class="avatar-uploader"
+              action="https://jsonplaceholder.typicode.com/posts/">
+              <i class="el-icon-plus avatar-uploader-icon"/>
+            </el-upload>
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <label for="" class="label"><span class="red">*</span>注明情况</label>
+            <el-input type="textarea" placeholder="" style="flex:1"/>
+          </el-row>
+          <el-row type="flex" align="middle" class="row">
+            <el-col :span="12"><label for="" class="label"><span class="red">*</span>单位确认人</label><el-input class="input" placeholder="使用单位确认人"/> </el-col>
+            <el-col :span="12"><label for="" class="label"><span class="red">*</span>联系方式</label><el-input class="input" placeholder="联系方式"/></el-col>
+          </el-row>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -481,12 +551,17 @@
 </template>
 
 <script>
-
+import { taskType, status } from '@/utils/config'
 import img from '@/assets/renwushu1.jpg'
 import imgs from '@/assets/renwushu2.jpg'
 export default {
   data() {
     return {
+      taskType,
+      status,
+      statusChecked: '',
+      taskTypeChecked: '',
+      dateChecked: '',
       isShow: false,
       dialogEditVisible: false,
       dialogDetailVisible: false,
@@ -654,6 +729,13 @@ export default {
       display: inline-block;
       .red {color: red}
     }
+    .cont {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      .select {width: 100%;}
+      .area {width:100%;}
+    }
     .avatar-uploader {
       border: 1px dashed #d9d9d9;
       border-radius: 6px;
@@ -672,11 +754,7 @@ export default {
       line-height: 150px;
       text-align: center;
     }
-    .avatar {
-      width: 178px;
-      height: 178px;
-      display: block;
-    }
+
   }
 }
 </style>

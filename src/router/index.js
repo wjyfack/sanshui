@@ -45,7 +45,7 @@ export const constantRouterMap = [
     name: 'shouye',
     children: [{
       path: 'dashboard',
-      meta: { title: '首页', icon: 'example' },
+      meta: { title: '首页', icon: 'home' },
       component: () => import('@/views/dashboard/index')
     }]
   },
@@ -56,7 +56,7 @@ export const constantRouterMap = [
     name: 'shebei',
     children: [{
       path: 'shebei',
-      meta: { title: '设备管理' },
+      meta: { title: '设备管理', icon: 'shibei' },
       component: () => import('@/views/shebei/index')
     }]
   },
@@ -67,7 +67,7 @@ export const constantRouterMap = [
     name: 'renwu',
     children: [{
       path: 'renwu',
-      meta: { title: '任务' },
+      meta: { title: '任务', icon: 'renwu' },
       component: () => import('@/views/renwu/index')
     }]
   },
@@ -78,7 +78,7 @@ export const constantRouterMap = [
     name: 'zhilingshu',
     children: [{
       path: 'zhilingshu',
-      meta: { title: '指令书移交' },
+      meta: { title: '指令书移交', icon: 'yijiao' },
       component: () => import('@/views/zhilingshu/index')
     }]
   },
@@ -100,7 +100,7 @@ export const constantRouterMap = [
     name: 'shengju',
     children: [{
       path: 'shengju',
-      meta: { title: '省局数据查询' },
+      meta: { title: '省局数据查询', icon: 'check' },
       component: () => import('@/views/shengju/index')
     }]
   },
@@ -111,7 +111,7 @@ export const constantRouterMap = [
     name: 'tejian',
     children: [{
       path: 'tejian',
-      meta: { title: '特检抽查' },
+      meta: { title: '特检抽查', icon: 'choucha' },
       component: () => import('@/views/tejian/index')
     }]
   },
@@ -122,7 +122,7 @@ export const constantRouterMap = [
     name: 'houtai',
     children: [{
       path: 'houtai',
-      meta: { title: '后台管理' },
+      meta: { title: '后台管理', icon: 'houtai' },
       component: () => import('@/views/houtai/index')
     }]
   },

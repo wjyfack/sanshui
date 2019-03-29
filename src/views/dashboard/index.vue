@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <el-row v-if="false" :gutter="20">
+    <el-row :gutter="20">
       <el-col :span="12">
         <el-row :gutter="20">
           <el-col :span="12">
@@ -81,14 +81,14 @@
           <div class="renwuAll">
             <div class="title">
               <div class="tabs">
-                <div class="tabs-item act">任务量</div>
-                <div class="tabs-item">访问量</div>
+                <div :class="{'act': checkIndex == 1}" class="tabs-item" @click="checkIndexChange(1)">任务量</div>
+                <div :class="{'act': checkIndex == 2}" class="tabs-item" @click="checkIndexChange(2)">访问量</div>
               </div>
               <div class="time">
-                <span class="time-item">今日</span>
-                <span class="time-item">本周</span>
-                <span class="time-item">本月</span>
-                <span class="time-item">全年</span>
+                <span :class="{'act': checkDay == 1}" class="time-item" @click="checkDayChange(1)">今日</span>
+                <span :class="{'act': checkDay == 2}" class="time-item" @click="checkDayChange(2)">本周</span>
+                <span :class="{'act': checkDay == 3}" class="time-item" @click="checkDayChange(3)">本月</span>
+                <span :class="{'act': checkDay == 4}" class="time-item" @click="checkDayChange(4)">全年</span>
               </div>
               <el-date-picker
                 v-model="dateTime"
@@ -105,9 +105,9 @@
             <div class="anPai-item">
               <div class="title">个人任务：</div>
               <div class="cont">
-                <div class="item-bar"><span>未完成</span> <span class="status">56</span> </div>
-                <div class="item-bar"><span>未完成</span> <span class="status">56</span> </div>
-                <div class="item-bar"><span>未完成</span> <span class="status">56</span> </div>
+                <div class="item-bar"><span class="bar-title">未完成</span> <span class="status">56</span> </div>
+                <div class="item-bar"><span class="bar-title">未完成</span> <span class="status">56</span> </div>
+                <div class="item-bar"><span class="bar-title">未完成</span> <span class="status">56</span> </div>
               </div>
             </div>
             <div class="anPai-item">
@@ -131,7 +131,6 @@
         </el-row>
       </el-col>
     </el-row>
-    <img src="@/assets/index.png" alt="" style="width:100%;height:100%;">
   </div>
 </template>
 
@@ -143,7 +142,9 @@ export default {
   name: 'Dashboard',
   data() {
     return {
-      dateTime: ''
+      dateTime: '',
+      checkIndex: 1,
+      checkDay: 1
     }
   },
   computed: {
@@ -153,7 +154,7 @@ export default {
     ])
   },
   mounted() {
-    // this.initCharts()
+    this.initCharts()
   },
   methods: {
     initCharts() {
@@ -324,6 +325,12 @@ export default {
           }
         ]
       })
+    },
+    checkIndexChange(index) {
+      this.checkIndex = index
+    },
+    checkDayChange(index) {
+      this.checkDay = index
     }
   }
 
@@ -336,21 +343,23 @@ export default {
   font-size: 14px;
   padding:30px;
   .chart-item {
-    width: 85%;
-    height: 345px;
+    width: 90%;
+    height: 365px;
     padding: 16px;
     border: 1px solid rgba(233, 233, 233, 1);
     margin-bottom: 16px;
     border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     .title {
       display: flex;
       justify-content: space-between;
       i {color: #B6B6B6;}
     }
     .mun {
-      font-size: 30px;
+      font-size: 38px;
       color: #242424;
-      padding: 16px 0;
     }
     .add {
       border-top:1px solid #B6B6B6;
@@ -358,7 +367,7 @@ export default {
       .pd-left {padding-left: 10px;}
     }
     .zonglei,.chaoqi,.rewushu,.renwu,.anquan {
-      height: 200px;
+      height: 240px;
     }
     .anquans {
       display: flex;
@@ -371,11 +380,13 @@ export default {
     justify-content: space-between;
     .tongbi {
       display: flex;
-      font-size: 14px;
-      padding: 16px;
+      font-size: 18px;
+      justify-content: center;
+      padding-top: 10px;
       &-item {
         width: 50%;
         display: flex;
+        justify-content: center;
         color: #999;
         .green {color:green;}
         .red {color: red;}
@@ -406,16 +417,22 @@ export default {
         &-item {
           margin: 0 10px;
         }
+        .act {color:rgba(16, 141, 233, 1);}
       }
     }
     .renwul {
-      height: 300px;
+      height: 500px;
     }
   }
   .anPai {
+   height:550px;
    border-radius: 4px;
    padding: 30px 16px;
+   margin-top: 5px;
    background: #00cc99;
+   display: flex;
+   flex-direction: column;
+   justify-content: space-around;
    .anPai-item {
      display: flex;
      color: #ffffff;
@@ -432,6 +449,9 @@ export default {
      .item-bar {
        display: flex;
        flex-direction: column;
+       .bar-title {
+         font-size: 18px;
+       }
        .status {
          font-size: 30px;
          font-weight: bold;
@@ -445,6 +465,7 @@ export default {
           padding: 16px 0;
           background: #ffffff;
           color: #999;
+          text-align: center;
         }
       }
      }
