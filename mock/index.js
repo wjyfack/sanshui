@@ -1,6 +1,7 @@
 import Mock from 'mockjs'
 import userAPI from './user'
 import tableAPI from './table'
+import ShebeiAPI from './shebei'
 
 // Fix an issue with setting withCredentials = true, cross-domain request lost cookies
 // https://github.com/nuysoft/Mock/issues/300
@@ -22,5 +23,8 @@ Mock.mock(/\/user\/logout/, 'post', userAPI.logout)
 
 // Table
 Mock.mock(/\/table\/list/, 'get', tableAPI.list)
+
+// Shebei
+Mock.mock(/\/shebei\/list/, 'post', ShebeiAPI.list)
 
 export default Mock

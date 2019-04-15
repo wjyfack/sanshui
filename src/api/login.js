@@ -1,21 +1,22 @@
 import request from '@/utils/request'
-
-export function login(username, password) {
+const frontType = '0' // web 标识
+export function login(userName, userPwd) {
   return request({
-    url: '/user/login',
+    url: '/manager/login',
     method: 'post',
     data: {
-      username,
-      password
+      userName,
+      userPwd,
+      frontType
     }
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
+    url: '/manager/getlogin',
+    method: 'post',
+    data: { frontType }
   })
 }
 

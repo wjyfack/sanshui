@@ -4,35 +4,39 @@
       <el-row :gutter="20">
         <div class="search">
           <label for="" class="label">使用单位：</label>
-          <el-input v-model="danwei" class="input" placeholder="系统自动导入" />
+          <el-input v-model="search.useUnit" class="input" placeholder="系统自动导入" />
           <label for="" class="label">设备种类：</label>
-          <el-select v-model="equipmentTypeChecked" placeholder="请选择" class="select">
-            <el-option
-              v-for="item in equipmentType"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"/>
-          </el-select>
-          <el-button type="primary" @click="$message('查询')">查询</el-button>
-          <el-button @click="$message('重置成功')">重置</el-button>
-          <el-button @click="dialogVisible = true">更多查询</el-button>
+          <equement-cascader
+            :equipment="equipmentAllType"
+            @cascader="onUseEqueChange"/>
+          <!-- <el-cascader
+            v-model="search.useEque"
+            :options="equipmentAllType"
+            :change-on-select="true"
+            class="select"
+            @active-item-change="onUseEqueChange"/> -->
+          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <el-button type="primary" @click="searchQuery">查询</el-button>
+          <el-button @click="searchReset">重置</el-button>
+          <el-button @click="() => {dialogVisible = true;search.useEque=[]}">更多查询</el-button>
         </div>
         <div class="searchs">
           <label for="" class="label">使用登记证：</label>
-          <el-input v-model="dejizheng" class="input" placeholder="系统自动导入" />
+          <el-input v-model="search.userReg" class="input" placeholder="系统自动导入" />
         </div>
       </el-row>
     </div>
     <div class="shebeiTable">
       <div class="btn-group">
-        <el-button icon="el-icon-plus" type="primary" @click="dialogAddVisible = true">新增</el-button>
-        <el-button @click="toRouter">派发任务</el-button>
-        <el-button @click="$message('导出Excel')">导出Excel</el-button>
+        <el-button icon="el-icon-plus" type="primary" @click="() => {dialogAddVisible = true;infoTitle = '新增'}">新增</el-button>
+        <el-button @click="makeTask">生成任务</el-button>
+        <el-button @click="dialogExcelVisible = true">导出Excel</el-button>
       </div>
-      <div class="notice"><span>已选择</span><span class="col">4</span><span>项   服务调用总计：36.4 万<span class="col">清空</span></span></div>
+      <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ deviceTotal }}<span class="col">清空</span></span></div>
       <el-table
+        v-loading="loading"
         ref="multipleTable"
-        :data="tableData3"
+        :data="deviceList"
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
@@ -46,48 +50,49 @@
             <el-button
               size="mini"
               type="primary"
-              @click="dialogInfoVisible = true">详情</el-button>
+              @click="tableDetal(scope.row)">详情</el-button>
             <el-button
-              :ab="scope.$index"
               size="mini"
               type="danger"
-              @click="$message('编辑')">编辑</el-button>
+              @click="tableEdit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
         <el-table-column
-          prop="dengji"
+          prop="deviceCertNo"
           label="使用登记证"
           min-width="150"/>
         <el-table-column
-          prop="useAddress"
+          prop="deviceUseName"
           label="使用单位"
           min-width="150"/>
         <el-table-column
-          prop="address"
+          prop="deviceUseAddress"
           label="使用单位地址"
           min-width="150"/>
         <el-table-column
-          prop="status"
+          prop="deviceStatusName"
           label="状态"
           width="100"/>
         <el-table-column
-          prop="bianhao"
+          prop="deviceProduceNo"
           label="设备出厂编号"
           min-width="150"/>
         <el-table-column
-          prop="nextDate"
+          prop="deviceNextYearTestDate"
           label="下次年检日期"
           min-width="150"/>
         <el-table-column
-          prop="city"
+          prop="areaName"
           label="所在镇街"
           min-width="150"/>
       </el-table>
       <div class="page">
         <el-pagination
-          :total="1000"
+          :total="deviceTotal"
           background
-          layout="prev, pager, next, jumper"/>
+          layout="sizes, prev, pager, next, jumper"
+          @current-change="pageCurrChange"
+          @size-change="pageSizeChange"/>
       </div>
     </div>
     <!-- 弹出层 -->
@@ -98,10 +103,13 @@
       title="">
       <div class="dialogForm">
         <el-row class="row">
-          <el-col :span="12"><label for="" class="label">使用登记证：</label><el-input class="input" placeholder="请输入使用登记证"/></el-col>
+          <el-col :span="12">
+            <label for="" class="label">使用登记证：</label>
+            <el-input v-model="search.userReg" class="input" placeholder="请输入使用登记证"/>
+          </el-col>
           <el-col :span="12">
             <label for="" class="label">状态：</label>
-            <el-select v-model="statusChecked" placeholder="请选择">
+            <el-select v-model="search.status" placeholder="请选择">
               <el-option
                 v-for="item in status"
                 :key="item.value"
@@ -111,36 +119,39 @@
           </el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="12"><label for="" class="label">使用单位：</label><el-input class="input" placeholder="请输入使用单位"/></el-col>
+          <el-col :span="12">
+            <label for="" class="label">使用单位：</label>
+            <el-input v-model="search.useUnit" class="input" placeholder="请输入使用单位"/>
+          </el-col>
           <el-col :span="12">
             <label for="" class="label">设备种类：</label>
-            <el-select v-model="value" placeholder="请选择">
-              <el-option
-                v-for="item in equipmentType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
+            <!-- <el-cascader
+              v-model="search.useEque"
+              :options="equipmentAllType"
+              class="select"/> -->
+            <equement-cascader
+              :equipment="equipmentAllType"
+              @cascader="onUseEqueChange"/>
           </el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="12"><label for="" class="label">出厂编号：</label><el-input class="input" placeholder="请输入出厂编号"/></el-col>
-          <el-col :span="12"><label for="" class="label">维保单位：</label><el-input class="input" placeholder="请输入维保单位"/></el-col>
+          <el-col :span="12"><label for="" class="label">出厂编号：</label><el-input v-model="search.facNum" class="input" placeholder="请输入出厂编号"/></el-col>
+          <el-col :span="12"><label for="" class="label">维保单位：</label><el-input v-model="search.maintUnit" class="input" placeholder="请输入维保单位"/></el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="12">
+          <!-- <el-col :span="12">
             <label for="" class="label">设备检查状态：</label>
-            <el-select v-model="checkStatusChecked" placeholder="请选择">
+            <el-select v-model="search.equiStatus" placeholder="请选择">
               <el-option
                 v-for="item in checkStatus"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
             </el-select>
-          </el-col>
+          </el-col> -->
           <el-col :span="12">
             <label for="" class="label">是否超期：</label>
-            <el-select v-model="overdueChecked" placeholder="请选择">
+            <el-select v-model="search.isOverdue" placeholder="请选择">
               <el-option
                 v-for="item in overdue"
                 :key="item.value"
@@ -153,7 +164,7 @@
           <el-col>
             <label for="" class="label">年检日期：</label>
             <el-date-picker
-              v-model="inspectionDate"
+              v-model="search.inspecDate"
               type="daterange"
               range-separator="~"
               start-placeholder="年/月/日"
@@ -161,14 +172,16 @@
           </el-col>
         </el-row>
         <el-row class="row">
-          <label for="" class="label">地区选择：</label>
+          <label for="" class="label">设备地址选择：</label>
           <el-cascader
-            :options="options"/>
+            ref="addrCascRefs"
+            v-model="search.addrCasc"
+            :options="addrCasc"/>
         </el-row>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">查询</el-button>
-        <el-button @click="dialogVisible = false">重置</el-button>
+        <el-button type="primary" @click="moreSearchQuery">查询</el-button>
+        <el-button @click="searchReset">重置</el-button>
       </span>
     </el-dialog>
     <!-- 详情 -->
@@ -177,95 +190,95 @@
       :before-close="handleClose"
       width="50%"
       title="">
-      <div class="infoDialog">
+      <div v-loading="dialogInfoLoading" class="infoDialog">
         <el-tabs v-model="activeName">
           <el-tab-pane label="基本信息" name="first">
             <el-row type="flex" align="middle" class="row pd-top">
-              <el-col :span="16"><span class="name">设备类型</span><span class="info">叉车</span> </el-col>
-              <el-col :span="8"><span class="name">设备状态</span><span class="info">1</span> </el-col>
+              <el-col :span="16"><span class="name">设备类型</span><span class="info">{{ deviceDetail.deviceTypeName1 }}</span> </el-col>
+              <el-col :span="8"><span class="name">设备状态</span><span class="info">{{ deviceDetail.deviceStatusName }}</span> </el-col>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <el-col :span="8"><span class="name">设备编号</span><span class="info">123</span> </el-col>
-              <el-col :span="8"><span class="name">设备名称</span><span class="info">叉车</span> </el-col>
-              <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2017-08-24</span> </el-col>
+              <el-col :span="8"><span class="name">设备编号</span><span class="info">{{ deviceDetail.deviceNo }}</span> </el-col>
+              <el-col :span="8"><span class="name">设备名称</span><span class="info">{{ deviceDetail.deviceName }}</span> </el-col>
+              <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ deviceDetail.deviceLastTestDate }}</span> </el-col>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <el-col :span="8"><span class="name">设备型号</span><span class="info">CPPC45</span> </el-col>
-              <el-col :span="8"><span class="name">设备注册号</span><span class="info">/</span> </el-col>
-              <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2017-08-24</span> </el-col>
+              <el-col :span="8"><span class="name">设备型号</span><span class="info">{{ deviceDetail.deviceModel }}</span> </el-col>
+              <el-col :span="8"><span class="name">设备注册号</span><span class="info">{{ deviceDetail.deviceRegNo }}</span> </el-col>
+              <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ deviceDetail.deviceNextTestDate }}</span> </el-col>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <el-col :span="8"><span class="name">使用证编号</span><span class="info">CPPC45</span> </el-col>
-              <el-col :span="8"><span class="name">设备出厂编号</span><span class="info">DUH#333</span> </el-col>
-              <el-col :span="8"><span class="name">设备系统编号</span><span class="info">GDFSCC42231</span> </el-col>
+              <el-col :span="8"><span class="name">使用证编号</span><span class="info">{{ deviceDetail.deviceCertNo }}</span> </el-col>
+              <el-col :span="8"><span class="name">设备出厂编号</span><span class="info">{{ deviceDetail.deviceProduceNo }}</span> </el-col>
+              <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ deviceDetail.DeviceIndexesID }}</span> </el-col>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <span class="name">使用单位部门地址</span><span class="info">西瞧工业园</span>
+              <span class="name">使用单位部门地址</span><span class="info">{{ deviceDetail.deviceCertNo }}</span>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <span class="name">设备安装地址</span><span class="info">西瞧工业园</span>
+              <span class="name">设备安装地址</span><span class="info">{{ deviceDetail.DeviceInstallAddress }}</span>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <span class="name">经纬度</span><span class="info">/</span>
+              <span class="name">经纬度</span><span class="info">{{ deviceDetail.DeviceLng }}/{{ deviceDetail.DeviceLat }}</span>
             </el-row>
             <el-row type="flex" align="middle" class="row pd-top">
-              <span class="name">设备详情</span><span class="info">123</span>
+              <span class="name">设备详情</span><span class="info">{{ deviceDetail.DeviceIntro }}</span>
             </el-row>
-            <el-row type="flex" align="middle" class="row pd-top">
-              <span class="name">设备相册</span><span class="info">123</span>
-            </el-row>
+            <!-- <el-row type="flex" align="middle" class="row pd-top">
+              <span class="name">设备相册</span><span class="info">DevicePhotos</span>
+            </el-row> -->
           </el-tab-pane>
           <el-tab-pane label="单位信息" name="second">
             <div>
               <div class="titles">使用单位信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="12"><span class="name">使用单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+                <el-col :span="12"><span class="name">使用单位名称</span><span class="info">{{ deviceDetail.DeviceUseName }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
-                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+                <el-col :span="12"><span class="name">联系人</span><span class="info">{{ deviceDetail.DeviceUseContactMan }}</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ deviceDetail.DeviceUseContactManTel }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ deviceDetail.DeviceUseAddress }}</span> </el-col>
               </el-row>
             </div>
             <div>
               <div class="titles">制造单位信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="12"><span class="name">制造单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+                <el-col :span="12"><span class="name">制造单位名称</span><span class="info">{{ deviceDetail.DeviceProduceName }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
-                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+                <el-col :span="12"><span class="name">联系人</span><span class="info">{{ deviceDetail.DeviceProduceContactMan }}</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ deviceDetail.DeviceProduceContactTel }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ deviceDetail.DeviceProduceAddress }}</span> </el-col>
               </el-row>
             </div>
             <div>
               <div class="titles">安装单位信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="12"><span class="name">安装单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+                <el-col :span="12"><span class="name">安装单位名称</span><span class="info">{{ deviceDetail.DeviceInstallName }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
-                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+                <el-col :span="12"><span class="name">联系人</span><span class="info">{{ deviceDetail.DeviceInstallContactTel }}</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ deviceDetail.DeviceUseAddress }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ deviceDetail.DeviceUseAddress }}</span> </el-col>
               </el-row>
             </div>
             <div>
               <div class="titles">维保单位信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="12"><span class="name">维保单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+                <el-col :span="12"><span class="name">维保单位名称</span><span class="info">{{ deviceDetail.DeviceTenanceName }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
-                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+                <el-col :span="12"><span class="name">联系人</span><span class="info">{{ deviceDetail.DeviceTenanceContactMan }}</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ deviceDetail.DeviceTenanceContactManTel }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ deviceDetail.DeviceTenanceAddress }}</span> </el-col>
               </el-row>
             </div>
           </el-tab-pane>
@@ -273,47 +286,43 @@
             <div>
               <div class="titles">定期检验信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">合格</span> </el-col>
-                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2015</span> </el-col>
-                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">2017</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ deviceDetail.DeviceLastTestResult }}</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ deviceDetail.DeviceLastTestDate }}</span> </el-col>
+                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ deviceDetail.DeviceNextTestDate }}</span> </el-col>
               </el-row>
             </div>
             <div>
               <div class="titles">年度检验信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">合格</span> </el-col>
-                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2015</span> </el-col>
-                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">2017</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ deviceDetail.DeviceLastYearTestResult }}</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ deviceDetail.DeviceLastYearTestDate }}</span> </el-col>
+                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ deviceDetail.DeviceNextYearTestDate }}</span> </el-col>
               </el-row>
             </div>
             <div>
               <div class="titles">耐压检验信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">合格</span> </el-col>
-                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2015</span> </el-col>
-                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">2017</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ deviceDetail.DeviceLastPressureTestResult }}</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ deviceDetail.DeviceLastPressureTestDate }}</span> </el-col>
+                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ deviceDetail.DeviceNextPressureTestDate }}</span> </el-col>
               </el-row>
             </div>
             <div>
               <div class="titles">约检通知信息</div>
               <el-row type="flex" align="middle" class="row pd-top">
-                <el-col :span="8"><span class="name">登记人</span><span class="info">胡星系</span> </el-col>
-                <el-col :span="8"><span class="name">登记时间</span><span class="info">2015</span> </el-col>
+                <el-col :span="8"><span class="name">登记人</span><span class="info">{{ deviceDetail.DeviceInsNoticeRegister }}</span> </el-col>
+                <el-col :span="8"><span class="name">登记时间</span><span class="info">{{ deviceDetail.DeviceInsNoticeTime }}</span> </el-col>
               </el-row>
               <el-row type="flex" align="middle" class="row">
-                <el-col :span="8"><span class="name">登记人</span><span class="info">胡星系</span> </el-col>
-                <el-col :span="8"><span class="name">登记时间</span><span class="info">2015</span> </el-col>
-              </el-row>
-              <el-row type="flex" align="middle" class="row">
-                <el-col :span="8"><span class="name">通知结果描述</span><span class="info">已通知xxx</span> </el-col>
-                <el-col :span="8"><span class="name">联系人</span><span class="info">158206845114</span> </el-col>
+                <el-col :span="8"><span class="name">通知结果描述</span><span class="info">{{ deviceDetail.DeviceInsNoticeIntro }}</span> </el-col>
+                <el-col :span="8"><span class="name">联系人</span><span class="info">{{ deviceDetail.DeviceTenanceContactMan }}</span> </el-col>
               </el-row>
             </div>
           </el-tab-pane>
           <el-tab-pane label="任务信息" name="fourth">
             <el-table
               ref="singleTable"
-              :data="tableData"
+              :data="deviceDetail.taskCheckList"
               highlight-current-row
               style="width: 100%"
               @current-change="handleCurrentChange">
@@ -321,19 +330,19 @@
                 type="index"
                 width="50"/>
               <el-table-column
-                property="date"
+                property="checkNo"
                 label="任务编号"/>
               <el-table-column
-                property="name"
+                property="checkTypeID"
                 label="任务类型"/>
               <el-table-column
-                property="address"
+                property="checkDeptName"
                 label="接收部门"/>
               <el-table-column
-                property="address"
+                property="checkExecManName"
                 label="接收人"/>
               <el-table-column
-                property="address"
+                property="checkStatus"
                 label="检查状态"/>
             </el-table>
           </el-tab-pane>
@@ -358,143 +367,597 @@
     <el-dialog
       :visible.sync="dialogAddVisible"
       :before-close="handleClose"
-      width="60%"
-      title="新增">
+      :title="infoTitle"
+      width="60%">
       <div class="addDialog dialogForm">
-        <el-row class="row">
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备类型</label>
-            <el-select placeholder="请选择">
-              <el-option>123</el-option>
-            </el-select>
-          </el-col>
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备状态</label>
-            <el-select placeholder="请选择">
-              <el-option>123</el-option>
-            </el-select>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备编号</label>
-            <el-input class="input" placeholder="请输入设备编号"/>
-          </el-col>
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备名称</label>
-            <el-input class="input" placeholder="请输入设备名称"/>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备型号</label>
-            <el-input class="input" placeholder="请输入设备型号"/>
-          </el-col>
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备注册号</label>
-            <el-input class="input" placeholder="请输入设备注册号"/>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>使用证编号</label>
-            <el-input class="input" placeholder="请输入使用证编号"/>
-          </el-col>
-          <el-col :span="12">
-            <label for="" class="label"><span class="red">*</span>设备出厂编号</label>
-            <el-input class="input" placeholder="请输入设备出厂编号"/>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <label for="" class="label"><span class="red">*</span>设备安装地址</label>
-          <el-select placeholder="请选择">
-            <el-option>123</el-option>
-          </el-select>
-        </el-row>
-        <el-row class="row">
-          <label for="" class="label"><span class="red">*</span>详细地址</label>
-          <el-input class="input" placeholder="请输入详细地址"/>
-        </el-row>
-        <el-row class="row">
-          <label for="" class="label">经纬度</label>
-          <el-input class="input" style="max-width:100px" placeholder="经度坐标"/>
-          <span>/</span>
-          <el-input class="input" style="max-width:100px" placeholder="维度坐标"/>
-          <el-button icon="el-icon-edit" type="primary">选择</el-button>
-          <el-checkbox>重点监控设备</el-checkbox>
-        </el-row>
-        <el-row type="flex" align="middle" class="row">
-          <label for="" class="label"><span class="red">*</span>使用单位名称</label>
-          <el-input placeholder="请输入使用单位名称">
-            <el-button slot="append" icon="el-icon-search"/>
-          </el-input>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12">
-            <label for="" class="label">使用单位联系人</label>
-            <el-input class="input" placeholder="请输入使用单位联系人"/>
-          </el-col>
-          <el-col :span="12">
-            <label for="" class="label">使用单位电话</label>
-            <el-input class="input" placeholder="请输入使用单位电话"/>
-          </el-col>
-        </el-row>
-        <el-row type="flex" align="middle" class="row">
-          <label for="" class="label">使用单位地址</label>
-          <el-input placeholder="请输入使用单位地址"/>
-        </el-row>
-        <el-row type="flex" align="middle" class="row">
-          <label for="" class="label">设备详情</label>
-          <el-input type="textarea" placeholder="请输入设备详情"/>
-        </el-row>
+        <el-form ref="addForm" :model="info" :rules="infoRules" label-position="right" label-width="130px">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="设备类型" prop="useEque">
+                <el-cascader
+                  ref="useEque"
+                  v-model="info.useEque"
+                  :options="equipmentAllType"
+                  class="select"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="状态" prop="status">
+                <el-select v-model="info.status" placeholder="请选择">
+                  <el-option
+                    v-for="item in status"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="设备编号" prop="devNum">
+                <el-input v-model="info.devNum" class="input" placeholder="请输入设备编号"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="设备名称" prop="devName">
+                <el-input v-model="info.devName" class="input" placeholder="请输入设备名称"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="设备型号" prop="devUnit">
+                <el-input v-model="info.devUnit" class="input" placeholder="请输入设备型号"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="设备注册号" prop="devReg">
+                <el-input v-model="info.devReg" class="input" placeholder="请输入设备注册号"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="使用证编号" prop="useCert">
+                <el-input v-model="info.useCert" class="input" placeholder="请输入使用证编号"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="设备出厂编号" prop="factNum">
+                <el-input v-model="info.factNum" class="input" placeholder="请输入设备出厂编号"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="18">
+              <el-form-item label="设备系统编号">
+                <el-input v-model="info.DeviceIndexesID" class="input" placeholder="请输入设备系统编号"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-form-item label="设备安装地址" prop="installAddr">
+              <el-cascader
+                ref="deviceInstallArea"
+                v-model="info.installAddr"
+                :options="addrCasc"/>
+            </el-form-item>
+          </el-row>
+          <el-row>
+            <el-form-item label="详细地址" prop="detailAddr">
+              <el-input v-model="info.detailAddr" class="input" placeholder="请输入详细地址"/>
+            </el-form-item>
+          </el-row>
+          <el-row>
+            <el-form-item label="经纬度">
+              <el-input v-model="info.Longitude" class="input" style="max-width:100px" placeholder="经度坐标"/>
+              <span>/</span>
+              <el-input v-model="info.latitude" class="input" style="max-width:100px" placeholder="维度坐标"/>
+              <el-button icon="el-icon-edit" type="primary" size="small">选择</el-button>
+              <el-checkbox v-model="info.keyMonitor" style="margin-left: 30px;">重点监控设备</el-checkbox>
+            </el-form-item>
+          </el-row>
+          <el-row >
+            <el-form-item label="使用单位名称" prop="useUnitName">
+              <el-autocomplete
+                v-model="info.useUnitName"
+                :fetch-suggestions="querySearchAsync"
+                placeholder="请输入使用单位名称"
+                @select="handleMoHuSelect"
+              />
+            </el-form-item>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="使用单位联系人">
+                <el-input v-model="info.concat" class="input" placeholder="请输入使用单位联系人"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="使用单位电话">
+                <el-input v-model="info.telephone" class="input" placeholder="请输入使用单位电话"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-form-item label="使用单位地址">
+              <el-input v-model="info.unitAddr" placeholder="请输入使用单位地址"/>
+            </el-form-item>
+          </el-row>
+          <el-row>
+            <el-form-item label="设备详情">
+              <el-input v-model="info.devDetail" type="textarea" placeholder="请输入设备详情"/>
+            </el-form-item>
+          </el-row>
+        </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="isOk">查询</el-button>
-        <el-button @click="dialogAddVisible = false">重置</el-button>
+        <el-button type="primary" @click="addDevice('addForm')">确认</el-button>
+        <el-button @click="resetForm">取消</el-button>
       </span>
     </el-dialog>
+    <!-- excel -->
+    <el-dialog
+      :visible.sync="dialogExcelVisible"
+      :before-close="handleClose"
+      width="30%"
+      title="提示">
+      <span>
+        <el-radio-group v-model="isExcel">
+          <el-radio :label="1">勾选项导出</el-radio>
+          <el-radio :label="2">全部导出</el-radio>
+        </el-radio-group>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogExcelVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogExcelVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 生成任务 -->
+    <addTaskDialog :visible="dialogAddTask"/>
   </div>
 </template>
 
 <script>
-import { equipmentType, status, checkStatus, overdue } from '@/utils/config'
+import equementCascader from './component/equementCascader'
+import addTaskDialog from './component/addTaskDialog'
+import { equipmentType, status, checkStatus, overdue, addrCasc, equipmentAllType } from '@/utils/config'
+import { mapGetters } from 'vuex'
+import { fetchAddDevice, fetchMohuCom, fetchDeviceDetail, fetchGetDevice, fetchUpdateDevice } from '@/api/shebei'
+//  fetchMakeTakes,
 export default {
+  components: {
+    equementCascader,
+    addTaskDialog
+  },
   data() {
     return {
+      restaurants: [],
+      timeout: null,
+      loading: false,
       equipmentType,
       status,
       checkStatus,
       overdue,
+      addrCasc,
+      equipmentAllType,
       // 已选择状态
       equipmentTypeChecked: '',
       statusChecked: '',
       checkStatusChecked: '',
       overdueChecked: '',
       inspectionDate: '', // 年检
+      isExcel: 1, // 导出选项 1：勾选项 2：全部
+      // 查询
+      search: {
+        useUnit: '', // 使用单位
+        useEque: [], // 设备种类
+        userReg: '', // 登记证
+        status: '', // 状态
+        facNum: '', // 出厂编号
+        maintUnit: '', // 维保单位
+        equiStatus: '', // 设备检查状态
+        isOverdue: '', // 是否超期
+        inspecDate: [], // 年检日期
+        addrCasc: '' // 地区联级
+      },
+      // 弹出框
+      dialogExcelVisible: false,
+      dialogAddVisible: false,
+      dialogInfoVisible: false,
+      dialogInfoLoading: false,
+      dialogVisible: false,
+      dialogAddTask: false,
+      // 单个信息
+      infoTitle: '新增',
+      info: {
+        useEque: [], // 设备种类
+        status: '', // 状态
+        devNum: '', // 设备编号
+        devName: '', // 设备名称
+        devUnit: '', // 设备型号
+        devReg: '', // 设备注册号
+        useCert: '', // 使用证编号
+        DeviceIndexesID: '', // 设备系统编号
+        detailAddr: '', // 详细地址
+        Longitude: '', // 经度
+        latitude: '', // 纬度
+        useUnitName: '', // 使用单位名称
+        concat: '', // 使用单位联系人
+        telephone: '', // 使用单位电话
+        unitAddr: '', // 使用单位地址
+        devDetail: '', // 设备详情
+        factNum: '', // 设备出厂编号
+        installAddr: [], // 设备安装地址
+        keyMonitor: '', // 重点监控设备
+        DeviceUseID: '' // 使用单位id
+      },
+      infoRules: {
+        useEque: [{ type: 'array', required: true, message: '请选择设备种类' }], // 设备种类
+        status: [{ type: 'string', required: true, message: '请选择状态' }], // 状态
+        devNum: [{ type: 'string', required: true, message: '请输入设备编号' }], // 设备编号
+        devName: [{ type: 'string', required: true, message: '请输入设备名称' }], // 设备名称
+        devUnit: [{ type: 'string', required: true, message: '请输入设备型号' }], // 设备型号
+        devReg: [{ type: 'string', required: true, message: '请输入设备注册号' }], // 设备注册号
+        useCert: [{ type: 'string', required: true, message: '请输入使用证编号' }], // 使用证编号
+        detailAddr: [{ type: 'string', required: true, message: '请输入详细地址' }], // 详细地址
+        useUnitName: [{ type: 'string', required: true, message: '请输入使用单位名称' }], // 使用单位名称
+        installAddr: [{ type: 'array', required: true, message: '请输入设备安装地址' }], // 设备安装地址
+        factNum: [{ type: 'string', required: true, message: '请输入设备出厂编号' }] // 设备出厂编号
+      },
+      multipleSelection: [], // 已勾选的项
+      pageSize: '10', // 页大小
+      pageNum: 1,
+      // 设备详情
+      deviceDetail: {},
 
       options: [],
       activeName: 'first',
-      dialogAddVisible: false,
-      dialogInfoVisible: false,
-      dialogVisible: false,
       danwei: '',
       dejizheng: '',
       value: '',
-      tableData3: [{
-        dengji: '起粤EM9888',
-        useAddress: '佛山市南海港鹏五金销售部',
-        address: '百西大地坑岑张家村前朗',
-        status: '在用',
-        bianhao: '41704406002010090222',
-        nextDate: '2018-12-03 16:47:38',
-        city: '桂城'
-      }],
-      tableData: [],
-      multipleSelection: []
+      tableData: []
     }
   },
-  mounted() {},
+  computed: {
+    ...mapGetters([
+      'deviceTotal',
+      'deviceList'
+    ])
+  },
+  mounted() {
+    this.fecthData()
+    this.queryAllCom()
+  },
   methods: {
+    onUseEqueChange(event) { // 设备种类
+      console.log(event, 123)
+      this.search.useEque = event
+    },
+    makeTask() { // 生成任务
+      console.log(this.multipleSelection)
+      const arr = this.multipleSelection // 已选数据
+      if (arr.length === 0) {
+        this.$message({
+          message: '未选择数据',
+          type: 'warning'
+        })
+        return ''
+      }
+      const arrOp = arr.map(item => {
+        return { companyUseName: item.deviceUseName, deviceIds: item.id }
+      })
+      console.log(arrOp)
+      this.dialogAddTask = true // 打开任务
+      // fetchMakeTakes(arrOp).then(response => {
+      //   const data = response
+      //   if (data.resultCode === '0000000') {
+      //     const returnData = data.returnData
+      //     console.log(returnData)
+      //     this.$message({
+      //       message: data.resultDesc,
+      //       type: 'success'
+      //     })
+      //     this.fecthData()
+      //   } else {
+      //     this.$message({
+      //       message: data.resultDesc,
+      //       type: 'warning'
+      //     })
+      //   }
+      // })
+    },
+    tableDetal(row) { // 设备详情
+      this.dialogInfoVisible = true
+      this.dialogInfoLoading = true // 加载显示
+      // row.id
+      fetchDeviceDetail(row.id).then(response => {
+        const data = response
+        if (data.resultCode === '0000000') {
+          this.deviceDetail = data.returnData
+        }
+      }).finally(() => {
+        this.dialogInfoLoading = false
+      })
+    },
+    tableEdit(row) { // 设备编辑
+      console.log(row.id)
+      this.infoTitle = '编辑'
+      this.dialogAddVisible = true
+      fetchGetDevice(row.id).then(response => {
+        const data = response
+        if (data.resultCode === '0000000') {
+          const res = data.returnData
+          console.log(res)
+          const {
+            id,
+            deviceType1, // 设备类型1
+            // deviceTypeName1, // 设备类型名称1
+            deviceType2, // 设备类型2
+            // deviceTypeName2, // 设备类型名称2
+            deviceStatusName, // 状态
+            deviceNo, // 设备编号
+            deviceName, // 设备名称
+            deviceModel, // 设备型号
+            deviceRegNo, // 设备注册号
+            deviceCertNo, // 使用证编号
+            deviceProduceNo, // 设备出厂编号
+            DeviceIndexesID, // 设备系统编号
+            // deviceInstallArea1, // 设备安装地址1
+            deviceInstallArea2, // 设备安装地址2
+            deviceInstallArea3, // 设备安装地址3
+            deviceInstallArea4, // 设备安装地址4
+            // deviceInstallAreaName1, // 设备安装地址名1
+            // deviceInstallAreaName2, // 设备安装地址名2
+            // deviceInstallAreaName3, // 设备安装地址名3
+            // deviceInstallAreaName4, // 设备安装地址名4
+            deviceInstallAddress, // 详细地址
+            deviceLng, // 经度
+            deviceLat, // 纬度
+            deviceIsMonitoring, // 重点监控设备
+            deviceUseName, // 使用单位名称
+            deviceUseContactMan, // 使用单位联系人
+            deviceUseTel, // 使用单位电话
+            deviceUseAddress, // 使用单位地址
+            deviceIntro // 设备详情
+          } = res
+          const useEque = (deviceType1, deviceType2) => {
+            if (deviceType2) {
+              return [~~deviceType1, ~~deviceType2]
+            } else {
+              return [~~deviceType1]
+            }
+          }
+          const installAddr = (deviceInstallArea2, deviceInstallArea3, deviceInstallArea4) => {
+            return [deviceInstallArea2, deviceInstallArea3, deviceInstallArea4]
+          }
+          this.info = {
+            id,
+            useEque: useEque(deviceType1, deviceType2), // 设备种类
+            status: deviceStatusName, // 状态
+            devNum: deviceNo, // 设备编号
+            devName: deviceName, // 设备名称
+            devUnit: deviceModel, // 设备型号
+            devReg: deviceRegNo, // 设备注册号
+            useCert: deviceCertNo, // 使用证编号
+            DeviceIndexesID, // 设备系统编号
+            detailAddr: deviceInstallAddress, // 详细地址
+            Longitude: deviceLng, // 经度
+            latitude: deviceLat, // 纬度
+            useUnitName: deviceUseName, // 使用单位名称
+            concat: deviceUseContactMan, // 使用单位联系人
+            telephone: deviceUseTel, // 使用单位电话
+            unitAddr: deviceUseAddress, // 使用单位地址
+            devDetail: deviceIntro, // 设备详情
+            factNum: deviceProduceNo, // 设备出厂编号
+            installAddr: installAddr(deviceInstallArea2, deviceInstallArea3, deviceInstallArea4), // 设备安装地址
+            keyMonitor: deviceIsMonitoring === '0' ? '' : '1' // 重点监控设备
+          }
+        }
+      })
+    },
+    addDevice(formName) { // 添加设备
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const {
+            id,
+            useEque, // 设备种类
+            status, // 状态
+            devNum, // 设备编号
+            devName, // 设备名称
+            devUnit, // 设备型号
+            devReg, // 设备注册号
+            useCert, // 使用证编号
+            DeviceIndexesID, // 设备系统编号
+            detailAddr, // 详细地址
+            Longitude, // 经度
+            latitude, // 纬度
+            useUnitName, // 使用单位名称
+            concat, // 使用单位联系人
+            telephone, // 使用单位电话
+            unitAddr, // 使用单位地址
+            devDetail, // 设备详情
+            factNum, // 设备出厂编号
+            installAddr, // 设备安装地址
+            keyMonitor, // 重点监控设备
+            DeviceUseID
+          } = this.info
+          const useEqueArr = this.$refs['useEque'].$el.innerText.replace(/\s+/g, '').split('/')
+          const deviceInstallAreaArr = this.$refs['deviceInstallArea'].$el.innerText.replace(/\s+/g, '').split('/')
+          // console.log(useEqueArr, 123123)
+          const data = {
+            deviceType1: `${useEque[0]}`, // 设备类型1
+            deviceTypeName1: useEqueArr[0], // 设备类型名称1
+            deviceType2: `${useEque[1]}`, // 设备类型2
+            deviceTypeName2: useEqueArr[1], // 设备类型名称2
+            deviceStatusName: status, // 状态
+            deviceNo: devNum, // 设备编号
+            deviceName: devName, // 设备名称
+            deviceModel: devUnit, // 设备型号
+            deviceRegNo: devReg, // 设备注册号
+            deviceCertNo: useCert, // 使用证编号
+            deviceProduceNo: factNum, // 设备出厂编号
+            DeviceIndexesID, // 设备系统编号
+            deviceInstallArea1: '1', // 设备安装地址1
+            deviceInstallArea2: installAddr[0], // 设备安装地址2
+            deviceInstallArea3: installAddr[1], // 设备安装地址3
+            deviceInstallArea4: installAddr[2], // 设备安装地址4
+            deviceInstallAreaName1: '广东省', // 设备安装地址名1
+            deviceInstallAreaName2: deviceInstallAreaArr[0], // 设备安装地址名2
+            deviceInstallAreaName3: deviceInstallAreaArr[1], // 设备安装地址名3
+            deviceInstallAreaName4: deviceInstallAreaArr[2], // 设备安装地址名4
+            deviceInstallAddress: detailAddr, // 详细地址
+            deviceLng: Longitude, // 经度
+            deviceLat: latitude, // 纬度
+            deviceIsMonitoring: keyMonitor ? '1' : '0', // 重点监控设备
+            deviceUseName: useUnitName, // 使用单位名称
+            deviceUseContactMan: concat, // 使用单位联系人
+            deviceUseTel: telephone, // 使用单位电话
+            deviceUseAddress: unitAddr, // 使用单位地址
+            deviceIntro: devDetail, // 设备详情
+            DeviceUseID
+          }
+          const changeMethod = (data, id) => {
+            if (this.infoTitle === '新增') {
+              return fetchAddDevice(data)
+            } else {
+              data.id = id
+              return fetchUpdateDevice(data)
+            }
+          }
+          changeMethod(data, id).then(response => {
+            const data = response
+            if (data.resultCode === '0000000') {
+              this.$message({
+                message: data.resultDesc,
+                type: 'success'
+              })
+              this.resetForm(formName)
+              // shuaxin
+              this.fecthData()
+            } else {
+              this.$message({
+                message: data.resultDesc,
+                type: 'warning'
+              })
+            }
+          }).catch(err => {
+            this.$message.error(err)
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    resetForm(formName) {
+      this.dialogAddVisible = false
+      this.$refs[formName].resetFields()
+    },
+    fecthData() { // get device
+      this.loading = true
+      const {
+        useUnit, // 使用单位
+        useEque, // 设备种类
+        userReg, // 登记证
+        status, // 状态
+        facNum, // 出厂编号
+        maintUnit, // 维保单位
+        // equiStatus, // 设备检查状态
+        isOverdue, // 是否超期
+        inspecDate // 年检日期
+        // addrCasc // 地区联级
+      } = this.search
+      const deviceType1 = useEque[0] ? `${useEque[0]}` : ''
+      const deviceType2 = useEque[1] ? `${useEque[1]}` : ''
+      // console.log(this)
+      const addr = this.$refs['addrCascRefs'] ? this.$refs['addrCascRefs'].innerText : ''
+      const addrCascArr = addr ? addr.replace(/\s+/g, '').split('/') : []
+      const data = {
+        pageSize: `${this.pageSize}`, // 页大小
+        pageNum: `${this.pageNum}`, // 第几页
+        deviceUseName: useUnit, // 使用单位名称
+        deviceType1, // 种类1
+        deviceType2, // 种类2
+        deviceProduceNo: facNum, // 出厂编号
+        deviceStatusName: status, // 状态
+        deviceTenanceName: maintUnit, // 维保单位
+        deviceCertNo: userReg, // 使用登记证
+        deviceAreaName4: addrCascArr.length !== 0 ? addrCascArr[addrCascArr.length - 1] : '', // 设备地址选择
+        deviceNextYearTestDate1: inspecDate[0], // 年检范围1
+        deviceNextYearTestDate2: inspecDate[1], // 年检范围2
+        isOverdue: `${isOverdue}`, // 是否超期  0否1是
+        orderType: '1' // 排序类型 1降序 2升序
+      }
+      this.$store.dispatch('getDeviceList', data).then(() => {
+        this.loading = false
+      })
+    },
+    searchQuery() {
+      this.fecthData()
+    },
+    moreSearchQuery() {
+      this.fecthData()
+      this.dialogVisible = false
+    },
+    searchReset() {
+      this.search = {
+        useUnit: '', // 使用单位
+        useEque: [], // 设备种类
+        userReg: '', // 登记证
+        status: '', // 状态
+        facNum: '', // 出厂编号
+        maintUnit: '', // 维保单位
+        equiStatus: '', // 设备检查状态
+        isOverdue: '', // 是否超期
+        inspecDate: [], // 年检日期
+        addrCasc: '' // 地区联级
+      }
+      this.$message('重置成功')
+    },
+    pageSizeChange(event) {
+      this.pageSize = event
+      this.fecthData()
+    },
+    pageCurrChange(event) {
+      this.pageNum = event
+      this.fecthData()
+    },
+    querySearchAsync(queryString, cb) { // 模糊搜索公司名
+      var restaurants = this.restaurants
+      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(() => {
+        cb(results)
+      }, 300)
+    },
+    queryAllCom() {
+      fetchMohuCom().then(response => {
+        const data = response
+        if (data.resultCode === '0000000') {
+          var restaurants = data.returnData
+          // var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+          this.restaurants = restaurants.map(item => {
+            return { value: item.useName, id: item.id }
+          })
+        } else {
+          this.$message({
+            message: data.resultDesc,
+            type: 'warning'
+          })
+        }
+      })
+    },
+    handleMoHuSelect(item) { // 获取id
+      // console.log(item)
+      this.info.DeviceUseID = item.id
+    },
+    createStateFilter(queryString) {
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
+    },
     isOk() {
       this.dialogAddVisible = false
       this.dialogVisible = false

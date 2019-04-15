@@ -237,11 +237,174 @@
       </div>
       <div class="infoDialog">
         <el-tabs v-model="activeDialogName">
-          <el-tab-pane label="基本信息" name="first"><img src="@/assets/shebei1.png" alt="" style="width:100%"></el-tab-pane>
-          <el-tab-pane label="单位信息" name="second"><img src="@/assets/shebei2.png" alt="" style="width:100%"></el-tab-pane>
-          <el-tab-pane label="检验所信息" name="third"><img src="@/assets/shebei3.png" alt="" style="width:100%"></el-tab-pane>
-          <el-tab-pane label="任务信息" name="fourth"><img src="@/assets/shebei4.png" alt="" style="width:100%"></el-tab-pane>
-          <el-tab-pane label="参数信息" name="fifth"><img src="@/assets/shebei5.png" alt="" style="width:100%"></el-tab-pane>
+          <el-tab-pane label="基本信息" name="first">
+            <el-row type="flex" align="middle" class="row pd-top">
+              <el-col :span="16"><span class="name">设备类型</span><span class="info">叉车</span> </el-col>
+              <el-col :span="8"><span class="name">设备状态</span><span class="info">1</span> </el-col>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <el-col :span="8"><span class="name">设备编号</span><span class="info">123</span> </el-col>
+              <el-col :span="8"><span class="name">设备名称</span><span class="info">叉车</span> </el-col>
+              <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2017-08-24</span> </el-col>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <el-col :span="8"><span class="name">设备型号</span><span class="info">CPPC45</span> </el-col>
+              <el-col :span="8"><span class="name">设备注册号</span><span class="info">/</span> </el-col>
+              <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2017-08-24</span> </el-col>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <el-col :span="8"><span class="name">使用证编号</span><span class="info">CPPC45</span> </el-col>
+              <el-col :span="8"><span class="name">设备出厂编号</span><span class="info">DUH#333</span> </el-col>
+              <el-col :span="8"><span class="name">设备系统编号</span><span class="info">GDFSCC42231</span> </el-col>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <span class="name">使用单位部门地址</span><span class="info">西瞧工业园</span>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <span class="name">设备安装地址</span><span class="info">西瞧工业园</span>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <span class="name">经纬度</span><span class="info">/</span>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <span class="name">设备详情</span><span class="info">123</span>
+            </el-row>
+            <el-row type="flex" align="middle" class="row pd-top">
+              <span class="name">设备相册</span><span class="info">123</span>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane label="单位信息" name="second">
+            <div>
+              <div class="titles">使用单位信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="12"><span class="name">使用单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+              </el-row>
+            </div>
+            <div>
+              <div class="titles">制造单位信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="12"><span class="name">制造单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+              </el-row>
+            </div>
+            <div>
+              <div class="titles">安装单位信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="12"><span class="name">安装单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+              </el-row>
+            </div>
+            <div>
+              <div class="titles">维保单位信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="12"><span class="name">维保单位名称</span><span class="info">佛山南海宝力</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系人</span><span class="info">xxx</span> </el-col>
+                <el-col :span="12"><span class="name">联系电话</span><span class="info">13928515448</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="12"><span class="name">联系地址</span><span class="info">西瞧工业园</span> </el-col>
+              </el-row>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="检验所信息" name="third">
+            <div>
+              <div class="titles">定期检验信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">合格</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2015</span> </el-col>
+                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">2017</span> </el-col>
+              </el-row>
+            </div>
+            <div>
+              <div class="titles">年度检验信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">合格</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2015</span> </el-col>
+                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">2017</span> </el-col>
+              </el-row>
+            </div>
+            <div>
+              <div class="titles">耐压检验信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="8"><span class="name">上次检验结论</span><span class="info">合格</span> </el-col>
+                <el-col :span="8"><span class="name">上次检验日期</span><span class="info">2015</span> </el-col>
+                <el-col :span="8"><span class="name">下次检验日期</span><span class="info">2017</span> </el-col>
+              </el-row>
+            </div>
+            <div>
+              <div class="titles">约检通知信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="8"><span class="name">登记人</span><span class="info">胡星系</span> </el-col>
+                <el-col :span="8"><span class="name">登记时间</span><span class="info">2015</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="8"><span class="name">登记人</span><span class="info">胡星系</span> </el-col>
+                <el-col :span="8"><span class="name">登记时间</span><span class="info">2015</span> </el-col>
+              </el-row>
+              <el-row type="flex" align="middle" class="row">
+                <el-col :span="8"><span class="name">通知结果描述</span><span class="info">已通知xxx</span> </el-col>
+                <el-col :span="8"><span class="name">联系人</span><span class="info">158206845114</span> </el-col>
+              </el-row>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="任务信息" name="fourth">
+            <el-table
+              ref="singleTable"
+              :data="tableData"
+              highlight-current-row
+              style="width: 100%"
+              @current-change="handleCurrentChange">
+              <el-table-column
+                type="index"
+                width="50"/>
+              <el-table-column
+                property="date"
+                label="任务编号"/>
+              <el-table-column
+                property="name"
+                label="任务类型"/>
+              <el-table-column
+                property="address"
+                label="接收部门"/>
+              <el-table-column
+                property="address"
+                label="接收人"/>
+              <el-table-column
+                property="address"
+                label="检查状态"/>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="参数信息" name="fifth">
+            <div>
+              <div class="titles">起重机械-参数信息</div>
+              <el-row type="flex" align="middle" class="row pd-top">
+                <el-col :span="8"><span class="name">起重机械</span><span class="info">2.0</span> </el-col>
+                <el-col :span="8"><span class="name">跨度</span><span class="info">12</span> </el-col>
+                <el-col :span="8"><span class="name">最大起升高度</span><span class="info">20</span> </el-col>
+              </el-row>
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -698,14 +861,16 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .renwu {
   background: #f2f2f2;
+  font-size: 14px;
   padding: 16px;
+  label {font-size: 14px;}
   .renwuMg {
     border-radius: 8px;
     background: #ffffff;
     padding: 16px;
     .search {
       .row {
-        padding: 16px 0;
+        padding-bottom: 16px;
       }
       .input {max-width: 220px;}
     }
