@@ -104,7 +104,7 @@ export const constantRouterMap = [
       component: () => import('@/views/houtai/index')
     }]
   },
-
+  { path: '/paifa', component: () => import('@/views/paifa/index'), hidden: true },
   { path: '*', redirect: '/404', hidden: true }
 ]
 

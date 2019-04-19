@@ -1,8 +1,8 @@
 import {
-  fetchList
-} from '@/api/shebei'
+  fetchTaskList
+} from '@/api/task'
 
-const device = {
+const task = { // 通用滴
   state: {
     total: 0,
     list: [],
@@ -20,9 +20,9 @@ const device = {
     }
   },
   actions: {
-    getDeviceList({ commit }, listInfo) {
+    fetchTaskList({ commit }, data) {
       return new Promise((resolve, reject) => {
-        fetchList(listInfo).then(response => {
+        fetchTaskList(data).then(response => {
           const data = response.returnData
           commit('SET_TOTAL', data.total)
           commit('SET_LIST', data.list)
@@ -34,4 +34,4 @@ const device = {
   }
 }
 
-export default device
+export default task

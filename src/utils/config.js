@@ -482,10 +482,10 @@ export const overdue = [ // 超期
 ]
 export const taskType = [ // 任务
   {
-    value: '日常任务',
+    value: '0',
     label: '日常任务'
   }, {
-    value: '专项任务',
+    value: '1',
     label: '专项任务'
   }
 ]
@@ -524,20 +524,80 @@ export const unitType = [
 ]
 export const townType = [ // 镇街
   {
-    value: '西南',
-    label: '西南'
-  }, {
-    value: '乐平',
-    label: '乐平'
-  }, {
-    value: '云东海',
-    label: '云东海'
-  }, {
-    value: '南边',
+    value: '42',
+    label: '金本'
+  },
+  {
+    value: '43',
     label: '南边'
-  }, {
-    value: '六和',
+  },
+  {
+    value: '44',
+    label: '范湖'
+  },
+  {
+    value: '45',
+    label: '乐平'
+  },
+  {
+    value: '46',
     label: '六和'
+  },
+  {
+    value: '47',
+    label: '青岐'
+  },
+  {
+    value: '48',
+    label: '西南'
+  },
+  {
+    value: '49',
+    label: '省南丰劳教所'
+  },
+  {
+    value: '50',
+    label: '芦苞'
+  },
+  {
+    value: '51',
+    label: '广州军区三水农场'
+  },
+  {
+    value: '52',
+    label: '河口'
+  },
+  {
+    value: '53',
+    label: '云东海'
+  },
+  {
+    value: '54',
+    label: '大塘'
+  },
+  {
+    value: '55',
+    label: '白坭'
+  },
+  {
+    value: '56',
+    label: '省第二戒毒劳教所'
+  },
+  {
+    value: '57',
+    label: '省女子劳教所'
+  },
+  {
+    value: '58',
+    label: '省三水劳教所'
+  },
+  {
+    value: '59',
+    label: '迳口'
+  },
+  {
+    value: '60',
+    label: '南山'
   }
 ]
 
@@ -629,5 +689,27 @@ export const addrCasc = [
         ]
       }
     ]
+  }
+]
+
+export const taskStatus = [// 1:待派发 2:已下发 3:待反馈 4:处理中 5:待跟踪 6:已完成
+  {
+    value: '1',
+    label: '待派发'
+  }, {
+    value: '2',
+    label: '已下发'
+  }, {
+    value: '3',
+    label: '待反馈'
+  }, {
+    value: '4',
+    label: '处理中'
+  }, {
+    value: '5',
+    label: '待跟踪'
+  }, {
+    value: '6',
+    label: '已完成'
   }
 ]

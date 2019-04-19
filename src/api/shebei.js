@@ -59,14 +59,11 @@ export function fetchMohuCom(useArea3 = '7') { // 模糊搜索公司
     }
   })
 }
-export function fetchMakeTakes(arr) { // 生成任务
-  // arr = JSON.stringify(arr)
+export function fetchMakeTakes(data) { // 生成任务
   return request({
     url: '/taskCheck/addTask',
     method: 'post',
-    data: {
-      arr
-    }
+    data: data
   })
 }
 export function fetchGetDevice(id = 0) { // 设备获取编辑
@@ -74,5 +71,21 @@ export function fetchGetDevice(id = 0) { // 设备获取编辑
     url: '/device/ss/getDevice',
     method: 'post',
     data: { id }
+  })
+}
+
+export function fetchDeviceType() { // 设备类型
+  return request({
+    url: '/deviceType/ss/getDeviceType',
+    method: 'post',
+    data: { }
+  })
+}
+
+export function fetchBeforeTask(deviceUseID) { // 生成任务钱设备查询
+  return request({
+    url: '/device/ss/getDeviceForTask',
+    method: 'post',
+    data: { deviceUseID }
   })
 }

@@ -18,7 +18,7 @@
           </el-select>
         </el-col>
         <el-col :span="6">
-          <label class="label" for="">派发数量：</label>
+          <label class="label" for="">反馈时间：</label>
           <el-date-picker
             v-model="value1"
             type="date"
@@ -75,6 +75,9 @@ export default {
       value: '',
       tableData: []
     }
+  },
+  mounted() {
+    confirm.log(this.$route)
   },
   methods: {
     back() {
