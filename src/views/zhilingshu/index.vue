@@ -4,28 +4,28 @@
       <div class="search">
         <el-row class="row">
           <el-col :span="8">
-            <label for="">任务编号：</label>
-            <el-input class="input" placeholder="请输入任务编号"/>
+            <label for="" class="label">任务编号：</label>
+            <el-input v-model="search.checkNo" class="input" placeholder="请输入任务编号"/>
           </el-col>
           <el-col :span="8">
-            <label for="">使用单位：</label>
-            <el-input class="input" placeholder="请输入使用单位"/>
+            <label for="" class="label">使用单位：</label>
+            <el-input v-model="search.deviceUseName" class="input" placeholder="请输入使用单位"/>
           </el-col>
           <el-col :span="8">
-            <label for="">使用登记证：</label>
-            <el-input class="input" placeholder="请输入使用登记证"/>
+            <label for="" class="label">使用登记证：</label>
+            <el-input v-model="search.deviceCertNo" class="input" placeholder="请输入使用登记证"/>
           </el-col>
         </el-row>
         <el-row class="row">
           <el-col :span="8">
-            <label for="">指令书编号：</label>
-            <el-input class="input" placeholder="请输入指令书编号"/>
+            <label for="" class="label">指令书编号：</label>
+            <el-input v-model="search.commandNo" class="input" placeholder="请输入指令书编号"/>
           </el-col>
           <el-col :span="8">
-            <label for="">所属镇街：</label>
-            <el-select v-model="addrSel" placeholder="请选择">
+            <label for="" class="label">所属镇街：</label>
+            <el-select v-model="search.deviceAreaName4" placeholder="请选择">
               <el-option
-                v-for="item in AddrOptions"
+                v-for="item in townType"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
@@ -34,15 +34,15 @@
         </el-row>
         <el-row class="row">
           <el-col :span="8">
-            <label for="">移交书编号：</label>
-            <el-input class="input" placeholder="请输入移交书编号"/>
+            <label for="" class="label">移交书编号：</label>
+            <el-input v-model="search.instructionNo" class="input" placeholder="请输入移交书编号"/>
           </el-col>
           <el-col :span="8">
-            <label for="">回复书编号：</label>
-            <el-input class="input" placeholder="请输入回复书编号"/>
+            <label for="" class="label">回复书编号：</label>
+            <el-input v-model="search.recallNo" class="input" placeholder="请输入回复书编号"/>
           </el-col>
           <el-col :span="8">
-            <el-button type="primary" @click="$message('查询')">查询</el-button>
+            <el-button type="primary" @click="toSearch">查询</el-button>
             <el-button @click="$message('重置成功')">重置</el-button>
             <el-button @click="$message('更多查询')">更多查询</el-button>
           </el-col>
@@ -125,9 +125,11 @@
       </div>
       <div class="page">
         <el-pagination
-          :total="1000"
+          :total="instructionTotal"
           background
-          layout="prev, pager, next, jumper"/>
+          layout="prev, pager, next, jumper"
+          @current-change="pageCurrChange"
+          @size-change="pageSizeChange"/>
       </div>
     </div>
     <!-- 整改信息 -->
@@ -617,11 +619,26 @@
 </template>
 
 <script>
+import { townType } from '@/utils/config'
+import { mapGetters } from 'vuex'
 import img from '@/assets/renwushu1.jpg'
 import imgs from '@/assets/renwushu2.jpg'
 export default {
   data() {
     return {
+      townType,
+      search: {
+        checkNo: '', // 任务编号
+        deviceUseName: '', // 使用单位
+        deviceCertNo: '', // 使用登记证
+        commandNo: '', // 指令书编号
+        deviceAreaName4: '', // 镇街
+        instructionNo: '', // 移交书编号
+        recallNo: '' // 回复书编号
+      },
+      pageSize: 10,
+      pageNum: 1,
+      // yuanshi
       dialogShenHeVisible: false,
       dialogChuLiVisible: false,
       dialogShenHeYiJiaoVisible: false,
@@ -630,28 +647,13 @@ export default {
       dialogVisible: false,
       activeName: 'first',
       radio2: '',
+      value1: '', // 后期删除
       tableData: [{
         name: '[2018]第（5477）号',
         userAddr: '广州益力多乳品有限公司',
         address: '西南街道百威大道3号',
         desc: '在用的一台叉车（无铭牌）未按照规定办理使用登记；另外两台叉车（证号∶厂内粤A03211、车粤EM0174）检验不合格。',
         date: '2019-03-07'
-      }],
-      AddrOptions: [{
-        value: '西南',
-        label: '西南'
-      }, {
-        value: '乐平',
-        label: '乐平'
-      }, {
-        value: '云东海',
-        label: '云东海'
-      }, {
-        value: '南边',
-        label: '南边'
-      }, {
-        value: '六和',
-        label: '六和'
       }],
       addrSel: '',
       list: [
@@ -661,7 +663,49 @@ export default {
       slides: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'instructionTotal',
+      'instructionList'
+    ])
+  },
   methods: {
+    toSearch() {
+      this.pageSize = 10
+      this.pageNum = 1
+      this.fecthData()
+    },
+    fecthData() { // 获取数据
+      const {
+        checkNo, // 任务编号
+        deviceUseName, // 使用单位
+        deviceCertNo, // 使用登记证
+        commandNo, // 指令书编号
+        deviceAreaName4, // 镇街
+        instructionNo, // 移交书编号
+        recallNo // 回复书编号
+      } = this.search
+      const data = {
+        checkNo, // 任务编号
+        deviceUseName, // 使用单位
+        deviceCertNo, // 使用登记证
+        commandNo, // 指令书编号
+        deviceAreaName4, // 镇街
+        instructionNo, // 移交书编号
+        recallNo, // 回复书编号
+        pageSize: `${this.pageSize}`,
+        pageNum: `${this.pageNum}`
+      }
+      console.log(data)
+    },
+    pageSizeChange(event) {
+      this.pageSize = event
+      this.fecthData()
+    },
+    pageCurrChange(event) {
+      this.pageNum = event
+      this.fecthData()
+    },
     isOk() {
       this.dialogYiJiaoVisible = false
       this.dialogVisible = false
@@ -670,7 +714,7 @@ export default {
         type: 'success'
       })
     },
-    handleClose(done) {
+    handleClose(done) { // 弹窗关闭方法
       done()
     }
   }
@@ -687,6 +731,11 @@ export default {
     background: #ffffff;
     padding: 16px;
     .search {
+      .label {
+        display: inline-block;
+        text-align: right;
+        width: 130px;
+      }
       .row {
         padding-bottom: 16px;
       }

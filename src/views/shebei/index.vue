@@ -168,7 +168,8 @@
               type="daterange"
               range-separator="~"
               start-placeholder="年/月/日"
-              end-placeholder="年/月/日"/>
+              end-placeholder="年/月/日"
+              value-format="yyyy-MM-dd"/>
           </el-col>
         </el-row>
         <el-row class="row">

@@ -4,6 +4,7 @@ import app from './modules/app'
 import user from './modules/user'
 import device from './modules/shebei'
 import common from './modules/common'
+import instruction from './modules/instruction'
 import task from './modules/task'
 import getters from './getters'
 
@@ -15,7 +16,8 @@ const store = new Vuex.Store({
     user,
     device,
     common,
-    task
+    task,
+    instruction
   },
   getters
 })

@@ -9,6 +9,8 @@ const getters = {
   deviceList: state => state.device.list,
   taskTotal: state => state.task.total, // 任务
   taskList: state => state.task.list,
+  instructionTotal: state => state.instruction.total, // 指令书
+  instructionList: state => state.instruction.list,
   companyList: state => state.common.comlist, // 公司名称
   equipmentAllType: state => state.common.deviceType // 设备类型
 }

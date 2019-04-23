@@ -480,22 +480,28 @@ export const overdue = [ // 超期
     label: '是'
   }
 ]
-export const taskType = [ // 任务
+export const taskType = [ // 任务状态
   {
     value: '0',
     label: '日常任务'
   }, {
     value: '1',
     label: '专项任务'
+  }, {
+    value: '2',
+    label: '日常任务+专项任务'
   }
 ]
-export const inspectionType = [ // 检查类别
+export const inspectionType = [ // 专项任务
   {
-    value: '日常监督检查',
-    label: '日常监督检查'
+    value: '1',
+    label: '节后复查'
   }, {
-    value: '专项监督检查',
-    label: '专项监督检查'
+    value: '2',
+    label: '检验所任务'
+  }, {
+    value: '3',
+    label: '节后复查+检验所任务'
   }
 ]
 export const unitType = [
@@ -711,5 +717,16 @@ export const taskStatus = [// 1:待派发 2:已下发 3:待反馈 4:处理中 5:
   }, {
     value: '6',
     label: '已完成'
+  }
+]
+
+export const handleType = [ // 处理方式
+  {
+    value: '1',
+    label: '无需处理'
+  },
+  {
+    value: '3',
+    label: '下达指令书'
   }
 ]

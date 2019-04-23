@@ -72,8 +72,20 @@ export function fetchtaskDetail(checkNo) {
 */
 export function fetchtaskOpt(arr) {
   return request({
-    url: '/taskCheck/getTaskDeviceDt',
+    url: '/taskCheck/updateTaskCheck3',
     method: 'post',
     data: { arr }
+  })
+}
+
+/**
+ * 新增任务
+ * 	data
+*/
+export function fetchAddTask(data) {
+  return request({
+    url: '/taskCheck/addTaskCheck2',
+    method: 'post',
+    data: data
   })
 }
