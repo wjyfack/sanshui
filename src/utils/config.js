@@ -1,4 +1,5 @@
 
+export const baseUrl = 'http://192.168.0.142:8607'
 export const equipmentType = [ // 设备种类 一级分类
   {
     value: 1,
@@ -730,3 +731,42 @@ export const handleType = [ // 处理方式
     label: '下达指令书'
   }
 ]
+export const danWeiType = [ // 单位类型
+  {
+    value: '1',
+    label: '设计'
+  },
+  {
+    value: '2',
+    label: '制造'
+  },
+  {
+    value: '3',
+    label: '安装'
+  },
+  {
+    value: '4',
+    label: '改造'
+  },
+  {
+    value: '5',
+    label: '维修'
+  },
+  {
+    value: '6',
+    label: '使用'
+  },
+  {
+    value: '7',
+    label: '气瓶充装'
+  },
+  {
+    value: '8',
+    label: '经营'
+  },
+  {
+    value: '9',
+    label: '其他'
+  }
+]
+

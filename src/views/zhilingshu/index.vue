@@ -23,7 +23,7 @@
           </el-col>
           <el-col :span="8">
             <label for="" class="label">所属镇街：</label>
-            <el-select v-model="search.deviceAreaName4" placeholder="请选择">
+            <el-select v-model="search.deviceAreaName4" placeholder="请选择" clearable>
               <el-option
                 v-for="item in townType"
                 :key="item.value"
@@ -50,13 +50,14 @@
       </div>
       <div class="table">
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane label="待移交" name="first"/>
-          <el-tab-pane label="批准移交" name="second"/>
-          <el-tab-pane label="待处理" name="third"/>
-          <el-tab-pane label="回复审核" name="fourth"/>
-          <el-tab-pane label="待确认" name="fifth"/>
-          <el-tab-pane label="已完成" name="sixth"/>
-          <el-tab-pane label="全部" name="seventh"/>
+          <el-tab-pane label="镇街移交" name="first"/>
+          <el-tab-pane label="待移交" name="second"/>
+          <el-tab-pane label="批准移交" name="third"/>
+          <el-tab-pane label="待处理" name="fourth"/>
+          <el-tab-pane label="回复审核" name="fifth"/>
+          <el-tab-pane label="待确认" name="sixth"/>
+          <el-tab-pane label="已完成" name="seventh"/>
+          <el-tab-pane label="全部" name="8"/>
         </el-tabs>
         <el-table
           :data="tableData"
@@ -138,34 +139,34 @@
       :before-close="handleClose"
       width="50%"
       title="整改信息查看">
-      <div class="dialog">
-        <el-row class="row" type="flex">
-          <el-col :span="3"><label for="" class="label">整改图片：</label></el-col>
-          <el-col :span="22" type="flex">
-            <img src="http://placehold.it/100x100" alt="" srcset="">
-          </el-col>
+      <el-form label-width="120px" class="dialog">
+        <el-row class="row">
+          <el-form-item label="整改图片：">
+            <img v-for="(item, index) in recitfy.recitfyImgs" :key="index" src="http://placehold.it/100x100" alt="" srcset="" style="margin-right:10px;">
+          </el-form-item>
         </el-row>
-        <el-row class="row" type="flex" align="middle">
-          <el-col :span="3"><label for="" class="label">整改文字：</label></el-col>
-          <el-input placeholder="企业编写文字说明（非必填）" class="textarea"/>
+        <el-row class="row">
+          <el-form-item label="整改文字：">
+            <el-input v-model="recitfy.recitfyTitle" placeholder="企业编写文字说明（非必填）" class="textarea"/>
+          </el-form-item>
         </el-row>
-        <el-row class="row" type="flex" align="middle">
-          <el-col :span="3"><label for="" class="label"><span class="red">*</span>审核动作：</label></el-col>
-          <el-col :offset="1">
-            <el-radio-group v-model="radio2">
+        <el-row class="row">
+          <el-form-item label="审核动作：" required>
+            <el-radio-group v-model="recitfy.examineStatus">
               <el-radio :label="3">通过</el-radio>
               <el-radio :label="6">不通过</el-radio>
             </el-radio-group>
-          </el-col>
+          </el-form-item>
         </el-row>
-        <el-row class="row" type="flex" align="middle">
-          <el-col :span="3"><label for="" class="label">整改文字：</label></el-col>
-          <el-input type="textarea" placeholder="整改文字" class="textarea"/>
+        <el-row class="row">
+          <el-form-item label="审核描述：" required>
+            <el-input v-model="recitfy.examineDesc" type="textarea" placeholder="审核描述" class="textarea"/>
+          </el-form-item>
         </el-row>
-      </div>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="recitfyInfo">确 定</el-button>
       </span>
     </el-dialog>
     <!-- 指令书 -->
@@ -181,82 +182,9 @@
       :before-close="handleClose"
       width="50%"
       title="移交">
-      <div class="task-detail">
-        <el-row><div class="bianhao"><label for="">任务编号：234231028321</label></div></el-row>
-        <div class="detail">
-          <div class="item">
-            <span class="name">处理人：</span> <div class="info">qulili</div>
-            <span class="name">处理方式：</span> <div class="info">下指令书</div>
-          </div>
-          <div class="item">
-            <span class="name">执行时间：</span> <div class="info">2017</div>
-            <span class="name">关联指令书编号：</span> <div class="info">[2109]第1</div>
-          </div>
-          <div class="item">
-            <span class="name">指令书日期：</span> <div class="info">2017</div>
-            <span class="name">备注：</span> <div class="info">请于两个</div>
-          </div>
-          <div class="item">
-            <el-button type="text">详情</el-button>
-          </div>
-        </div>
-        <div class="btn-group">
-          <el-button type="warning" size="small">检查记录预览</el-button>
-          <el-button type="warning" size="small">指令书预览</el-button>
-        </div>
-        <div class="bianhao"><label for="">企业信息</label></div>
-        <div class="detail">
-          <div class="item">
-            <span class="name">使用单位：</span> <div class="info">付小小</div>
-            <span class="name">联系人:</span> <div class="info">小明</div>
-          </div>
-          <div class="item">
-            <span class="name">联系电话：</span> <div class="info">1810 0000 000</div>
-            <span class="name">联系地址：</span> <div class="info">佛山市南海区</div>
-          </div>
-        </div>
-        <table class="table">
-          <tr>
-            <th>设备种类</th>
-            <th>使用登记证</th>
-            <th>出厂编号</th>
-            <th>操作</th>
-          </tr>
-          <tr>
-            <td>电梯</td>
-            <td>EM粤5505</td>
-            <td>123456</td>
-            <td>123456</td>
-          </tr>
-        </table>
-        <div class="bianhao"><label for="">移交信息</label></div>
-        <el-row class="row">
-          <el-col :span="12" type="flex">
-            <span class="label"><span>*</span>移交书编号</span>
-            <el-input placeholder="移交书编号" class="input"/>
-          </el-col>
-          <el-col :span="12">
-            <span class="label"><span>*</span>移交书材料</span>
-            <el-input placeholder="移交书材料" class="input"/>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <span class="label">移交书日期</span>
-          <el-date-picker
-            v-model="value1"
-            type="date"
-            placeholder="选择日期"/>
-        </el-row>
-        <el-row class="row" type="flex">
-          <span class="label"><span class="red">*</span>任务移交描述</span>
-          <el-input type="textarea" class="textarea"/>
-        </el-row>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" >移交</el-button>
-        <el-button type="primary" @click="isOk">确认</el-button>
-        <el-button @click="dialogYiJiaoVisible = false">取 消</el-button>
-      </span>
+      <taskDetail />
+      <comInfo />
+      <transferInfo />
     </el-dialog>
     <!-- 审核移交 -->
     <el-dialog
@@ -264,95 +192,9 @@
       :before-close="handleClose"
       width="50%"
       title="审核移交">
-      <div class="task-detail">
-        <el-row><div class="bianhao"><label for="">任务编号：234231028321</label></div></el-row>
-        <div class="detail">
-          <div class="item">
-            <span class="name">处理人：</span> <div class="info">qulili</div>
-            <span class="name">处理方式：</span> <div class="info">下指令书</div>
-          </div>
-          <div class="item">
-            <span class="name">执行时间：</span> <div class="info">2017</div>
-            <span class="name">关联指令书编号：</span> <div class="info">[2109]第1</div>
-          </div>
-          <div class="item">
-            <span class="name">指令书日期：</span> <div class="info">2017</div>
-            <span class="name">备注：</span> <div class="info">请于两个</div>
-          </div>
-          <div class="item">
-            <el-button type="text">详情</el-button>
-          </div>
-        </div>
-        <div class="bianhao"><label for="">企业信息</label></div>
-        <div class="detail">
-          <div class="item">
-            <span class="name">使用单位：</span> <div class="info">付小小</div>
-            <span class="name">联系人:</span> <div class="info">小明</div>
-          </div>
-          <div class="item">
-            <span class="name">联系电话：</span> <div class="info">1810 0000 000</div>
-            <span class="name">联系地址：</span> <div class="info">佛山市南海区</div>
-          </div>
-        </div>
-        <table class="table">
-          <tr>
-            <th>设备种类</th>
-            <th>使用登记证</th>
-            <th>出厂编号</th>
-            <th>操作</th>
-          </tr>
-          <tr>
-            <td>电梯</td>
-            <td>EM粤5505</td>
-            <td>123456</td>
-            <td>123456</td>
-          </tr>
-        </table>
-        <div class="bianhao"><label for="">移交信息</label></div>
-        <el-row class="row">
-          <span class="label">移交书编号</span>
-          <span class="mes">南质2193第00053号</span>
-          <el-button type="primary" size="small">预览移交书</el-button>
-          <el-button type="primary" size="small">下载移交书</el-button>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12" type="flex">
-            <span class="label">任务移交人</span>
-            <span class="mes">超级管理员</span>
-          </el-col>
-          <el-col :span="12" type="flex">
-            <span class="label">移交人部门</span>
-            <span class="mes">质监局</span>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <span class="label">移交书日期</span>
-          <el-date-picker
-            v-model="value1"
-            type="date"
-            placeholder="选择日期"/>
-        </el-row>
-        <el-row class="row" type="flex">
-          <span class="label">任务移交描述</span>
-          <span class="mes">任务移交描述</span>
-        </el-row>
-        <div class="bianhao"><label for="">任务操作信息</label></div>
-        <el-row class="row">
-          <span class="label"><span class="red">*</span> 任务状态</span>
-          <el-radio-group v-model="radio2">
-            <el-radio :label="3">通过</el-radio>
-            <el-radio :label="6">不通过</el-radio>
-          </el-radio-group>
-        </el-row>
-        <el-row class="row" type="flex">
-          <span class="label"><span class="red">*</span>任务移交描述</span>
-          <el-input type="textarea" class="textarea"/>
-        </el-row>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="isOk">确认</el-button>
-        <el-button @click="dialogShenHeYiJiaoVisible = false">取 消</el-button>
-      </span>
+      <taskDetail />
+      <comInfo />
+      <instrucInfo/>
     </el-dialog>
     <!-- 处理 -->
     <el-dialog
@@ -483,119 +325,15 @@
       width="50%"
       title="处理">
       <div class="task-detail">
-        <el-row><div class="bianhao"><label for="">任务编号：234231028321</label></div></el-row>
-        <div class="detail">
-          <div class="item">
-            <span class="name">处理人：</span> <div class="info">qulili</div>
-            <span class="name">处理方式：</span> <div class="info">下指令书</div>
-          </div>
-          <div class="item">
-            <span class="name">执行时间：</span> <div class="info">2017</div>
-            <span class="name">关联指令书编号：</span> <div class="info">[2109]第1</div>
-          </div>
-          <div class="item">
-            <span class="name">指令书日期：</span> <div class="info">2017</div>
-            <span class="name">备注：</span> <div class="info">请于两个</div>
-          </div>
-          <div class="item">
-            <el-button type="text">详情</el-button>
-          </div>
-          <div class="btn-group">
-            <el-button type="warning" size="small">检查记录预览</el-button>
-            <el-button type="warning" size="small">指令书预览</el-button>
-          </div>
-        </div>
-        <div class="bianhao"><label for="">企业信息</label></div>
-        <div class="detail">
-          <div class="item">
-            <span class="name">使用单位：</span> <div class="info">付小小</div>
-            <span class="name">联系人:</span> <div class="info">小明</div>
-          </div>
-          <div class="item">
-            <span class="name">联系电话：</span> <div class="info">1810 0000 000</div>
-            <span class="name">联系地址：</span> <div class="info">佛山市南海区</div>
-          </div>
-        </div>
-        <table class="table">
-          <tr>
-            <th>设备种类</th>
-            <th>使用登记证</th>
-            <th>出厂编号</th>
-            <th>操作</th>
-          </tr>
-          <tr>
-            <td>电梯</td>
-            <td>EM粤5505</td>
-            <td>123456</td>
-            <td>123456</td>
-          </tr>
-        </table>
-        <div class="bianhao"><label for="">移交信息</label></div>
-        <el-row class="row">
-          <span class="label">移交书编号</span>
-          <span class="mes">南质2193第00053号</span>
-          <el-button type="primary" size="small">预览移交书</el-button>
-          <el-button type="primary" size="small">下载移交书</el-button>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12" type="flex">
-            <span class="label">任务移交人</span>
-            <span class="mes">超级管理员</span>
-          </el-col>
-          <el-col :span="12" type="flex">
-            <span class="label">移交人部门</span>
-            <span class="mes">质监局</span>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <span class="label">移交书日期</span>
-          <el-date-picker
-            v-model="value1"
-            type="date"
-            placeholder="选择日期"/>
-        </el-row>
-        <el-row class="row" type="flex">
-          <span class="label">任务移交描述</span>
-          <span class="mes">任务移交描述</span>
-        </el-row>
-        <div class="bianhao"><label for="">回复书信息</label></div>
-        <el-row type="flex" align="middle" class="row">
-          <el-col :span="24">
-            <span class="label"><span class="red">*</span> 回复书编号</span>
-            <span class="mes">三质监稽[2019]第0052号</span>
-            <el-button type="primary" size="small">预览回复书</el-button>
-            <el-button type="primary" size="small">下载回复书</el-button>
-          </el-col>
-        </el-row>
-        <el-row class="row" type="flex">
-          <el-col :span="12">
-            <span class="label">任务回复人</span>
-            <span class="mes">超级管理源</span>
-          </el-col>
-          <el-col :span="12">
-            <span class="label">任务回复时间</span>
-            <span class="mes">2019-1-23</span>
-          </el-col>
-        </el-row>
-        <el-row class="row" type="flex">
-          <el-col :span="12">
-            <span class="label">回复书日期</span>
-            <span class="mes">2019-1-23</span>
-          </el-col>
-        </el-row>
-        <el-row type="flex" class="row">
-          <span class="label">任务回复相册</span>
-          <span>
-            <img src="http://placehold.it/100x100" alt="">
-          </span>
-        </el-row>
-        <el-row class="row" type="flex">
-          <el-col :span="12">
-            <span class="label">任务回复描述</span>
-            <span class="mes">sss</span>
-          </el-col>
-        </el-row>
-        <div class="bianhao"><label for="">回复书信息</label></div>
+        <!-- 任务信息 -->
+        <taskDetail />
+        <!-- 企业信息 -->
+        <comInfo />
+        <!-- 移交信息 -->
+        <yijiaoInfo />
+        <!-- 回复书信息 -->
+        <replyLetterInfo/>
+        <div class="bianhao"><label for="">审核状态</label></div>
         <el-row class="row" type="flex">
           <el-col :span="12">
             <span class="label"><span class="red">*</span> 任务状态</span>
@@ -621,9 +359,23 @@
 <script>
 import { townType } from '@/utils/config'
 import { mapGetters } from 'vuex'
+import comInfo from './component/comInfo'
+import instrucInfo from './component/instrucInfo'
+import taskDetail from './component/taskDetail'
+import transferInfo from './component/transferInfo'
+import replyLetterInfo from './component/replyLetterInfo'
+import yijiaoInfo from './component/yijiaoInfo'
 import img from '@/assets/renwushu1.jpg'
 import imgs from '@/assets/renwushu2.jpg'
 export default {
+  components: {
+    transferInfo,
+    comInfo,
+    instrucInfo,
+    taskDetail,
+    replyLetterInfo,
+    yijiaoInfo
+  },
   data() {
     return {
       townType,
@@ -638,6 +390,12 @@ export default {
       },
       pageSize: 10,
       pageNum: 1,
+      recitfy: { // 整改信息查看
+        recitfyImgs: [], // 图片
+        recitfyTitle: '', // 整改文字
+        examineStatus: '', // 审核动作
+        examineDesc: '' // 审核描述
+      },
       // yuanshi
       dialogShenHeVisible: false,
       dialogChuLiVisible: false,
@@ -670,6 +428,11 @@ export default {
     ])
   },
   methods: {
+    /** 整改信息 */
+    recitfyInfo() {
+      console.log(JSON.stringify(this.recitfy))
+      this.dialogVisible = false
+    },
     toSearch() {
       this.pageSize = 10
       this.pageNum = 1
@@ -733,7 +496,7 @@ export default {
     .search {
       .label {
         display: inline-block;
-        text-align: right;
+        text-align: left;
         width: 130px;
       }
       .row {
@@ -759,6 +522,9 @@ export default {
   .task-detail {
     position: relative;
     font-size: 14px;
+    .red {
+      color:#f56c6c;
+    }
     .bianhao {
       display: flex;
       padding: 10px 5px;

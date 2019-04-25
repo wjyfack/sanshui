@@ -14,25 +14,25 @@
       <div class="search">
         <el-row class="row">
           <el-col :span="8">
-            <label for="">任务编号：</label>
+            <label class="label" for="">任务编号：</label>
             <el-input v-model="search.checkNo" class="input" placeholder="请输入任务编号"/>
           </el-col>
           <el-col :span="8">
-            <label for="">使用单位：</label>
+            <label class="label" for="">使用单位：</label>
             <el-input v-model="search.companyUseName" class="input" placeholder="请输入使用单位"/>
           </el-col>
           <el-col :span="8">
-            <label for="">使用登记证：</label>
+            <label class="label" for="">使用登记证：</label>
             <el-input v-model="search.deviceCertNo" class="input" placeholder="请输入使用登记证"/>
           </el-col>
         </el-row>
         <el-row class="row">
           <el-col :span="8">
-            <label for="">指令书编号：</label>
+            <label class="label" for="">指令书编号：</label>
             <el-input v-model="search.commandNo" class="input" placeholder="请输入指令书编号"/>
           </el-col>
           <el-col :span="8">
-            <label for="">所属镇街：</label>
+            <label class="label" for="">所属镇街：</label>
             <el-select v-model="search.cont" placeholder="请选择">
               <el-option
                 v-for="item in townType"
@@ -173,7 +173,8 @@
               <el-button
                 v-else-if="activeName == '5'"
                 size="mini"
-                type="primary">查看</el-button>
+                type="primary"
+                @click="taskLook">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -220,289 +221,7 @@
       width="60%"
       class="dialogForm"
       title="">
-      <el-form ref="chuliForm" label-width="130px" >
-        <div class="title">单位信息</div>
-        <el-row class="row">
-          <el-form-item label="单位名称" prop="name">
-            <el-input placeholder="请输入单位名称"/>
-          </el-form-item>
-        </el-row>
-        <el-row class="row">
-          <el-form-item label="使用单位地址" prop="name">
-            <el-input placeholder="请输入使用单位地址"/>
-          </el-form-item>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12">
-            <el-form-item label="单位法人" prop="name">
-              <el-input placeholder="请输入单位法人"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="单位联系人" required>
-              <el-input placeholder="请输入单位联系人"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="12">
-            <el-form-item label="单位联系方式" required>
-              <el-input placeholder="请输入单位联系方式"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系人职务">
-              <el-input placeholder="请输入联系人职务"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <div class="title"><span>关联设备</span> <el-button icon="el-icon-plus" size="mini" type="primary" >添加设备</el-button></div>
-        <el-row class="row">
-          <el-col :span="8">
-            <el-form-item label="使用登记证" >
-              <el-input placeholder="请输入使用登记证"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="出厂编号" >
-              <el-input placeholder="请输入出厂编号"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="违反模板" >
-              <el-select v-model="value" placeholder="请选择违反条例">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <div class="title">关联设备数量</div>
-        <el-row class="row">
-          <el-col :span="8">
-            <el-form-item label="电梯" >
-              <el-input placeholder="请输入电梯"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="叉车" >
-              <el-input placeholder="请输入叉车"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="起重机" >
-              <el-input placeholder="请输入起重机"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="8">
-            <el-form-item label="锅炉" >
-              <el-input placeholder="请输入锅炉"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="压力容器" >
-              <el-input placeholder="请输入压力容器"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="压力管道" >
-              <el-input placeholder="请输入压力管道"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <div class="title">检查记录表信息</div>
-        <el-row class="row">
-          <el-col :span="12">
-            <el-form-item label="检查类别" >
-              <el-select v-model="value" placeholder="请选择检查类别">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="单位类别" >
-              <el-select v-model="value" placeholder="请选择单位类别">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col>
-            <el-form-item label="检查日期" >
-              <el-date-picker
-                type="daterange"
-                range-separator="~"
-                start-placeholder="年/月/日"
-                end-placeholder="年/月/日"
-                value-format="yyyy-MM-dd"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-form-item label="检查问题" >
-            <el-input type="textarea" placeholder="请输入检查问题"/>
-          </el-form-item>
-        </el-row>
-        <el-row class="row">
-          <el-form-item label="处理措施" >
-            <el-radio-group v-model="radio2">
-              <el-radio :label="1">下达指令书</el-radio>
-              <el-radio :label="2">直接封查</el-radio>
-              <el-radio :label="3">实施扣押</el-radio>
-              <el-radio :label="4">其他</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-row>
-        <el-row class="row">
-          <el-form-item label="检查意见" >
-            <el-input type="textarea" placeholder="请输入检查意见"/>
-          </el-form-item>
-        </el-row>
-        <el-row class="row">
-          <el-form-item label="是否填写指令书" >
-            <el-checkbox id="isZhiLingShu" @change="onCheckbox"/>
-          </el-form-item>
-        </el-row>
-      </el-form>
-      <div v-show="isShow" class="zhilingshu-info">
-        <el-form ref="form" label-width="130px">
-          <el-row class="row">
-            <el-form-item label="指令书编号">
-              <el-input class="input" placeholder="请输入指令书编号"/>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="指令书流水号">
-              <el-input class="input" placeholder="请输入指令书流水号"/>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="指令书模板">
-              <el-select v-model="value" placeholder="请选择指令书模板">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="设备描述">
-              <el-input type="textarea" placeholder="请输入设备描述"/>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="隐患描述">
-              <el-select v-model="value5" multiple placeholder="请选择" style="flex:1">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="违反条例">
-              <div class="cont">
-                <el-select v-model="value5" multiple placeholder="请选择" class="select">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
-                <el-input type="textarea" class="area"/>
-              </div>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="处罚依据条例">
-              <div class="cont">
-                <el-select v-model="value5" multiple placeholder="请选择" class="select">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
-                <el-input type="textarea" class="area"/>
-              </div>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="整改措施">
-              <div class="cont">
-                <el-select v-model="value5" multiple placeholder="请选择" class="select">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
-                <el-input type="textarea" class="area"/>
-              </div>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-col :span="12">
-              <el-form-item label="整改截止日期">
-                <el-date-picker
-                  type="date"
-                  placeholder="选择日期"
-                  value-format="yyyy-MM-dd"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="指令书日期">
-                <el-date-picker
-                  type="date"
-                  placeholder="选择日期"
-                  value-format="yyyy-MM-dd"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row class="row">
-            <el-form-item label="注明情况">
-              <el-input type="textarea" placeholder="" style="width:100%"/>
-            </el-form-item>
-          </el-row>
-          <el-row class="row">
-            <el-col :span="12">
-              <el-form-item label="使用单位确认人">
-                <el-input class="input" placeholder="使用单位确认人"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="联系方式">
-                <el-input class="input" placeholder="联系方式"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="showRenwushu(0)">检查记录预览</el-button>
-        <el-button v-if="!isShow" type="warning">检查记录打印</el-button>
-        <el-button v-if="isShow" @click="showRenwushu(1)">指令书预览</el-button>
-        <el-button type="primary" @click="dialogEditVisible = false">确定</el-button>
-        <el-button @click="dialogEditVisible = false">取消</el-button>
-      </span>
+      <editDialog @closed="dialogEditVisible = false"/>
     </el-dialog>
     <!-- 退回 -->
     <el-dialog
@@ -523,7 +242,7 @@
       :visible.sync="dialogChuliVisible"
       :before-close="handleClose"
       title="处理方式"
-      width="250">
+      width="25%">
       <span>
         <el-select v-model="handle" placeholder="请选择处理方式" class="select">
           <el-option
@@ -538,7 +257,15 @@
         <el-button @click="dialogChuliVisible = false">取消</el-button>
       </span>
     </el-dialog>
-
+    <!-- 查看 -->
+    <el-dialog
+      :visible.sync="dialogLookVisible"
+      :before-close="handleClose"
+      width="60%"
+      class="dialogForm"
+      title="">
+      <lookDialog @closed="dialogLookVisible = false"/>
+    </el-dialog>
     <!-- 图片预览 -->
     <el-dialog
       :visible.sync="dialogYulanVisible"
@@ -560,6 +287,8 @@
 import deviceDetail from '@/components/deviceDetail'
 import searchDialog from './component/searchDialog'
 import addTaskDialog from './component/addTaskDialog'
+import lookDialog from './component/lookDialog'
+import editDialog from './component/editDialog'
 import { taskType, status, townType, handleType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt } from '@/api/task'
@@ -570,7 +299,9 @@ export default {
   components: {
     deviceDetail,
     searchDialog,
-    addTaskDialog
+    addTaskDialog,
+    lookDialog,
+    editDialog
   },
   data() {
     return {
@@ -585,6 +316,7 @@ export default {
       dialogInfoLoading: false,
       dialogBackVisible: false,
       dialogAddTask: false,
+      dialogLookVisible: false,
       search: { // 搜索
         checkNo: '', // 任务编号
         companyUseName: '', // 使用单位
@@ -592,8 +324,8 @@ export default {
         commandNo: '', // 指令书编号
         taskStatus: '', // 任务状态
         dateChecked: [], // 年检日期
-        checkTypeId: '1', // 状态
-        checkStatus: '', // 检查任务状态
+        checkTypeId: '', // 状态
+        checkStatus: '1', // 检查任务状态
         checkAddDeptName: '', // 任务派发部门
         isRecovery: '0', // 回搜站 1
         cont: '' // 所属镇街
@@ -660,6 +392,10 @@ export default {
     }
   },
   methods: {
+    /** 查看 */
+    taskLook(row) {
+      this.dialogLookVisible = true
+    },
     /** 处理  下拉框选择 1 无需处理 3 下达指令书*/
     taskHandleDailog(row) {
       this.dialogChuliVisible = true
@@ -675,7 +411,9 @@ export default {
       const data = [this.taskRow].map(item => {
         return { id: item.id, checkResulTreatmentId: value, checkResulTreatment: label, checkStatus: '4' }
       })
-      this.tofetchtaskOpt(data)
+      this.tofetchtaskOpt(data).then(() => {
+        this.dialogChuliVisible = false
+      })
     },
     /** 闭环， 1*/
     closedLoop() {
@@ -763,15 +501,18 @@ export default {
       this.tofetchtaskOpt(data)
     },
     tofetchtaskOpt(data) {
-      fetchtaskOpt(data).then(response => {
-        const data = response
-        if (data.resultCode === '0000000') {
-          this.$message({
-            message: '操作成功',
-            type: 'success'
-          })
-          this.fecthData() // 更新
-        }
+      return new Promise((resolve, reject) => {
+        fetchtaskOpt(data).then(response => {
+          const data = response
+          if (data.resultCode === '0000000') {
+            this.$message({
+              message: '操作成功',
+              type: 'success'
+            })
+            this.fecthData() // 更新
+            resolve()
+          }
+        })
       })
     },
     /** 设备详情 */
@@ -817,7 +558,7 @@ export default {
         return item.id
       })
       console.log(tasks.join(','))
-      this.onlyWholesale({ id: '17,18,19,20' })
+      this.onlyWholesale(tasks.join(','))
     },
     onlyWholesale(row) {
       fetchBeforeDistribute(`${row.id}`).then(data => {
@@ -884,6 +625,7 @@ export default {
         commandAddDate: dateChecked[1],
         orderType: ''
       }
+      console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
         this.loading = false
       })
@@ -951,11 +693,13 @@ export default {
           activeName = ''
         }
         this.search.isRecovery = '0'
-        this.search.checkTypeId = activeName
+        this.search.checkStatus = activeName
       } else { // 回收站
-        this.search.checkTypeId = ''
+        this.search.checkStatus = ''
         this.search.isRecovery = '1'
       }
+      this.pageSize = `10`
+      this.pageNum = '1'
       this.fecthData()
     },
     closed() {
@@ -965,9 +709,7 @@ export default {
      * 下面没啥用
      *  */
     toRouter() { this.$router.push({ path: '/paifa' }) },
-    onCheckbox(event) {
-      this.isShow = event
-    },
+
     showRenwushu(index) {
       this.slides = [this.list[index]]
       this.dialogYulanVisible = true
@@ -994,7 +736,12 @@ export default {
   background: #f2f2f2;
   font-size: 14px;
   padding: 16px;
-  label {font-size: 14px;}
+  .label {
+    display: inline-block;
+    width: 130px;
+    text-align: left;
+    font-size: 14px;
+  }
   .renwuMg {
     border-radius: 8px;
     background: #ffffff;
@@ -1016,50 +763,6 @@ export default {
     justify-content: flex-end;
     padding-top: 16px;
   }
-  .dialogForm {
-    .title {
-      display:flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 45px;
-      color:#333;
-      background: #DBDBDB;
-      padding: 0 10px;
-      margin-bottom: 10px;
-    }
-    .row {}
-    .input {width: 100%}
-    .label {
-      min-width: 120px;
-      display: inline-block;
-      .red {color: red}
-    }
-    .cont {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      .select {width: 100%;}
-      .area {width:100%;}
-    }
-    .avatar-uploader {
-      border: 1px dashed #d9d9d9;
-      border-radius: 6px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    .avatar-uploader:hover {
-      border-color: #409EFF;
-    }
-    .avatar-uploader-icon {
-      font-size: 28px;
-      color: #8c939d;
-      width: 150px;
-      height: 150px;
-      line-height: 150px;
-      text-align: center;
-    }
 
-  }
 }
 </style>

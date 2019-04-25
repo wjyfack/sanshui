@@ -11,7 +11,7 @@ export function fetchList({
   deviceNextYearTestDate1 = '', // 年检范围1
   deviceNextYearTestDate2 = '', // 年检范围2
   isOverdue = '0', // 是否超期  0否1是
-  orderType = '1' }) { // 排序类型 1降序 2升序
+  orderType = '2' }) { // 排序类型 1降序 2升序de
   return request({
     url: '/device/ss/get',
     method: 'post',

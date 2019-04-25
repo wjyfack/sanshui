@@ -4,13 +4,17 @@
       <el-row :gutter="20">
         <div class="search">
           <label for="" class="label">申请类别：</label>
-          <el-input v-model="search.useUnit" class="input" placeholder="系统自动导入" />
-          <label for="" class="label">设备种类：</label>
-          <el-select v-model="search.useEque" placeholder="请选择" class="select">
-            <el-cascader
-              v-model="search.useEque"
-              :options="equipmentType"/>
+          <el-select v-model="value" placeholder="请选择申请类别">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
           </el-select>
+          <label for="" class="label">设备种类：</label>
+          <equement-cascader
+            :equipment="equipmentAllType"
+            @cascader="onUseEqueChange"/>
           <el-button type="primary" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
           <el-button @click="dialogVisible = true">更多查询</el-button>
@@ -25,8 +29,8 @@
     </div>
     <div class="shebeiTable">
       <div class="btn-group">
-        <el-button type="primary" >设备信息</el-button>
-        <el-button >变更信息</el-button>
+        <el-button type="primary" @click="changeInfo(1)">设备信息</el-button>
+        <el-button type="info" @click="changeInfo(2)">变更信息</el-button>
         <el-button @click="$message('导出Excel')">导出Excel</el-button>
       </div>
       <div class="notice"><span>已选择</span><span class="col">4</span><span>项 服务调用总计：36.4 万<span class="col">清空</span></span></div>
@@ -41,33 +45,55 @@
           type="selection"
           width="55"/>
         <el-table-column
+          v-if="!deviceShow"
+          prop="city"
+          label="申请类别"/>
+        <!-- 复用 -->
+        <el-table-column
           prop="dengji"
-          label="使用单位"
-          min-width="150"/>
+          label="使用单位"/>
         <el-table-column
           prop="useAddress"
-          label="使用单位地址"
-          min-width="150"/>
+          label="使用单位地址"/>
+        <!-- end -->
         <el-table-column
+          v-if="deviceShow"
           prop="address"
-          label="使用登记证"
-          min-width="150"/>
+          label="使用登记证"/>
         <el-table-column
+          v-if="deviceShow"
           prop="status"
           label="出厂编号"
           width="100"/>
         <el-table-column
+          v-if="deviceShow"
           prop="bianhao"
-          label="设备注册代码"
-          min-width="150"/>
+          label="设备注册代码"/>
         <el-table-column
+          v-if="deviceShow"
           prop="nextDate"
-          label="维保单位证书编号"
-          min-width="150"/>
+          label="维保单位证书编号"/>
         <el-table-column
+          v-if="deviceShow"
           prop="city"
-          label="设备状态"
-          min-width="150"/>
+          label="设备状态"/>
+        <!-- 变更 -->
+        <el-table-column
+          v-if="!deviceShow"
+          prop="city"
+          label="单位法人"/>
+        <el-table-column
+          v-if="!deviceShow"
+          prop="city"
+          label="电话"/>
+        <el-table-column
+          v-if="!deviceShow"
+          prop="city"
+          label="转入单位名称"/>
+        <el-table-column
+          v-if="!deviceShow"
+          prop="city"
+          label="转入法定代表人"/>
       </el-table>
       <div class="page">
         <el-pagination
@@ -103,16 +129,6 @@
           <el-col :span="12">
             <label for="" class="label">使用单位：</label>
             <el-input v-model="search.useUnit" class="input" placeholder="请输入使用单位"/>
-          </el-col>
-          <el-col :span="12">
-            <label for="" class="label">设备种类：</label>
-            <el-select v-model="search.useEque" placeholder="请选择">
-              <el-option
-                v-for="item in equipmentType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
           </el-col>
         </el-row>
         <el-row class="row">
@@ -351,13 +367,16 @@
 </template>
 
 <script>
-import { equipmentType, status, checkStatus, overdue, addrCasc } from '@/utils/config'
-
+import equementCascader from './../shebei/component/equementCascader'
+import { status, checkStatus, overdue, addrCasc } from '@/utils/config'
+import { mapGetters } from 'vuex'
 export default {
+  components: {
+    equementCascader
+  },
   data() {
     return {
       loading: false,
-      equipmentType,
       status,
       checkStatus,
       overdue,
@@ -385,6 +404,7 @@ export default {
       dialogAddVisible: false,
       dialogInfoVisible: false,
       dialogVisible: false,
+      deviceShow: false, // 显示内容
       // 单个信息
       info: {
         useEque: '', // 设备种类
@@ -432,8 +452,32 @@ export default {
       multipleSelection: []
     }
   },
-  mounted() { this.fecthData() },
+  computed: {
+    ...mapGetters([
+      'equipmentAllType'
+    ])
+  },
+  mounted() {
+    if (this.equipmentAllType.length === 0) {
+      this.$store.dispatch('actionsDeviceType')
+    }
+    // this.fecthData()
+  },
   methods: {
+    changeInfo(opt) {
+      switch (~~opt) {
+        case 1:
+          this.deviceShow = true
+          break
+        case 2:
+          this.deviceShow = false
+          break
+      }
+    },
+    onUseEqueChange(event) { // 设备种类
+      console.log(event, 123)
+      this.search.useEque = event
+    },
     addDevice() { // 添加设备
     },
     fecthData() { // get device
