@@ -20,7 +20,7 @@
     <el-row class="row">
       <span class="label">移交书日期</span>
       <el-date-picker
-        v-model="value1"
+        v-model="yijiaoDate"
         type="date"
         placeholder="选择日期"/>
     </el-row>
@@ -33,7 +33,11 @@
 
 <script>
 export default {
-
+  data() {
+    return {
+      yijiaoDate: ''
+    }
+  }
 }
 </script>
 

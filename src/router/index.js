@@ -42,7 +42,7 @@ export const constantRouterMap = [
     path: '/dashboard',
     component: Layout,
     redirect: '/dashboard',
-    name: 'shouye',
+    name: 'sys_home_page',
     children: [{
       path: 'dashboard',
       meta: { title: '首页', icon: 'home' },
@@ -53,7 +53,7 @@ export const constantRouterMap = [
     path: '/shebei',
     component: Layout,
     redirect: '/shebei',
-    name: 'shebei',
+    name: 'sys_device',
     children: [{
       path: 'shebei',
       meta: { title: '设备管理', icon: 'shibei' },
@@ -64,7 +64,7 @@ export const constantRouterMap = [
     path: '/renwu',
     component: Layout,
     redirect: '/renwu',
-    name: 'renwu',
+    name: 'sys_task',
     children: [{
       path: 'renwu',
       meta: { title: '任务', icon: 'renwu' },
@@ -75,7 +75,7 @@ export const constantRouterMap = [
     path: '/zhilingshu',
     component: Layout,
     redirect: '/zhilingshu',
-    name: 'zhilingshu',
+    name: 'sys_command',
     children: [{
       path: 'zhilingshu',
       meta: { title: '指令书移交', icon: 'yijiao' },
@@ -86,7 +86,7 @@ export const constantRouterMap = [
     path: '/shengju',
     component: Layout,
     redirect: '/shengju',
-    name: 'shengju',
+    name: 'sys_province_data',
     children: [{
       path: 'shengju',
       meta: { title: '省局数据查询', icon: 'shuju' },
@@ -97,7 +97,7 @@ export const constantRouterMap = [
     path: '/houtai',
     component: Layout,
     redirect: '/houtai',
-    name: 'houtai',
+    name: 'sys_bg_manage',
     children: [{
       path: 'houtai',
       meta: { title: '后台管理', icon: 'houtai' },

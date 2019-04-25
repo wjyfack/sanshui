@@ -4,35 +4,53 @@
     <el-row class="row">
       <el-col :span="12" type="flex">
         <span class="label"><span class="red">*</span>移交书编号</span>
-        <el-input placeholder="移交书编号" class="input"/>
+        <el-input v-model="transferNo" placeholder="移交书编号" class="input"/>
       </el-col>
       <el-col :span="12">
         <span class="label"><span class="red">*</span>移交书材料</span>
-        <el-input placeholder="移交书材料" class="input"/>
+        <el-input v-model="transferMater" placeholder="移交书材料" class="input"/>
       </el-col>
     </el-row>
     <el-row class="row">
       <span class="label">移交书日期</span>
       <el-date-picker
-        v-model="value1"
+        v-model="transferDate"
         type="date"
         placeholder="选择日期"/>
     </el-row>
     <el-row class="row" type="flex">
       <span class="label"><span class="red">*</span>任务移交描述</span>
-      <el-input type="textarea" class="textarea"/>
+      <el-input v-model="transferDesc" type="textarea" class="textarea"/>
     </el-row>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" >移交</el-button>
+      <el-button type="primary" @click="toTransfer">移交</el-button>
       <el-button type="primary" @click="isOk">确认</el-button>
-      <el-button @click="dialogYiJiaoVisible = false">取 消</el-button>
+      <el-button @click="closed">取 消</el-button>
     </span>
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      transferNo: '', // 移交书编号
+      transferMater: '', // 移交书材料
+      transferDate: '', // 移交书日期
+      transferDesc: '' // 任务移交描述
+    }
+  },
+  methods: {
+    toTransfer() {
 
+    },
+    isOk() {
+      this.closed()
+    },
+    closed() {
+      this.$emit('closed')
+    }
+  }
 }
 </script>
 
