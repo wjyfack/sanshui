@@ -262,8 +262,7 @@ import yijiaoInfo from './component/yijiaoInfo'
 import replyLetterSub from './component/replyLetterSub'
 import examineSub from './component/examineSub'
 import zhilingshuInfo from './component/zhilingshuInfo'
-import img from '@/assets/renwushu1.jpg'
-import imgs from '@/assets/renwushu2.jpg'
+
 export default {
   components: {
     transferInfo,
@@ -317,8 +316,6 @@ export default {
       }],
       addrSel: '',
       list: [
-        { src: img, msrc: img, w: 600, h: 800 },
-        { src: imgs, msrc: imgs, w: 600, h: 800 }
       ],
       slides: []
     }

@@ -293,8 +293,6 @@ import { taskType, status, townType, handleType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
-import img from '@/assets/renwushu1.jpg'
-import imgs from '@/assets/renwushu2.jpg'
 export default {
   components: {
     deviceDetail,
@@ -372,8 +370,6 @@ export default {
       radio2: '',
       value5: '',
       list: [
-        { src: img, msrc: img, w: 600, h: 800 },
-        { src: imgs, msrc: imgs, w: 600, h: 800 }
       ],
       slides: []
     }

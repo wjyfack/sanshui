@@ -1,8 +1,5 @@
-/**
- * 不用了, 用`@router/main`
- */
-import router from './router'
-import store from './store'
+import router from './index'
+import store from '../store'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { Message } from 'element-ui'
@@ -18,10 +15,18 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' })
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
-      // console.log(123, store.getters.roles)
       if (store.getters.roles.length === 0) {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
-          next()
+          const roles = res.returnData
+          store.dispatch('GenerateRoutes', { roles }).then(() => {
+            const routes = [...router.options.routes, ...store.getters.addRouters]
+            router.options.routes = routes
+            router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
+            console.log(router)
+          }).finally(() => {
+            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+          })
+          // next()
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {
             Message.error(err || 'Verification failed, please login again')

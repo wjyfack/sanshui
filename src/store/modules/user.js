@@ -38,7 +38,7 @@ const user = {
           console.log(response)
           setToken(data.token)
           commit('SET_TOKEN', data.token)
-          commit('SET_ROLES', data.roleNavList) // 获取角色
+          // commit('SET_ROLES', data.roleNavList) // 获取角色
           commit('SET_USERINFO', data)
           resolve()
         }).catch(error => {

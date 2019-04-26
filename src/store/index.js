@@ -6,6 +6,7 @@ import device from './modules/shebei'
 import common from './modules/common'
 import instruction from './modules/instruction'
 import task from './modules/task'
+import permission from './modules/permission'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -17,7 +18,8 @@ const store = new Vuex.Store({
     device,
     common,
     task,
-    instruction
+    instruction,
+    permission
   },
   getters
 })

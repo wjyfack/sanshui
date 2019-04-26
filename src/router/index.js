@@ -38,6 +38,18 @@ export const constantRouterMap = [
       component: () => import('@/views/dashboard/index')
     }]
   },
+  { path: '/paifa', component: () => import('@/views/paifa/index'), hidden: true },
+  { path: '*', redirect: '/404', hidden: true }
+]
+
+export default new Router({
+  mode: 'hash', // hash后端支持可开history
+  scrollBehavior: () => ({ y: 0 }),
+  routes: constantRouterMap
+})
+
+// 动态需要根据权限加载的路由表
+export const asyncRouterMap = [
   {
     path: '/dashboard',
     component: Layout,
@@ -103,13 +115,6 @@ export const constantRouterMap = [
       meta: { title: '后台管理', icon: 'houtai' },
       component: () => import('@/views/houtai/index')
     }]
-  },
-  { path: '/paifa', component: () => import('@/views/paifa/index'), hidden: true },
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]
 
-export default new Router({
-  mode: 'hash', // hash后端支持可开history
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRouterMap
-})

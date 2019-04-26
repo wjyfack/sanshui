@@ -12,6 +12,7 @@ const getters = {
   instructionTotal: state => state.instruction.total, // 指令书
   instructionList: state => state.instruction.list,
   companyList: state => state.common.comlist, // 公司名称
-  equipmentAllType: state => state.common.deviceType // 设备类型
+  equipmentAllType: state => state.common.deviceType, // 设备类型
+  addRouters: state => state.permission.addRouters
 }
 export default getters
