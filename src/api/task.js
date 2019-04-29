@@ -89,3 +89,21 @@ export function fetchAddTask(data) {
     data: data
   })
 }
+/**
+ * 任务编辑前查询
+ */
+export function fecthBeforeEdit(id = 0) {
+  return request({
+    url: '/taskCheck/getTaskForEdit',
+    method: 'post',
+    data: { id }
+  })
+}
+/** 任务编辑 */
+export function fectEditTask(data) {
+  return request({
+    url: '/taskCheck/eidtTaskCheck',
+    method: 'post',
+    data: data
+  })
+}

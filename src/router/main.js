@@ -4,7 +4,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { Message } from 'element-ui'
 import { getToken } from '@/utils/auth' // getToken from cookie
-
+import { constantRouterMap } from './index'
 NProgress.configure({ showSpinner: false })// NProgress configuration
 
 const whiteList = ['/login'] // 不重定向白名单
@@ -19,7 +19,7 @@ router.beforeEach((to, from, next) => {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
           const roles = res.returnData
           store.dispatch('GenerateRoutes', { roles }).then(() => {
-            const routes = [...router.options.routes, ...store.getters.addRouters]
+            const routes = [...constantRouterMap, ...store.getters.addRouters]
             router.options.routes = routes
             router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
             console.log(router)
@@ -34,6 +34,7 @@ router.beforeEach((to, from, next) => {
           })
         })
       } else {
+        console.log('6666666')
         next()
       }
     }

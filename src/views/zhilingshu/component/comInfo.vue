@@ -22,15 +22,36 @@
         <td>电梯</td>
         <td>EM粤5505</td>
         <td>123456</td>
-        <td><el-button size="mini">详情</el-button></td>
+        <td><el-button size="mini" @click="detail(1)">详情</el-button></td>
       </tr>
     </table>
+    <el-dialog
+      :visible.sync="innerVisible"
+      width="40%"
+      title="设备"
+      append-to-body>
+      <deviceDetail :info="info"/>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import deviceDetail from '@/components/deviceDetail/index'
 export default {
-
+  components: {
+    deviceDetail
+  },
+  data() {
+    return {
+      info: {},
+      innerVisible: false
+    }
+  },
+  methods: {
+    detail(id) {
+      this.innerVisible = true
+    }
+  }
 }
 </script>
 

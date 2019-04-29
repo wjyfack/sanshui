@@ -117,9 +117,9 @@
             label="任务类型"
             min-width="150">
             <template>
-              <span v-if="activeName == 4" >处理中</span>
-              <span v-else-if="activeName == 5">处理中</span>
-              <span v-else-if="activeName == 6">处理中</span>
+              <span v-if="activeName == '4'" >处理中</span>
+              <span v-else-if="activeName == '5'">处理中</span>
+              <span v-else-if="activeName == '6'">处理中</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -141,7 +141,6 @@
             width="280">
             <template slot-scope="scope">
               <el-button
-                :ab="scope.$index"
                 click="handleDelete(scope.$index, scope.row)"
                 size="mini"
                 @click="taskDetail(scope.row)">详情</el-button>
@@ -169,7 +168,7 @@
                 v-else-if="activeName == '4'"
                 size="mini"
                 type="primary"
-                @click="dialogEditVisible = true">编辑</el-button>
+                @click="taskEdit(scope.row)">编辑</el-button>
               <el-button
                 v-else-if="activeName == '5'"
                 size="mini"
@@ -221,7 +220,7 @@
       width="60%"
       class="dialogForm"
       title="">
-      <editDialog @closed="dialogEditVisible = false"/>
+      <editDialog :task.sync="editTask" @closed="dialogEditVisible = false"/>
     </el-dialog>
     <!-- 退回 -->
     <el-dialog
@@ -291,7 +290,7 @@ import lookDialog from './component/lookDialog'
 import editDialog from './component/editDialog'
 import { taskType, status, townType, handleType } from '@/utils/config'
 import { mapGetters } from 'vuex'
-import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt } from '@/api/task'
+import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
 export default {
   components: {
@@ -349,6 +348,7 @@ export default {
       reason: '',
       taskOpt: 1, // 闭环
       loopTittle: '',
+      editTask: {}, // 编辑的内容
       addrSel: '',
       options: [{
         value: '选项1',
@@ -388,6 +388,16 @@ export default {
     }
   },
   methods: {
+    /** 编辑 */
+    taskEdit(row) {
+      fecthBeforeEdit('112').then(res => {
+        const data = res.returnData
+        console.log(data)
+        this.editTask = data
+      }).then(() => {
+        this.dialogEditVisible = true
+      })
+    },
     /** 查看 */
     taskLook(row) {
       this.dialogLookVisible = true
@@ -621,7 +631,7 @@ export default {
         commandAddDate: dateChecked[1],
         orderType: ''
       }
-      console.log(JSON.stringify(data))
+      // console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
         this.loading = false
       })

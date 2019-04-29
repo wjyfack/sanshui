@@ -33,13 +33,6 @@
         <div class="name">三级标题</div>
       </div>
     </div>
-    <div class="btn-group">
-      <el-button-group>
-        <el-button type="primary" size="small">编辑</el-button>
-        <el-button type="warning" size="small">删除</el-button>
-        <el-button type="primary" size="small">查询</el-button>
-      </el-button-group>
-    </div>
   </div>
 </template>
 

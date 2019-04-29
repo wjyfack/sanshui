@@ -1,11 +1,11 @@
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-
+import avatar from '@/assets/avatar.png'
 const user = {
   state: {
     token: getToken(),
     name: '',
-    avatar: '',
+    avatar: avatar,
     roles: [],
     userInfo: {}
   },

@@ -21,6 +21,12 @@
 import { taskType, inspectionType } from '@/utils/config'
 // 任务状态 专项任务
 export default {
+  props: {
+    arr: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       taskType,
@@ -29,6 +35,14 @@ export default {
       taskStatus: '',
       instructionStatus: ''
     }
+  },
+  mounted() {
+    if (this.arr[0]) { this.taskStatus = ~~this.arr[0] }
+    if (this.arr[1]) {
+      this.insprcType = inspectionType
+      this.instructionStatus = ~~this.arr[1]
+    }
+    console.log(this.taskStatus, this.instructionStatus, 123)
   },
   methods: {
     taskSelect(event) {
@@ -44,7 +58,9 @@ export default {
       this.instructionStatus = ''
       this.change()
     },
-    instrucSelect() {
+    instrucSelect(event) {
+      // console.log(event, 1123)
+      this.instructionStatus = event
       this.change()
     },
     change() {
