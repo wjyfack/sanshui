@@ -3,95 +3,105 @@
     <el-form ref="chuliForm" label-width="130px" >
       <div class="title">单位信息</div>
       <el-row class="row">
-        <el-form-item label="单位名称" prop="name">
-          <el-input v-model="info.checkUseName" placeholder="请输入单位名称"/>
+        <el-form-item label="单位名称" >
+          <el-input v-model="company.useName" placeholder="请输入单位名称"/>
         </el-form-item>
       </el-row>
       <el-row class="row">
-        <el-form-item label="使用单位地址" prop="name">
-          <el-input placeholder="请输入使用单位地址"/>
+        <el-form-item label="使用单位地址" >
+          <el-input v-model="company.useAddress" placeholder="请输入使用单位地址"/>
         </el-form-item>
       </el-row>
       <el-row class="row">
         <el-col :span="12">
-          <el-form-item label="单位法人" prop="checkUseLegalPerson">
-            <el-input v-model="info.checkUseLegalPerson" placeholder="请输入单位法人"/>
+          <el-form-item label="单位法人">
+            <el-input v-model="company.useLegalPerson" placeholder="请输入单位法人"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="单位联系人" required>
-            <el-input v-model="info.checkUseContactMan" placeholder="请输入单位联系人"/>
+            <el-input v-model="company.useContactMan" placeholder="请输入单位联系人"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row class="row">
         <el-col :span="12">
           <el-form-item label="单位联系方式" required>
-            <el-input v-model="info.checkUseContactManTel" placeholder="请输入单位联系方式"/>
+            <el-input v-model="company.useContactManTel" placeholder="请输入单位联系方式"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="联系人职务">
-            <el-input v-model="info.checkUseContactPosition" placeholder="请输入联系人职务"/>
+            <el-input v-model="company.checkUseContactPosition" placeholder="请输入联系人职务"/>
           </el-form-item>
         </el-col>
       </el-row>
-      <div class="title"><span>关联设备</span> <el-button icon="el-icon-plus" size="mini" type="primary" >添加设备</el-button></div>
-      <el-row class="row">
-        <el-col :span="8">
-          <el-form-item label="使用登记证" >
-            <el-input placeholder="请输入使用登记证"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="出厂编号" >
-            <el-input placeholder="请输入出厂编号"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="违反模板" >
-            <el-select v-model="value" placeholder="请选择违反条例">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <div class="title"><span>关联设备</span> <el-button icon="el-icon-plus" size="mini" type="primary" @click="addDvice">添加设备</el-button></div>
+      <el-table
+        :data="deviceList"
+        :show-header="false"
+        max-height="200"
+        style="width: 100%">
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-form-item label="使用登记证" >
+              <el-input v-model="scope.row.deviceCertNo" placeholder="请输入使用登记证"/>
+            </el-form-item>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-form-item label="出厂编号" >
+              <el-input v-model="scope.row.deviceCertNo" placeholder="请输入出厂编号"/>
+            </el-form-item>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-form-item label="违反模板" >
+              <el-select v-model="illegalCount[scope.$index]" placeholder="请选择违反条例">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </el-form-item>
+          </template>
+        </el-table-column>
+      </el-table>
       <div class="title">关联设备数量</div>
       <el-row class="row">
         <el-col :span="8">
           <el-form-item label="电梯">
-            <el-input v-model="info.deviceType3Count" placeholder="请输入电梯"/>
+            <el-input v-model="record.deviceType3Count" placeholder="请输入电梯"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="专用机动车">
-            <el-input v-model="info.deviceType8Count" placeholder="请输入专用机动车"/>
+            <el-input v-model="record.deviceType8Count" placeholder="请输入专用机动车"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="起重机">
-            <el-input v-model="info.deviceType7Count" placeholder="请输入起重机"/>
+            <el-input v-model="record.deviceType7Count" placeholder="请输入起重机"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row class="row">
         <el-col :span="8">
           <el-form-item label="锅炉">
-            <el-input v-model="info.deviceType1Count" placeholder="请输入锅炉"/>
+            <el-input v-model="record.deviceType1Count" placeholder="请输入锅炉"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="压力容器">
-            <el-input v-model="info.deviceType2Count" placeholder="请输入压力容器"/>
+            <el-input v-model="record.deviceType2Count" placeholder="请输入压力容器"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="压力管道">
-            <el-input v-model="info.deviceType5Count" placeholder="请输入压力管道"/>
+            <el-input v-model="record.deviceType5Count" placeholder="请输入压力管道"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -99,12 +109,25 @@
       <el-row class="row">
         <el-col :span="12">
           <el-form-item label="检查类别" >
-            <task-check @send="getTaskCheck"/>
+            <el-select v-model="record.checkType" placeholder="请选择" @change="taskSelect">
+              <el-option
+                v-for="item in taskType"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"/>
+            </el-select>
+            <el-select v-model="record.checkType2" placeholder="请选择">
+              <el-option
+                v-for="item in insprcType"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"/>
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="单位类别" >
-            <el-select placeholder="请选择单位类别" @change="checkUseType">
+            <el-select :value="record.checkUseTypeNames" placeholder="请选择单位类别" @change="checkUseType">
               <el-option
                 v-for="(item, index) in danWeiType"
                 :key="item.value"
@@ -118,6 +141,7 @@
         <el-col>
           <el-form-item label="检查日期" >
             <el-date-picker
+              v-model="record.checkDate"
               type="daterange"
               range-separator="~"
               start-placeholder="年/月/日"
@@ -128,37 +152,22 @@
       </el-row>
       <el-row class="row">
         <el-form-item label="检查问题" >
-          <el-input type="textarea" placeholder="请输入检查问题"/>
+          <el-input v-model="record.checkProblem" type="textarea" placeholder="请输入检查问题"/>
         </el-form-item>
       </el-row>
       <el-row class="row">
         <el-form-item label="处理措施" >
-          <el-radio-group v-model="radio2">
-            <el-radio :label="1">下达指令书</el-radio>
-            <el-radio :label="2">直接封查</el-radio>
-            <el-radio :label="3">实施扣押</el-radio>
-            <el-radio :label="4">其他</el-radio>
+          <el-radio-group v-model="record.checkResulTreatmentId" @change="onCheckbox">
+            <el-radio :label="'1'">下达指令书</el-radio>
+            <el-radio :label="'2'">直接封查</el-radio>
+            <el-radio :label="'3'">实施扣押</el-radio>
+            <el-radio :label="'4'">其他</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-row>
       <el-row class="row">
         <el-form-item label="检查意见" >
-          <el-input type="textarea" placeholder="请输入检查意见"/>
-        </el-form-item>
-      </el-row>
-      <el-row class="row">
-        <el-form-item label="现场图片" >
-          <el-upload
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-            :on-success="handleSuccess"
-            :action="baseUrl+'/file/upload/ScenePictures'"
-            list-type="picture-card">
-            <i class="el-icon-plus"/>
-          </el-upload>
-          <el-dialog :visible.sync="dialogVisible" append-to-body>
-            <img :src="dialogImageUrl" width="100%" alt="">
-          </el-dialog>
+          <el-input v-model="record.checkOpinion" type="textarea" placeholder="请输入检查意见"/>
         </el-form-item>
       </el-row>
     </el-form>
@@ -167,17 +176,12 @@
       <el-form ref="form" label-width="130px">
         <el-row class="row">
           <el-form-item label="指令书编号">
-            <el-input class="input" placeholder="请输入指令书编号"/>
-          </el-form-item>
-        </el-row>
-        <el-row class="row">
-          <el-form-item label="指令书流水号">
-            <el-input class="input" placeholder="请输入指令书流水号"/>
+            <el-input v-model="command.commandNo" class="input" placeholder="请输入指令书编号"/>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="指令书模板">
-            <el-select v-model="value" placeholder="请选择指令书模板">
+            <el-select v-model="command.commandModelId" placeholder="请选择指令书模板">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -188,12 +192,12 @@
         </el-row>
         <el-row class="row">
           <el-form-item label="设备描述">
-            <el-input type="textarea" placeholder="请输入设备描述"/>
+            <el-input v-model="command.commandDeviceProblem" type="textarea" placeholder="请输入设备描述"/>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="隐患描述">
-            <el-select v-model="value5" multiple placeholder="请选择" style="flex:1">
+            <el-select v-model="command.dangerDescription" placeholder="请选择" style="flex:1">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -205,42 +209,42 @@
         <el-row class="row">
           <el-form-item label="违反条例">
             <div class="cont">
-              <el-select v-model="value5" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandAgainstRulesIds" multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
               </el-select>
-              <el-input type="textarea" class="area"/>
+              <el-input v-model="command.commandAgainstRulesInfo" type="textarea" class="area"/>
             </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="处罚依据条例">
             <div class="cont">
-              <el-select v-model="value5" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandCcordingRulesIds" multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
               </el-select>
-              <el-input type="textarea" class="area"/>
+              <el-input v-model="command.commandCcordingRulesInfo" type="textarea" class="area"/>
             </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="整改措施">
             <div class="cont">
-              <el-select v-model="value5" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandChangedIds" multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
               </el-select>
-              <el-input type="textarea" class="area"/>
+              <el-input v-model="command.commandChangedInfo" type="textarea" class="area"/>
             </div>
           </el-form-item>
         </el-row>
@@ -248,6 +252,7 @@
           <el-col :span="12">
             <el-form-item label="整改截止日期">
               <el-date-picker
+                v-model="command.commandChangedEndDate"
                 type="date"
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd"/>
@@ -256,6 +261,7 @@
           <el-col :span="12">
             <el-form-item label="指令书日期">
               <el-date-picker
+                v-model="command.commandDate"
                 type="date"
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd"/>
@@ -264,7 +270,22 @@
         </el-row>
         <el-row class="row">
           <el-form-item label="注明情况">
-            <el-input type="textarea" placeholder="" style="width:100%"/>
+            <el-input v-model="command.remark" type="textarea" placeholder="" style="width:100%"/>
+          </el-form-item>
+        </el-row>
+        <el-row class="row">
+          <el-form-item label="监察指令书" >
+            <el-upload
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove"
+              :on-success="handleSuccess"
+              :action="baseUrl+'/file/upload/ScenePictures'"
+              list-type="picture-card">
+              <i class="el-icon-plus"/>
+            </el-upload>
+            <el-dialog :visible.sync="dialogVisible" append-to-body>
+              <img :src="dialogImageUrl" width="100%" alt="">
+            </el-dialog>
           </el-form-item>
         </el-row>
         <el-row class="row" style="margin-bottom: 10px;">
@@ -276,7 +297,7 @@
         <div class="title">任务操作信息</div>
         <el-row class="row">
           <el-form-item label="任务状态" required>
-            <el-radio-group v-model="radio">
+            <el-radio-group v-model="auditStatus">
               <el-radio :label="3">通过</el-radio>
               <el-radio :label="6">不通过</el-radio>
             </el-radio-group>
@@ -284,7 +305,7 @@
         </el-row>
         <el-row class="row">
           <el-form-item label="确认描述" required>
-            <el-input type="textarea" placeholder="请输入确认描述" style="width:100%"/>
+            <el-input v-model="confirmDesc" type="textarea" placeholder="请输入确认描述" style="width:100%"/>
           </el-form-item>
         </el-row>
       </el-form>
@@ -293,79 +314,169 @@
       <el-button type="primary" @click="sure">保存</el-button>
       <el-button @click="closed">取消</el-button>
     </span>
+    <!-- 添加设备 -->
+    <el-dialog
+      :visible.sync="DialogAddDevice"
+      width="45%"
+      title=""
+      append-to-body>
+      <el-form ref="forms" label-width="130px">
+        <div class="device-info">
+          <div class="info">
+            <span>系统导入关联设备</span>
+          </div>
+          <el-table
+            v-loading="loading"
+            ref="multipleTable"
+            :data="noDeviceList"
+            height="250"
+            style="width: 100%"
+            @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="55"/>
+            <el-table-column
+              prop="deviceName"
+              label="设备名称"/>
+            <el-table-column
+              prop="deviceSystemCode"
+              label="设备索引码"/>
+            <el-table-column
+              prop="deviceCertNo"
+              label="使用登记证号"/>
+            <el-table-column
+              prop="deviceStatusName"
+              label="设备状态"/>
+          </el-table>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="DialogAddDevice = false">取 消</el-button>
+        <el-button type="primary" @click="selectDeviceQu">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import taskCheck from '@/components/taskCheck/index'
-import { danWeiType, baseUrl } from '@/utils/config'
+import { fetchBeforeTask } from '@/api/shebei'
+import { fecthExamineTask } from '@/api/task'
+import { danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
 export default {
   components: {
     taskCheck
+  },
+  props: {
+    task: {
+      type: Object,
+      default: () => {}
+    }
   },
   data() {
     return {
       baseUrl,
       danWeiType,
+      taskType,
+      inspectionType,
       dialogImageUrl: '',
       dialogVisible: false,
       nowFileList: [], // 现场图片
-      info: {
-        taskCheckId: '', // 任务id
-        taskCheckCheckNo: '', // 任务编号
-        checkUseId: '', // 使用单位id
-        checkUseName: '', // 单位名称
-        checkUseFullAddress: '', // 使用单位地址
-        checkUseLegalPerson: '', // 单位法人
-        checkUseContactMan: '', // 单位联系人
-        checkUseContactManTel: '', // 单位联系方式
-        checkUseContactPosition: '', // 联系人职位
-        IllegalCountIds: '', // 违法模板
-        deviceIds: '', // 设备ids
-        deviceType1Count: '', // 锅炉数量
-        deviceType2Count: '', // 压力容器数量
-        deviceType3Count: '', // 电梯数量
-        deviceType4Count: '', // 大型游乐设施数量
-        deviceType5Count: '', // 压力管道数量
-        deviceType6Count: '', // 客运索道数量
-        deviceType7Count: '', // 起重机械数量
-        deviceType8Count: '', // 场（厂）内专用机动车辆数量
-        deviceType9Count: '', // 管道元件数量
-        deviceType10Count: '', // 安全附件及安全保护装置数量
-        checkType: '', // 检查类别1
-        checkType2: '', // 检查类别2
-        checkUseTypes: '', // 单位类别id
-        checkUseTypeNames: '', // 单位类别名称
-        checkProblem: '', // 检查问题
-        checkResulTreatmentId: '', // 处理措施id
-        checkResulTreatmentName: '', // 处理措施名称
-        checkOpinion: '', // 检查意见
-        checkDateStart: '', // 检查开始日期
-        checkDateEnd: '', // 检查结束日期
-        commandNo: '', // 指令书编号
-        commandModelId: '', // 指令书模板id
-        commandModel: '', // 指令书模板名称
-        commandDeviceProblem: '', // 设备描述
-        dangerDescription: '', // 隐患描述
-        commandAgainstRulesIds: '', // 违反条例
-        commandCcordingRulesIds: '', // 处罚依据条例id
-        commandCcordingRulesNames: '', // 处罚依据条例名称
-        commandChangedIds: '', // 整改截止日期id
-        commandChangedNames: '', // 整改截止日期名称
-        commandChangedEndDate: '', // 指令书日期
-        commandDate: '', // 注明情况
-        companyUseConfirmMan: '', // 单位确认人
-        companyUseConfirmManPhone: '', // 联系方式
-        checkStatus: '' // 任务状态
-      },
-      isShow: false,
+      DialogAddDevice: false,
+      loading: false,
+      noDeviceList: [],
+      multipleSelection: [],
+      insprcType: [],
+      company: {},
+      command: {},
+      deviceList: [],
+      illegalCount: [],
+      record: {},
+      auditStatus: '',
+      confirmDesc: '',
       value5: '',
       value: '',
       options: [],
-      radio2: ''
+      radio: ''
     }
   },
+  mounted() {
+    // this.info = this.task
+    const task = this.task
+    // console.log(task)
+    const company = task.companyUse === null ? {} : task.companyUse
+    const record = task.checkRecord
+    if (record && record.id) {
+      company.useLegalPerson = record.checkUseLegalPerson
+      company.useContactMan = record.checkUseContactMan
+      company.useContactManTel = record.checkUseContactManTel
+      company.checkUseContactPosition = record.checkUseContactPosition
+    }
+    const command = task.command
+    if (command && command.commandNo) {
+      command.commandAgainstRulesIds = command.commandAgainstRulesIds && typeof command.commandAgainstRulesIds !== 'object' ? command.commandAgainstRulesIds.split(',') : []
+      command.commandCcordingRulesIds = command.commandCcordingRulesIds && typeof command.commandCcordingRulesIds !== 'object' ? command.commandCcordingRulesIds.split(',') : []
+      command.commandChangedIds = command.commandChangedIds && typeof command.commandChangedIds !== 'object' ? command.commandChangedIds.split(',') : []
+      this.command = command
+    }
+    this.company = company
+
+    // checkType2有值
+    if (record.checkType2) this.insprcType = inspectionType
+    record.checkDate = [record.checkDateStart, record.checkDateEnd]
+    if (record.checkResulTreatmentId === '1') { this.isShow = true }
+    this.record = record
+    this.deviceList = task.list
+    this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+  },
   methods: {
+    taskSelect(event) { // 检查类别
+      console.log(event)
+      switch (~~event) {
+        case 0:
+          this.insprcType = []
+          break
+        default:
+          this.insprcType = inspectionType
+      }
+      this.record.checkType2 = ''
+    },
+    // 前判断添加设备
+    addDvice() {
+      if (this.company.id) {
+        this.loading = true
+        fetchBeforeTask(this.company.id).then(response => {
+          const data = response
+          if (data.resultCode === '0000000') {
+            const returnData = data.returnData
+            this.noDeviceList = returnData
+          } else {
+            this.$message({
+              message: data.resultDesc,
+              type: 'warning'
+            })
+          }
+        }).finally(() => {
+          this.loading = false
+          this.DialogAddDevice = true
+        })
+      } else {
+        this.$message('请输入单位名称')
+      }
+    },
+    selectDeviceQu() {
+      if (this.multipleSelection.length !== 0) {
+        this.DialogAddDevice = false
+        this.deviceList = [...this.deviceList, ...this.multipleSelection]
+        const ids = this.multipleSelection.map(item => item.illegalCountId)
+        this.illegalCount = [...this.illegalCount, ...ids]
+      } else {
+        this.$message({
+          message: '请勾选关联设备',
+          type: 'warning'
+        })
+      }
+    },
     handleSuccess(response, file, fileList) {
       this.nowFileList = fileList
     },
@@ -376,26 +487,205 @@ export default {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
+    getCheckResulTreatment(id) {
+      let name = ''
+      switch (~~id) {
+        case 1:
+          name = '下达指令书'
+          break
+        case 2:
+          name = '直接封查'
+          break
+        case 3:
+          name = '实施扣押'
+          break
+        case 4:
+          name = '其他'
+          break
+      }
+      return name
+    },
     checkUseType(event) {
       console.log(event)
       const index = event
-      this.info.checkUseTypes = danWeiType[index].value // 单位类别id
-      this.info.checkUseTypeNames = danWeiType[index].label // 单位类别名称
+      this.record.checkUseTypes = danWeiType[index].value // 单位类别id
+      this.record.checkUseTypeNames = danWeiType[index].label // 单位类别名称
     },
     getTaskCheck(event) { // 检查类别
       // console.log(event)
       const { taskStatus, instructionStatus } = event
-      this.info.checkType = taskStatus // 检查类别1
-      this.info.checkType2 = instructionStatus // 检查类别2
+      this.record.checkType = taskStatus // 检查类别1
+      this.record.checkType2 = instructionStatus // 检查类别2
     },
     sure() { // 确定
-      this.closed()
-    },
-    onCheckbox(event) {
-      this.isShow = event
+      const { id, checkNo } = this.task
+      const checkUseId = this.company.id // 使用单位id
+      const {
+        useName, // 单位名称
+        useAddress, // 单位地址
+        useLegalPerson, // 法人
+        useContactMan, // 联系人
+        useContactManTel, // 联系方式
+        checkUseContactPosition // 联系人职务
+      } = this.company
+      const {
+        // deviceType1Count,
+        // deviceType2Count,
+        // deviceType3Count,
+        // deviceType4Count,
+        // deviceType5Count,
+        // deviceType6Count,
+        // deviceType7Count,
+        // deviceType8Count,
+        // deviceType9Count,
+        // deviceType10Count,
+        checkType,
+        checkType2,
+        checkUseTypes,
+        checkUseTypeNames,
+        checkDate,
+        checkProblem,
+        checkResulTreatmentId,
+        checkOpinion
+      } = this.record
+      const {
+        commandNo,
+        // commandModel, // 暂无
+        commandModelId,
+        commandDeviceProblem,
+        dangerDescription,
+        commandAgainstRulesIds,
+        // commandAgainstRulesNames, // 暂无
+        // commandAgainstRulesInfo,
+        commandCcordingRulesIds,
+        // commandCcordingRulesNames, // 暂无
+        // commandCcordingRulesInfo,
+        commandChangedIds,
+        // commandChangedNames, // 暂无
+        // commandChangedInfo,
+        commandChangedEndDate,
+        commandDate,
+        remark // ,注明情况
+        // auditStatus,
+        // confirmDesc
+        // companyUseConfirmMan,
+        // companyUseConfirmManPhone
+      } = this.command
+      // 设备ids
+      const deviceIds = this.deviceList.map(item => item.id).join(',')
+      // 违反模板ids
+      const illegalCountIds = this.illegalCount.join(',')
+      // checkDate 检查日期
+      const [checkDateStart, checkDateEnd] = checkDate
+      // 处理措施
+      const checkResulTreatmentName = this.getCheckResulTreatment(checkResulTreatmentId)
+      // const checkRecordId = this.record.id
+      const commandId = this.command.id
+      // 监察指令书
+      const commandProblemPhotoList = this.nowFileList.map(item => {
+        return item.returnData
+      }).join(',')
+      const data = {
+        taskCheckId: id, // 任务id
+        taskCheckCheckNo: checkNo, // 任务编号
+        checkUseId, // 使用单位id
+        checkUseName: useName, // 单位名称
+        checkUseFullAddress: useAddress, // 单位地址
+        checkUseLegalPerson: useLegalPerson, // 法人
+        checkUseContactMan: useContactMan, // 联系人
+        checkUseContactManTel: useContactManTel, // 联系方式
+        checkUseContactPosition, // 联系人职务
+        deviceIds,
+        illegalCountIds,
+        // deviceType1Count,
+        // deviceType2Count,
+        // deviceType3Count,
+        // deviceType4Count,
+        // deviceType5Count,
+        // deviceType6Count,
+        // deviceType7Count,
+        // deviceType8Count,
+        // deviceType9Count,
+        // deviceType10Count,
+        checkType,
+        checkType2,
+        checkUseTypes,
+        checkUseTypeNames,
+        checkDateStart,
+        checkDateEnd,
+        checkProblem,
+        checkResulTreatmentId,
+        checkResulTreatmentName,
+        checkOpinion,
+        // checkRecordId,
+        commandId,
+        commandNo,
+        commandModel: this.getMoreSelect(commandModelId, this.options),
+        commandModelId,
+        commandDeviceProblem,
+        dangerDescription,
+        commandAgainstRulesIds: commandAgainstRulesIds.join(','),
+        commandAgainstRulesNames: this.getMoreSelect(commandAgainstRulesIds, this.options),
+        // commandAgainstRulesInfo,
+        commandCcordingRulesIds: commandCcordingRulesIds.join(','),
+        commandCcordingRulesNames: this.getMoreSelect(commandCcordingRulesIds, this.options),
+        // commandCcordingRulesInfo,
+        commandChangedIds: commandChangedIds.join(','),
+        commandChangedNames: this.getMoreSelect(commandChangedIds, this.options),
+        // commandChangedInfo,
+        commandChangedEndDate,
+        commandDate,
+        remark, // 注明情况
+        commandProblemPhotoList,
+        auditStatus: this.auditStatus,
+        confirmDesc: this.confirmDesc
+        // companyUseConfirmMan,
+        // companyUseConfirmManPhone
+      }
+      console.log(data, 11)
+      fecthExamineTask(data).then(res => {
+        console.log(res)
+        if (res.resultCode === '0000000') {
+          this.$message({
+            message: res.resultDesc,
+            type: 'success'
+          })
+          this.closed()
+        } else {
+          this.$message({
+            message: res.resultDesc,
+            type: 'fail'
+          })
+        }
+      })
     },
     closed() {
       this.$emit('closed')
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    getMoreSelect(arr, types) {
+      if (!arr) { return '' }
+      let arrName = []
+      types.map(item => {
+        if (arr.indexOf(item.value) > -1) {
+          arrName = [...arrName, item.label]
+        }
+      })
+      return arrName.join(',')
+    },
+    onCheckbox(event) {
+      // this.isShow = event
+      console.log(event)
+      switch (~~event) {
+        case 1:
+          this.isShow = true
+          break
+        default:
+          this.isShow = false
+          break
+      }
     }
   }
 }

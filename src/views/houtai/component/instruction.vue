@@ -8,8 +8,8 @@
       </el-button-group>
     </div>
     <el-table
-      ref="multipleTable"
-      :data="tableData"
+      ref="multipleIntrTable"
+      :data="returnData"
       tooltip-effect="dark"
       style="width: 100%"
       @selection-change="handleSelectionChange">
@@ -44,10 +44,10 @@ export default {
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row)
+          this.$refs.multipleIntrTable.toggleRowSelection(row)
         })
       } else {
-        this.$refs.multipleTable.clearSelection()
+        this.$refs.multipleIntrTable.clearSelection()
       }
     },
     handleSelectionChange(val) {

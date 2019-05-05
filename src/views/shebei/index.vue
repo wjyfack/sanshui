@@ -289,7 +289,7 @@
               <el-input v-model="info.Longitude" class="input" style="max-width:100px" placeholder="经度坐标"/>
               <span>/</span>
               <el-input v-model="info.latitude" class="input" style="max-width:100px" placeholder="维度坐标"/>
-              <el-button icon="el-icon-edit" type="primary" size="small">选择</el-button>
+              <el-button icon="el-icon-edit" type="primary" size="small" @click="dialogMapVisible = true">选择</el-button>
               <el-checkbox v-model="info.keyMonitor" style="margin-left: 30px;">重点监控设备</el-checkbox>
             </el-form-item>
           </el-row>
@@ -299,6 +299,7 @@
                 v-model="info.useUnitName"
                 :fetch-suggestions="querySearchAsync"
                 placeholder="请输入使用单位名称"
+                style="width:100%"
                 @select="handleMoHuSelect"
               />
             </el-form-item>
@@ -331,6 +332,18 @@
         <el-button type="primary" @click="addDevice('addForm')">确认</el-button>
         <el-button @click="resetForm">取消</el-button>
       </span>
+      <el-dialog
+        :visible.sync="dialogMapVisible"
+        :before-close="handleClose"
+        append-to-body
+        width="60%">
+        <baidu-map :center="center" :zoom="zoom" class="bm-view" ak="BrPsqk0be2TYcuqZkvmVBuAh2MO5SG52" @click="clickMap" @ready="handlerMap"/>
+        <span slot="footer" class="dialog-footer">
+          <span>当前经度: {{ point.Longitude }}</span>
+          <span>纬度: {{ point.latitude }}</span>
+          <el-button type="primary" @click="sureMap">确认</el-button>
+        </span>
+      </el-dialog>
     </el-dialog>
     <!-- excel -->
     <el-dialog
@@ -360,6 +373,7 @@
 </template>
 
 <script>
+import BaiduMap from 'vue-baidu-map/components/map/Map.vue'
 import equementCascader from './component/equementCascader'
 import addTaskDialog from './component/addTaskDialog'
 import deviceDetail from '@/components/deviceDetail'
@@ -369,12 +383,20 @@ import { fetchAddDevice, fetchMohuCom, fetchDeviceDetail, fetchGetDevice, fetchU
 //  fetchMakeTakes,
 export default {
   components: {
+    BaiduMap,
     equementCascader,
     addTaskDialog,
     deviceDetail
   },
   data() {
     return {
+      center: { lng: 0, lat: 0 },
+      zoom: 3,
+      point: {
+        Longitude: '112.904183', // 经度
+        latitude: '23.163219' // 纬度
+      },
+      // map 使用
       restaurants: [],
       timeout: null,
       loading: false,
@@ -404,6 +426,7 @@ export default {
         addrCasc: '' // 地区联级
       },
       // 弹出框
+      dialogMapVisible: false,
       dialogExcelVisible: false,
       dialogAddVisible: false,
       dialogInfoVisible: false,
@@ -479,6 +502,29 @@ export default {
     }
   },
   methods: {
+    sureMap() {
+      const { Longitude, latitude } = this.point
+      this.info.Longitude = Longitude
+      this.info.latitude = latitude
+      this.dialogMapVisible = false
+    },
+    handlerMap({ BMap, map }) {
+      // console.log(BMap, map)
+      map.enableScrollWheelZoom()
+      this.center.lng = 112.904183
+      this.center.lat = 23.163219
+      this.zoom = 12
+      // map.addEventListener('click', (e) => {
+      //   const { lat, lng } = e.point
+      //   this.point.Longitude = lng
+      //   this.point.latitude = lat
+      // })
+    },
+    clickMap({ type, target, point, pixel, overlay }) {
+      const { lat, lng } = point
+      this.point.Longitude = lng
+      this.point.latitude = lat
+    },
     onUseEqueChange(event) { // 设备种类
       console.log(event, 123)
       this.search.useEque = event
@@ -799,7 +845,11 @@ export default {
     },
     handleMoHuSelect(item) { // 获取id
       // console.log(item)
-      this.info.DeviceUseID = item.id
+      const { id, useAddress, useContactMan, useContactManTel } = item
+      this.info.DeviceUseID = id
+      this.info.unitAddr = useAddress
+      this.info.telephone = useContactManTel
+      this.info.concat = useContactMan
     },
     createStateFilter(queryString) {
       return (state) => {
@@ -916,5 +966,8 @@ export default {
       }
     }
   }
-
+.bm-view {
+  width: 100%;
+  height: 500px;
+}
 </style>

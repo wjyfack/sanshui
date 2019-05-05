@@ -8,7 +8,7 @@
       </el-button-group>
     </div>
     <el-table
-      ref="multipleTable"
+      ref="multipleAccountTable"
       :data="tableData"
       tooltip-effect="dark"
       style="width: 100%"
@@ -37,17 +37,18 @@
 export default {
   data() {
     return {
-      returnData: []
+      tableData: [],
+      multipleSelection: []
     }
   },
   methods: {
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row)
+          this.$refs.multipleAccountTable.toggleRowSelection(row)
         })
       } else {
-        this.$refs.multipleTable.clearSelection()
+        this.$refs.multipleAccountTable.clearSelection()
       }
     },
     handleSelectionChange(val) {

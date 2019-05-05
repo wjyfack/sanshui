@@ -2,7 +2,7 @@
   <div class="admin">
     <div class="header">
       <div class="p-info">
-        <img src="http://placehold.it/100x100" alt="" class="avatar">
+        <img src="../../assets/avatar.png" alt="" class="avatar">
         <span class="tips">早安，管理员，祝你开心每一天！</span>
       </div>
       <div class="group">
@@ -12,19 +12,19 @@
       </div>
     </div>
     <div class="opt-group">
-      <div class="item">
+      <div class="item" @click="changeActiveName(1)">
         <img src="http://placehold.it/100x100" alt="" class="img">
         <div class="name">账户管理</div>
       </div>
-      <div class="item">
+      <div class="item" @click="changeActiveName(2)">
         <img src="http://placehold.it/100x100" alt="" class="img">
         <div class="name">角色管理</div>
       </div>
-      <div class="item">
+      <div class="item" @click="changeActiveName(3)">
         <img src="http://placehold.it/100x100" alt="" class="img">
         <div class="name">指令书模板管理</div>
       </div>
-      <div class="item">
+      <div class="item" @click="changeActiveName(4)">
         <img src="http://placehold.it/100x100" alt="" class="img">
         <div class="name">指令书状态管理</div>
       </div>
@@ -33,11 +33,36 @@
         <div class="name">三级标题</div>
       </div>
     </div>
+    <account v-if="activeName == 1"/>
+    <roles v-else-if="activeName == 2"/>
+    <instruction v-else-if="activeName == 3"/>
+    <instruction-status v-else/>
+
   </div>
 </template>
 
 <script>
+import account from './component/account'
+import instruction from './component/instruction'
+import instructionStatus from './component/instructionStatus'
+import roles from './component/roles'
 export default {
+  components: {
+    account,
+    instruction,
+    instructionStatus,
+    roles
+  },
+  data() {
+    return {
+      activeName: 1
+    }
+  },
+  methods: {
+    changeActiveName(opt) {
+      this.activeName = opt
+    }
+  }
 }
 </script>
 

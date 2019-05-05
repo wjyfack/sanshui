@@ -15,7 +15,7 @@
           <equement-cascader
             :equipment="equipmentAllType"
             @cascader="onUseEqueChange"/>
-          <el-button type="primary" @click="searchQuery">查询</el-button>
+          <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
           <el-button @click="dialogVisible = true">更多查询</el-button>
         </div>

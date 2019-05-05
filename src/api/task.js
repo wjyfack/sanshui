@@ -107,3 +107,20 @@ export function fectEditTask(data) {
     data: data
   })
 }
+/** 任务查看 */
+export function fectLookTask({ id, commandId }) {
+  return request({
+    url: '/taskCheck/getTaskForExamine',
+    method: 'post',
+    data: { id, commandId }
+  })
+}
+/** 任务审核 */
+export function fecthExamineTask(data) {
+  return request({
+    url: '/taskCheck/examineTaskCheck',
+    method: 'post',
+    data: data
+  })
+}
+

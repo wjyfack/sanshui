@@ -173,7 +173,7 @@
                 v-else-if="activeName == '5'"
                 size="mini"
                 type="primary"
-                @click="taskLook">查看</el-button>
+                @click="taskLook(scope.row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -263,7 +263,7 @@
       width="60%"
       class="dialogForm"
       title="">
-      <lookDialog @closed="dialogLookVisible = false"/>
+      <lookDialog :task="editTask" @closed="dialogLookVisible = false"/>
     </el-dialog>
     <!-- 图片预览 -->
     <el-dialog
@@ -290,7 +290,7 @@ import lookDialog from './component/lookDialog'
 import editDialog from './component/editDialog'
 import { taskType, status, townType, handleType } from '@/utils/config'
 import { mapGetters } from 'vuex'
-import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit } from '@/api/task'
+import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
 export default {
   components: {
@@ -390,7 +390,7 @@ export default {
   methods: {
     /** 编辑 */
     taskEdit(row) {
-      fecthBeforeEdit('112').then(res => {
+      fecthBeforeEdit(row.id).then(res => {
         const data = res.returnData
         console.log(data)
         this.editTask = data
@@ -400,7 +400,16 @@ export default {
     },
     /** 查看 */
     taskLook(row) {
-      this.dialogLookVisible = true
+      const { id } = row
+      let { commandId } = row
+      if (!commandId) { commandId = '' }
+      const data = { id, commandId }
+      fectLookTask(data).then(res => {
+        const data = res.returnData
+        this.editTask = data
+      }).then(() => {
+        this.dialogLookVisible = true
+      })
     },
     /** 处理  下拉框选择 1 无需处理 3 下达指令书*/
     taskHandleDailog(row) {

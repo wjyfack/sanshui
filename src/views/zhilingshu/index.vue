@@ -9,7 +9,7 @@
           </el-col>
           <el-col :span="8">
             <label for="" class="label">使用单位：</label>
-            <el-input v-model="search.deviceUseName" class="input" placeholder="请输入使用单位"/>
+            <el-input v-model="search.companyUseNewName" class="input" placeholder="请输入使用单位"/>
           </el-col>
           <el-col :span="8">
             <label for="" class="label">使用登记证：</label>
@@ -39,7 +39,7 @@
           </el-col>
           <el-col :span="8">
             <label for="" class="label">回复书编号：</label>
-            <el-input v-model="search.recallNo" class="input" placeholder="请输入回复书编号"/>
+            <el-input v-model="search.commandReplyNo" class="input" placeholder="请输入回复书编号"/>
           </el-col>
           <el-col :span="8">
             <el-button type="primary" @click="toSearch">查询</el-button>
@@ -57,12 +57,15 @@
           <el-tab-pane label="回复审核" name="fifth"/>
           <el-tab-pane label="待确认" name="sixth"/>
           <el-tab-pane label="已完成" name="seventh"/>
-          <el-tab-pane label="全部" name="8"/>
+          <el-tab-pane label="全部" name="eight"/>
         </el-tabs>
         <el-table
-          :data="tableData"
+          v-loading="loading"
+          :data="instructionList"
           style="width: 100%">
           <el-table-column
+            fixed
+            width="400"
             label="操作">
             <template slot-scope="scope">
               <div v-if="activeName == 'first'">
@@ -106,20 +109,26 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="name"
+            prop="commandNo"
             width="180"
             label="指令书"/>
           <el-table-column
-            prop="userAddr"
+            prop="companyUseNewName"
             label="使用单位"/>
           <el-table-column
-            prop="address"
+            prop="companyUseFullAddress"
             label="单位地址"/>
           <el-table-column
-            prop="desc"
+            prop="commandDeviceProblem"
             label="问题描述"/>
           <el-table-column
-            prop="date"
+            prop="commandTransferNo"
+            label="移交书编号"/>
+          <el-table-column
+            prop="commandReplyNo"
+            label="回复书编号"/>
+          <el-table-column
+            prop="commandDate"
             width="120"
             label="指令书日期"/>
         </el-table>
@@ -278,14 +287,16 @@ export default {
   data() {
     return {
       townType,
+      loading: false,
       search: {
         checkNo: '', // 任务编号
-        deviceUseName: '', // 使用单位
+        companyUseNewName: '', // 使用单位
         deviceCertNo: '', // 使用登记证
         commandNo: '', // 指令书编号
         deviceAreaName4: '', // 镇街
-        instructionNo: '', // 移交书编号
-        recallNo: '' // 回复书编号
+        instructionNo: '', // 移交书编号 (没)
+        commandReplyNo: '', // 回复书编号
+        commandExecTaskStatus: '1' // 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理 8回复审核 4 待确认  5:完成
       },
       pageSize: 10,
       pageNum: 1,
@@ -326,6 +337,47 @@ export default {
       'instructionList'
     ])
   },
+  watch: {
+    activeName(newValue, oldValue) {
+      console.log(newValue, oldValue)
+      /**
+      * 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理
+       8回复审核 4 待确认  5:完成
+       */
+      let status = ''
+      switch (newValue) {
+        case 'first':
+          status = '1'
+          break
+        case 'second':
+          status = '12'
+          break
+        case 'third':
+          status = '7'
+          break
+        case 'fourth':
+          status = '3'
+          break
+        case 'fifth':
+          status = '8'
+          break
+        case 'sixth':
+          status = '4'
+          break
+        case 'seventh':
+          status = '5'
+          break
+        case 'eight':
+          status = ''
+          break
+      }
+      this.search.commandExecTaskStatus = status
+      this.fecthData()
+    }
+  },
+  mounted() {
+    this.fecthData()
+  },
   methods: {
     zSure() {
       this.dialogSureVisible = true
@@ -345,27 +397,33 @@ export default {
       this.fecthData()
     },
     fecthData() { // 获取数据
+      this.loading = true
       const {
         checkNo, // 任务编号
-        deviceUseName, // 使用单位
+        companyUseNewName, // 使用单位
         deviceCertNo, // 使用登记证
         commandNo, // 指令书编号
         deviceAreaName4, // 镇街
         instructionNo, // 移交书编号
-        recallNo // 回复书编号
+        commandReplyNo, // 回复书编号
+        commandExecTaskStatus
       } = this.search
       const data = {
         checkNo, // 任务编号
-        deviceUseName, // 使用单位
+        companyUseNewName, // 使用单位
         deviceCertNo, // 使用登记证
         commandNo, // 指令书编号
         deviceAreaName4, // 镇街
         instructionNo, // 移交书编号
-        recallNo, // 回复书编号
+        commandReplyNo, // 回复书编号
+        commandExecTaskStatus,
         pageSize: `${this.pageSize}`,
         pageNum: `${this.pageNum}`
       }
       console.log(data)
+      this.$store.dispatch('fetchInstructionList', data).then(() => {
+        this.loading = false
+      })
     },
     pageSizeChange(event) {
       this.pageSize = event
