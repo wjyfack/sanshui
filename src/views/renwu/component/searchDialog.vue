@@ -2,15 +2,16 @@
   <div>
     <div class="dialogForm">
       <el-row class="row">
-        <el-col :span="12">
+        <el-col :span="24" style="display: flex;align-items:center">
           <label for="" class="label">任务状态：</label>
-          <el-select v-model="info.taskStatus" placeholder="请选择">
+          <task-check @send="getSend"/>
+          <!-- <el-select v-model="info.taskStatus" placeholder="请选择">
             <el-option
               v-for="item in taskType"
               :key="item.value"
               :label="item.label"
               :value="item.value"/>
-          </el-select>
+          </el-select> -->
         </el-col>
       </el-row>
       <el-row class="row">
@@ -55,8 +56,12 @@
 </template>
 
 <script>
+import taskCheck from '@/components/taskCheck/index'
 import { status, taskType, taskStatus } from '@/utils/config'
 export default {
+  components: {
+    taskCheck
+  },
   props: {
     visible: {
       type: Boolean,
@@ -72,6 +77,7 @@ export default {
       info: {
         checkNo: '', // 任务编号
         taskStatus: '', // 任务状态
+        taskStatusName: '',
         companyUseName: '', // 使用单位
         commandNo: '', // 指令书编号
         deviceCertNo: '', // 使用登记证
@@ -93,6 +99,7 @@ export default {
         checkNo: '', // 任务编号
         taskStatus: '', // 任务状态
         companyUseName: '', // 使用单位
+        taskStatusName: '',
         commandNo: '', // 指令书编号
         deviceCertNo: '', // 使用登记证
         dateChecked: [], // 年检日期
@@ -106,6 +113,12 @@ export default {
       this.$emit('closed', {
         visible: true
       })
+    },
+    getSend(event) {
+      // console.log(event)
+      const { taskStatus, instructionStatus } = event
+      this.info.taskStatus = taskStatus
+      this.info.taskStatusName = instructionStatus
     }
   }
 }

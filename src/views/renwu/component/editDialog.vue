@@ -217,10 +217,10 @@
           <el-form-item label="指令书模板">
             <el-select v-model="command.commandModelId" placeholder="请选择指令书模板">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
+                v-for="item in instructionModels"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"/>
             </el-select>
           </el-form-item>
         </el-row>
@@ -376,6 +376,7 @@
 import taskCheck from '@/components/taskCheck/index'
 import { fetchBeforeTask } from '@/api/shebei'
 import { fectEditTask } from '@/api/task'
+import { mapGetters } from 'vuex'
 
 import { danWeiType, taskType, inspectionType } from '@/utils/config'
 export default {
@@ -493,7 +494,15 @@ export default {
       radio2: ''
     }
   },
+  computed: {
+    ...mapGetters([
+      'instructionModels'
+    ])
+  },
   mounted() {
+    if (this.instructionModels.length === 0) {
+      this.$store.dispatch('actionsInstructionModels')
+    }
     // this.info = this.task
     const task = this.task
     // console.log(task)

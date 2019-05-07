@@ -1,13 +1,14 @@
 import {
   fetchMohuCom
 } from '@/api/shebei'
-import { fetchDeviceType } from '@/api/common'
+import { fetchDeviceType, fetchIntructionModel } from '@/api/common'
 // import { getTree } from '@/utils/common'
 
 const common = { // 通用滴
   state: {
     comlist: [],
-    deviceType: []
+    deviceType: [],
+    instructionModels: []
   },
   mutations: {
     SET_COMPANYLIST: (state, companyList) => {
@@ -15,6 +16,9 @@ const common = { // 通用滴
     },
     SET_DEVICETYPE: (state, deviceType) => {
       state.deviceType = deviceType
+    },
+    SET_INSTRUCTIONMODELS: (state, instructionModels) => {
+      state.instructionModels = instructionModels
     }
   },
   actions: {
@@ -41,6 +45,15 @@ const common = { // 通用滴
         fetchDeviceType().then(response => {
           const data = response.returnData
           commit('SET_DEVICETYPE', data)
+          resolve()
+        }).catch(error => reject(error))
+      })
+    },
+    actionsInstructionModels({ commit }) {
+      return new Promise((resolve, reject) => {
+        fetchIntructionModel().then(response => {
+          const data = response.returnData
+          commit('SET_INSTRUCTIONMODELS', data)
           resolve()
         }).catch(error => reject(error))
       })

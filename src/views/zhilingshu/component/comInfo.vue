@@ -3,28 +3,37 @@
     <div class="bianhao"><label for="">企业信息</label></div>
     <div class="detail">
       <div class="item">
-        <span class="name">使用单位：</span> <div class="info">付小小</div>
-        <span class="name">联系人:</span> <div class="info">小明</div>
+        <span class="name">使用单位：</span> <div class="info">{{ transfe.companyUseNewName }}</div>
+        <span class="name">联系人:</span> <div class="info">{{ transfe.companyUseConfirmMan }}</div>
       </div>
       <div class="item">
-        <span class="name">联系电话：</span> <div class="info">1810 0000 000</div>
-        <span class="name">联系地址：</span> <div class="info">佛山市南海区</div>
+        <span class="name">联系电话：</span> <div class="info">{{ transfe.companyUseConfirmManPhone }}</div>
+        <span class="name">联系地址：</span> <div class="info">{{ transfe.companyUseFullAddress }}</div>
       </div>
     </div>
-    <table class="table">
-      <tr>
-        <th>设备种类</th>
-        <th>使用登记证</th>
-        <th>出厂编号</th>
-        <th>操作</th>
-      </tr>
-      <tr>
-        <td>电梯</td>
-        <td>EM粤5505</td>
-        <td>123456</td>
-        <td><el-button size="mini" @click="detail(1)">详情</el-button></td>
-      </tr>
-    </table>
+    <el-table
+      :data="deviceList"
+      border
+      height="230"
+      style="width: 100%;margin-bottom: 15px;">
+      <el-table-column
+        prop="deviceTypeName1"
+        label="设备种类"
+        width="180"/>
+      <el-table-column
+        prop="deviceCertNo"
+        label="使用登记证"
+        width="180"/>
+      <el-table-column
+        prop="deviceProduceNo"
+        label="出厂编号"/>
+      <el-table-column
+        label="操作">
+        <template slot-scope="scope">
+          <el-button size="mini" @click="detail(scope.row)">详情</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
     <el-dialog
       :visible.sync="innerVisible"
       width="40%"
@@ -37,19 +46,39 @@
 
 <script>
 import deviceDetail from '@/components/deviceDetail/index'
+import { fetchDeviceDetail } from '@/api/shebei'
 export default {
   components: {
     deviceDetail
   },
+  props: {
+    transfe: {
+      type: Object,
+      default: () => {}
+    }
+  },
   data() {
     return {
       info: {},
-      innerVisible: false
+      innerVisible: false,
+      deviceList: []
+    }
+  },
+  mounted() {
+    if (this.transfe.list.length !== 0) {
+      this.deviceList = this.transfe.list
     }
   },
   methods: {
-    detail(id) {
-      this.innerVisible = true
+    detail(row) {
+      fetchDeviceDetail(row.id).then(response => {
+        const data = response
+        if (data.resultCode === '0000000') {
+          this.info = data.returnData
+        }
+      }).finally(() => {
+        this.innerVisible = true
+      })
     }
   }
 }
@@ -91,16 +120,6 @@ export default {
       position: absolute;
       right: 5px;
       top: 60px;
-    }
-    .table {
-      margin-bottom: 10px;
-      width: 100%;
-      text-align: center;
-      background: #999999;
-      td, th {
-        padding:10px 0;
-        background: #ffffff;
-      }
     }
     .row {
       padding: 10px 0;

@@ -72,10 +72,10 @@
                 <el-button
                   :ab="scope.$index"
                   size="mini"
-                  @click="dialogVisible= true">整改查看</el-button>
+                  @click="recitfyDialog(scope.row)">整改查看</el-button>
                 <el-button
                   size="mini"
-                  @click="dialogYiJiaoVisible = true">移交</el-button>
+                  @click="yijiaoDialog(scope.row)">移交</el-button>
                 <el-button
                   size="mini">闭环</el-button>
                 <el-button
@@ -151,25 +151,25 @@
       <el-form label-width="120px" class="dialog">
         <el-row class="row">
           <el-form-item label="整改图片：">
-            <img v-for="(item, index) in recitfy.recitfyImgs" :key="index" src="http://placehold.it/100x100" alt="" srcset="" style="margin-right:10px;">
+            <img v-for="(item, index) in recitfy.rectifyImg" :key="index" :src="baseUrl+item" alt="" srcset="" style="margin-right:10px;">
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="整改文字：">
-            <el-input v-model="recitfy.recitfyTitle" placeholder="企业编写文字说明（非必填）" class="textarea"/>
+            <el-input v-model="recitfy.rectifyRemark" placeholder="企业编写文字说明（非必填）" class="textarea"/>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="审核动作：" required>
-            <el-radio-group v-model="recitfy.examineStatus">
-              <el-radio :label="3">通过</el-radio>
-              <el-radio :label="6">不通过</el-radio>
+            <el-radio-group v-model="recitfy.rectifyStatus">
+              <el-radio :label="'2'">通过</el-radio>
+              <el-radio :label="'3'">不通过</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="审核描述：" required>
-            <el-input v-model="recitfy.examineDesc" type="textarea" placeholder="审核描述" class="textarea"/>
+            <el-input v-model="recitfy.rectifyAuditInfo" type="textarea" placeholder="审核描述" class="textarea"/>
           </el-form-item>
         </el-row>
       </el-form>
@@ -191,8 +191,8 @@
       :before-close="handleClose"
       width="50%"
       title="移交">
-      <taskDetail />
-      <comInfo />
+      <taskDetail :transfe="transfe"/>
+      <comInfo :transfe="transfe"/>
       <transferInfo @closed="dialogYiJiaoVisible = false"/>
     </el-dialog>
     <!-- 审核移交 -->
@@ -271,7 +271,8 @@ import yijiaoInfo from './component/yijiaoInfo'
 import replyLetterSub from './component/replyLetterSub'
 import examineSub from './component/examineSub'
 import zhilingshuInfo from './component/zhilingshuInfo'
-
+import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe } from '@/api/instruction'
+import { baseUrl } from '@/utils/config'
 export default {
   components: {
     transferInfo,
@@ -286,6 +287,7 @@ export default {
   },
   data() {
     return {
+      baseUrl: `${baseUrl}/file/show/rectify/`,
       townType,
       loading: false,
       search: {
@@ -301,10 +303,10 @@ export default {
       pageSize: 10,
       pageNum: 1,
       recitfy: { // 整改信息查看
-        recitfyImgs: [], // 图片
-        recitfyTitle: '', // 整改文字
-        examineStatus: '', // 审核动作
-        examineDesc: '' // 审核描述
+        rectifyImg: [], // 图片
+        rectifyAuditInfo: '', // 整改文字
+        rectifyStatus: '', // 审核动作
+        rectifyRemark: '' // 审核描述
       },
       // yuanshi
       dialogShenHeVisible: false,
@@ -316,15 +318,9 @@ export default {
       dialogLookVisible: false,
       dialogVisible: false,
       activeName: 'first',
+      transfe: {}, // 移交前查的数据
       radio2: '',
       value1: '', // 后期删除
-      tableData: [{
-        name: '[2018]第（5477）号',
-        userAddr: '广州益力多乳品有限公司',
-        address: '西南街道百威大道3号',
-        desc: '在用的一台叉车（无铭牌）未按照规定办理使用登记；另外两台叉车（证号∶厂内粤A03211、车粤EM0174）检验不合格。',
-        date: '2019-03-07'
-      }],
       addrSel: '',
       list: [
       ],
@@ -386,10 +382,59 @@ export default {
     zLook() {
       this.dialogLookVisible = true
     },
+    /** 移交 */
+    yijiaoDialog(row) {
+      fetchBeforeTransfe(row.id).then(res => {
+        const data = res.returnData
+        this.transfe = data
+        this.dialogYiJiaoVisible = true
+      })
+    },
+    /** 整改查看 */
+    recitfyDialog(row) {
+      fetchBeforeRectify(row.id).then(res => {
+        const data = res.returnData
+        if (!data) {
+          this.$message('没有数据')
+        }
+        if (!data.rectifyImg) {
+          data.rectifyImg = []
+        } else {
+          data.rectifyImg = data.rectifyImg.split(',')
+        }
+        data.id = row.id
+        this.recitfy = data
+        this.dialogVisible = true
+      })
+    },
     /** 整改信息 */
     recitfyInfo() {
-      console.log(JSON.stringify(this.recitfy))
-      this.dialogVisible = false
+      const {
+        id,
+        rectifyStatus,
+        rectifyAuditInfo } = this.recitfy
+      if (!rectifyAuditInfo) {
+        this.$message({ message: '请输入审核描述', type: 'error' })
+        return ''
+      }
+      const data = {
+        sourceCommandId: id,
+        rectifyStatus,
+        rectifyAuditInfo }
+      fetchRectify(data).then(res => {
+        if (res.returnCode === '000000') {
+          this.$message({
+            message: res.resultDesc,
+            type: 'success'
+          })
+          this.dialogVisible = false
+        } else {
+          this.$message({
+            message: res.resultDesc,
+            type: 'error'
+          })
+        }
+      })
     },
     toSearch() {
       this.pageSize = 10

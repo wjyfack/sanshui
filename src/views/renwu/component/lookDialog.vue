@@ -183,10 +183,10 @@
           <el-form-item label="指令书模板">
             <el-select v-model="command.commandModelId" placeholder="请选择指令书模板">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
+                v-for="item in instructionModels"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"/>
             </el-select>
           </el-form-item>
         </el-row>
@@ -362,6 +362,7 @@
 import taskCheck from '@/components/taskCheck/index'
 import { fetchBeforeTask } from '@/api/shebei'
 import { fecthExamineTask } from '@/api/task'
+import { mapGetters } from 'vuex'
 import { danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
 export default {
   components: {
@@ -400,7 +401,15 @@ export default {
       radio: ''
     }
   },
+  computed: {
+    ...mapGetters([
+      'instructionModels'
+    ])
+  },
   mounted() {
+    if (this.instructionModels.length === 0) {
+      this.$store.dispatch('actionsInstructionModels')
+    }
     // this.info = this.task
     const task = this.task
     // console.log(task)
@@ -427,7 +436,7 @@ export default {
     if (record.checkResulTreatmentId === '1') { this.isShow = true }
     this.record = record
     this.deviceList = task.list
-    this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+    this.illegalCount = this.deviceList.length === 0 ? [] : this.deviceList.map(item => item.illegalCountId)
   },
   methods: {
     taskSelect(event) { // 检查类别

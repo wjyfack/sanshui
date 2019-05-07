@@ -33,7 +33,7 @@
           </el-col>
           <el-col :span="8">
             <label class="label" for="">所属镇街：</label>
-            <el-select v-model="search.cont" placeholder="请选择">
+            <el-select v-model="search.cont" clearable placeholder="请选择">
               <el-option
                 v-for="item in townType"
                 :key="item.value"
@@ -153,7 +153,7 @@
                 v-else-if="activeName == '2'"
                 size="mini"
                 type="primary"
-                @click="taskDeleteAGet(scope.row, 1)">接收任务</el-button>
+                @click="taskDeleteAGet(scope.row, 2)">接收任务</el-button>
               <el-button
                 v-if="activeName == '2'"
                 size="mini"
@@ -392,7 +392,7 @@ export default {
     taskEdit(row) {
       fecthBeforeEdit(row.id).then(res => {
         const data = res.returnData
-        console.log(data)
+        // console.log(data)
         this.editTask = data
       }).then(() => {
         this.dialogEditVisible = true
@@ -533,7 +533,7 @@ export default {
     /** 设备详情 */
     taskDetail(row) {
       console.log(row.checkNo)
-      fetchtaskDetail('CK312019041145').then(data => {
+      fetchtaskDetail(row.checkNo).then(data => {
         if (data.resultCode === '0000000') {
           const arr = data.returnData
           console.log(arr)
@@ -573,7 +573,8 @@ export default {
         return item.id
       })
       console.log(tasks.join(','))
-      this.onlyWholesale(tasks.join(','))
+      const row = { id: tasks.join(',') }
+      this.onlyWholesale(row)
     },
     onlyWholesale(row) {
       fetchBeforeDistribute(`${row.id}`).then(data => {
@@ -622,6 +623,7 @@ export default {
       检查任务状态	checkStatus
       回收站	isRecovery
       排序	orderType
+      任务状态2级 taskStatusName
       */
       const data = {
         pageSize: `${this.pageSize}`,
@@ -638,7 +640,7 @@ export default {
         deviceAreaName4: cont,
         updateTime: dateChecked[0],
         commandAddDate: dateChecked[1],
-        orderType: ''
+        orderType: '1'
       }
       // console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
@@ -675,6 +677,7 @@ export default {
       const {
         checkNo, // 任务编号
         taskStatus, // 任务状态
+        taskStatusName,
         companyUseName, // 使用单位
         commandNo, // 指令书编号
         deviceCertNo, // 使用登记证
@@ -684,6 +687,7 @@ export default {
       } = data.info
       this.search.checkNo = checkNo
       this.search.taskStatus = taskStatus
+      this.search.taskStatusName = taskStatusName
       this.search.companyUseName = companyUseName
       this.search.commandNo = commandNo
       this.search.deviceCertNo = deviceCertNo

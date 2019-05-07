@@ -13,6 +13,7 @@ const getters = {
   instructionList: state => state.instruction.list,
   companyList: state => state.common.comlist, // 公司名称
   equipmentAllType: state => state.common.deviceType, // 设备类型
+  instructionModels: state => state.common.instructionModels, // 指令书模板
   addRouters: state => state.permission.addRouters
 }
 export default getters

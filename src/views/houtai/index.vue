@@ -2,7 +2,7 @@
   <div class="admin">
     <div class="header">
       <div class="p-info">
-        <img src="../../assets/avatar.png" alt="" class="avatar">
+        <img :src="avatar" alt="" class="avatar">
         <span class="tips">早安，管理员，祝你开心每一天！</span>
       </div>
       <div class="group">
@@ -46,6 +46,7 @@ import account from './component/account'
 import instruction from './component/instruction'
 import instructionStatus from './component/instructionStatus'
 import roles from './component/roles'
+import avatar from '@/assets/avatar.png'
 export default {
   components: {
     account,
@@ -55,6 +56,7 @@ export default {
   },
   data() {
     return {
+      avatar,
       activeName: 1
     }
   },

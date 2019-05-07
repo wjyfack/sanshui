@@ -20,3 +20,13 @@ export function fetchSendPhoto(file) {
     }
   })
 }
+/**
+ * 指令书模板
+ */
+export function fetchIntructionModel(isApp = 0) {
+  return request({
+    url: '/base/param/getletterTemplate',
+    method: 'post',
+    data: { isApp }
+  })
+}

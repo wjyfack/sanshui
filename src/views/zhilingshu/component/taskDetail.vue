@@ -1,18 +1,18 @@
 <template>
   <div class="task-detail">
-    <el-row><div class="bianhao"><label for="">任务编号：234231028321</label></div></el-row>
+    <el-row><div class="bianhao"><label for="">任务编号：{{ transfe.check.checkNo }}</label></div></el-row>
     <div class="detail">
       <div class="item">
-        <span class="name">处理人：</span> <div class="info">qulili</div>
-        <span class="name">处理方式：</span> <div class="info">下指令书</div>
+        <span class="name">处理人：</span> <div class="info">{{ transfe.commandAddManName }}</div>
+        <span class="name">处理方式：</span> <div class="info">{{ transfe.check.checkResulTreatmentId }}</div>
       </div>
       <div class="item">
-        <span class="name">执行时间：</span> <div class="info">2017</div>
-        <span class="name">关联指令书编号：</span> <div class="info">[2109]第1</div>
+        <span class="name">执行时间：</span> <div class="info">{{ transfe.commandAddDate }}</div>
+        <span class="name">关联指令书编号：</span> <div class="info">{{ transfe.commandNo }}</div>
       </div>
       <div class="item">
-        <span class="name">指令书日期：</span> <div class="info">2017</div>
-        <span class="name">备注：</span> <div class="info">请于两个</div>
+        <span class="name">指令书日期：</span> <div class="info">{{ transfe.commandDate }}</div>
+        <span class="name">备注：</span> <div class="info">{{ transfe.dangerDescription }}</div>
       </div>
       <div class="item">
         <el-button type="text">详情</el-button>
@@ -27,7 +27,12 @@
 
 <script>
 export default {
-
+  props: {
+    transfe: {
+      type: Object,
+      default: () => {}
+    }
+  }
 }
 </script>
 

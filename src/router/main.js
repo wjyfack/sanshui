@@ -21,12 +21,10 @@ router.beforeEach((to, from, next) => {
           store.dispatch('GenerateRoutes', { roles }).then(() => {
             const routes = [...constantRouterMap, ...store.getters.addRouters]
             router.options.routes = routes
+            console.log(routes, store.getters.addRouters)
             router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
-            console.log(router)
-          }).finally(() => {
-            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+            next()
           })
-          // next()
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {
             Message.error(err || 'Verification failed, please login again')
@@ -34,7 +32,6 @@ router.beforeEach((to, from, next) => {
           })
         })
       } else {
-        console.log('6666666')
         next()
       }
     }
