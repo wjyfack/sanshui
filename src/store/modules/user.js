@@ -1,6 +1,7 @@
 import { login, getInfo } from '@/api/login' // logout,
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import avatar from '@/assets/avatar.png'
+import { Message } from 'element-ui'
 const user = {
   state: {
     token: getToken(),
@@ -34,13 +35,18 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
-          const data = response.returnData
-          console.log(response)
-          setToken(data.token)
-          commit('SET_TOKEN', data.token)
-          // commit('SET_ROLES', data.roleNavList) // 获取角色
-          commit('SET_USERINFO', data)
-          resolve()
+          if (response.resultCode === '0000000') {
+            const data = response.returnData
+            console.log(response)
+            setToken(data.token)
+            commit('SET_TOKEN', data.token)
+            // commit('SET_ROLES', data.roleNavList) // 获取角色
+            commit('SET_USERINFO', data)
+            resolve()
+          } else {
+            Message({ message: response.resultDesc, type: 'error' })
+            reject(response.resultDesc)
+          }
         }).catch(error => {
           reject(error)
         })

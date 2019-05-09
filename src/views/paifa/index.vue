@@ -1,11 +1,13 @@
 <template>
   <div class="paifa">
     <div class="cont">
-      <div class="title"><label class="label" for="">目前任务统计</label></div>
-      <el-row type="flex" align="middle" class="row">
-        <el-col :span="8"><label class="label" for="">待处理：</label><span>{{ taskTotal }}</span></el-col>
-        <el-col :span="8"><label class="label" for="">派发数量：</label><span>{{ deviceList.length }}</span></el-col>
-      </el-row>
+      <div v-if="isShow">
+        <div class="title"><label class="label" for="">目前任务统计</label></div>
+        <el-row type="flex" align="middle" class="row">
+          <el-col :span="8"><label class="label" for="">待处理：</label><span>{{ taskTotal }}</span></el-col>
+          <el-col :span="8"><label class="label" for="">派发数量：</label><span>{{ deviceList.length }}</span></el-col>
+        </el-row>
+      </div>
       <el-row type="flex" align="middle" class="row">
         <el-col :span="6">
           <label class="label" for="">任务要求：</label>
@@ -66,9 +68,11 @@
 
 <script>
 import { fetchDistributeTask } from '@/api/task'
+import { fetchReview } from '@/api/instruction'
 export default {
   data() {
     return {
+      isShow: true,
       deviceList: [],
       taskTotal: 0,
       id: '', // 任务id
@@ -97,9 +101,22 @@ export default {
     }
   },
   mounted() {
-    const { arr, taskTotal } = this.$route.query
+    const { arr, taskTotal, info } = this.$route.query
     this.deviceList = arr
-    this.taskTotal = taskTotal
+    if (info) {
+      console.log(info)
+      this.checkIntro = info.checkIntro // 任务要求
+      this.checkResultEndDate = info.checkResultEndDate // 反馈时间
+      this.checkTypeId = info.checkTypeId // 检验类型
+      this.checkDeptId = info.checkDeptId // 接收部门id
+      this.checkDeptName = info.checkDeptName // 接收部门
+    }
+    if (!taskTotal) {
+      this.isShow = false
+    } else {
+      this.isShow = true
+      this.taskTotal = taskTotal
+    }
   },
   methods: {
     submit() {
@@ -115,22 +132,42 @@ export default {
         this.$message('请输入检验类型')
         return ''
       } // 检验类型
-      const deviceList = this.deviceList
-      const arr = deviceList.map(item => {
-        item.checkIntro = this.checkIntro
-        item.checkResultEndDate = this.checkResultEndDate
-        item.checkTypeId = this.checkTypeId
-        return item
-      })
-      fetchDistributeTask(arr).then(data => {
-        if (data.resultCode === '0000000') {
-          this.$message({
-            message: data.resultDesc,
-            type: 'success'
-          })
-          setTimeout(() => { this.back() }, 1500)
+      if (this.isShow) {
+        const deviceList = this.deviceList
+        const arr = deviceList.map(item => {
+          item.checkIntro = this.checkIntro
+          item.checkResultEndDate = this.checkResultEndDate
+          item.checkTypeId = this.checkTypeId
+          return item
+        })
+        fetchDistributeTask(arr).then(data => {
+          if (data.resultCode === '0000000') {
+            this.$message({
+              message: data.resultDesc,
+              type: 'success'
+            })
+            setTimeout(() => { this.back() }, 1500)
+          }
+        })
+      } else {
+        const data = {
+          checkIntro: this.checkIntro, // 任务要求
+          checkResultEndDate: this.checkResultEndDate, // 反馈时间
+          checkTypeId: this.checkTypeId, // 检验类型
+          checkDeptId: this.checkDeptId, // 接收部门id
+          checkDeptName: this.checkDeptName // 接收部门
         }
-      })
+        console.log(data, 123)
+        fetchReview(data).then(data => {
+          if (data.resultCode === '0000000') {
+            this.$message({
+              message: data.resultDesc,
+              type: 'success'
+            })
+            setTimeout(() => { this.back() }, 1500)
+          }
+        })
+      }
     },
     back() {
       this.$router.back()

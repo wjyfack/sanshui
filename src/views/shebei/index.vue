@@ -267,7 +267,7 @@
           <el-row>
             <el-col :span="18">
               <el-form-item label="设备系统编号">
-                <el-input v-model="info.DeviceIndexesID" class="input" placeholder="请输入设备系统编号"/>
+                <el-input v-model="info.deviceIndexesID" class="input" placeholder="请输入设备系统编号"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -443,7 +443,7 @@ export default {
         devUnit: '', // 设备型号
         devReg: '', // 设备注册号
         useCert: '', // 使用证编号
-        DeviceIndexesID: '', // 设备系统编号
+        deviceIndexesID: '', // 设备系统编号
         detailAddr: '', // 详细地址
         Longitude: '', // 经度
         latitude: '', // 纬度
@@ -455,7 +455,7 @@ export default {
         factNum: '', // 设备出厂编号
         installAddr: [], // 设备安装地址
         keyMonitor: '', // 重点监控设备
-        DeviceUseID: '' // 使用单位id
+        deviceUseID: '' // 使用单位id
       },
       infoRules: {
         useEque: [{ type: 'array', required: true, message: '请选择设备种类' }], // 设备种类
@@ -597,7 +597,7 @@ export default {
             deviceRegNo, // 设备注册号
             deviceCertNo, // 使用证编号
             deviceProduceNo, // 设备出厂编号
-            DeviceIndexesID, // 设备系统编号
+            deviceIndexesID, // 设备系统编号
             // deviceInstallArea1, // 设备安装地址1
             deviceInstallArea2, // 设备安装地址2
             deviceInstallArea3, // 设备安装地址3
@@ -635,7 +635,7 @@ export default {
             devUnit: deviceModel, // 设备型号
             devReg: deviceRegNo, // 设备注册号
             useCert: deviceCertNo, // 使用证编号
-            DeviceIndexesID, // 设备系统编号
+            deviceIndexesID, // 设备系统编号
             detailAddr: deviceInstallAddress, // 详细地址
             Longitude: deviceLng, // 经度
             latitude: deviceLat, // 纬度
@@ -663,7 +663,7 @@ export default {
             devUnit, // 设备型号
             devReg, // 设备注册号
             useCert, // 使用证编号
-            DeviceIndexesID, // 设备系统编号
+            deviceIndexesID, // 设备系统编号
             detailAddr, // 详细地址
             Longitude, // 经度
             latitude, // 纬度
@@ -675,7 +675,7 @@ export default {
             factNum, // 设备出厂编号
             installAddr, // 设备安装地址
             keyMonitor, // 重点监控设备
-            DeviceUseID
+            deviceUseID
           } = this.info
           const useEqueArr = this.$refs['useEque'].$el.innerText.replace(/\s+/g, '').split('/')
           const deviceInstallAreaArr = this.$refs['deviceInstallArea'].$el.innerText.replace(/\s+/g, '').split('/')
@@ -692,25 +692,25 @@ export default {
             deviceRegNo: devReg, // 设备注册号
             deviceCertNo: useCert, // 使用证编号
             deviceProduceNo: factNum, // 设备出厂编号
-            DeviceIndexesID, // 设备系统编号
-            deviceInstallArea1: '1', // 设备安装地址1
-            deviceInstallArea2: installAddr[0], // 设备安装地址2
-            deviceInstallArea3: installAddr[1], // 设备安装地址3
-            deviceInstallArea4: installAddr[2], // 设备安装地址4
-            deviceInstallAreaName1: '广东省', // 设备安装地址名1
-            deviceInstallAreaName2: deviceInstallAreaArr[0], // 设备安装地址名2
-            deviceInstallAreaName3: deviceInstallAreaArr[1], // 设备安装地址名3
-            deviceInstallAreaName4: deviceInstallAreaArr[2], // 设备安装地址名4
-            deviceInstallAddress: detailAddr, // 详细地址
-            deviceLng: Longitude, // 经度
-            deviceLat: latitude, // 纬度
+            deviceIndexesID, // 设备系统编号
+            deviceArea1: '1', // 设备安装地址1
+            deviceArea2: installAddr[0], // 设备安装地址2
+            deviceArea3: installAddr[1], // 设备安装地址3
+            deviceArea4: installAddr[2], // 设备安装地址4
+            deviceAreaName1: '广东省', // 设备安装地址名1
+            deviceAreaName2: deviceInstallAreaArr[0], // 设备安装地址名2
+            deviceAreaName3: deviceInstallAreaArr[1], // 设备安装地址名3
+            deviceAreaName4: deviceInstallAreaArr[2], // 设备安装地址名4
+            deviceAddress: detailAddr, // 详细地址
+            deviceLng: `${Longitude}`, // 经度
+            deviceLat: `${latitude}`, // 纬度
             deviceIsMonitoring: keyMonitor ? '1' : '0', // 重点监控设备
             deviceUseName: useUnitName, // 使用单位名称
             deviceUseContactMan: concat, // 使用单位联系人
             deviceUseTel: telephone, // 使用单位电话
             deviceUseAddress: unitAddr, // 使用单位地址
             deviceIntro: devDetail, // 设备详情
-            DeviceUseID
+            deviceUseID
           }
           const changeMethod = (data, id) => {
             if (this.infoTitle === '新增') {
@@ -782,7 +782,8 @@ export default {
         deviceNextYearTestDate1: inspecDate[0], // 年检范围1
         deviceNextYearTestDate2: inspecDate[1], // 年检范围2
         isOverdue: `${isOverdue}`, // 是否超期  0否1是
-        orderType: '1' // 排序类型 1降序 2升序
+        orderType: '1', // 排序类型 1降序 2升序
+        deviceArea3: '7' // 设备区域
       }
       this.$store.dispatch('getDeviceList', data).then(() => {
         this.loading = false
@@ -846,7 +847,7 @@ export default {
     handleMoHuSelect(item) { // 获取id
       // console.log(item)
       const { id, useAddress, useContactMan, useContactManTel } = item
-      this.info.DeviceUseID = id
+      this.info.deviceUseID = id
       this.info.unitAddr = useAddress
       this.info.telephone = useContactManTel
       this.info.concat = useContactMan

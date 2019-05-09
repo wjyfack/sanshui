@@ -11,6 +11,7 @@ const getters = {
   taskList: state => state.task.list,
   instructionTotal: state => state.instruction.total, // 指令书
   instructionList: state => state.instruction.list,
+  instructionStatus: state => state.instruction.status,
   companyList: state => state.common.comlist, // 公司名称
   equipmentAllType: state => state.common.deviceType, // 设备类型
   instructionModels: state => state.common.instructionModels, // 指令书模板

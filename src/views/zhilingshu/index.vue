@@ -75,36 +75,52 @@
                   @click="recitfyDialog(scope.row)">整改查看</el-button>
                 <el-button
                   size="mini"
-                  @click="yijiaoDialog(scope.row)">移交</el-button>
-                <el-button
-                  size="mini">闭环</el-button>
+                  @click="yijiaoDialog(scope.row, 6)">移交</el-button>
                 <el-button
                   size="mini"
-                  @click="$router.push({ path: '/paifa' })">复查</el-button>
+                  @click="closedLoopDialog(scope.row)">闭环</el-button>
+                <el-button
+                  size="mini"
+                  @click="reviewDialog(scope.row)">复查</el-button>
               </div>
-              <el-button
-                v-else-if="activeName == 'second'"
-                size="mini"
-                @click="dialogShenHeYiJiaoVisible = true">审核移交</el-button>
+              <div v-else-if="activeName == 'second'">
+                <el-button
+                  :ab="scope.$index"
+                  size="mini"
+                  @click="recitfyDialog(scope.row)">整改查看</el-button>
+                <el-button
+                  size="mini"
+                  @click="yijiaoDialog(scope.row)">移交</el-button>
+                <el-button
+                  size="mini"
+                  @click="closedLoopDialog(scope.row)">闭环</el-button>
+                <el-button
+                  size="mini"
+                  @click="reviewDialog(scope.row)">复查</el-button>
+              </div>
               <el-button
                 v-else-if="activeName == 'third'"
                 size="mini"
-                @click="dialogChuLiVisible = true">处理</el-button>
+                @click="yijiaoDialog(scope.row,2)">审核移交</el-button>
               <el-button
                 v-else-if="activeName == 'fourth'"
                 size="mini"
-                @click="dialogShenHeVisible = true">审核</el-button>
+                @click="yijiaoDialog(scope.row,3)">处理</el-button>
               <el-button
                 v-else-if="activeName == 'fifth'"
                 size="mini"
+                @click="yijiaoDialog(scope.row,4)">审核</el-button>
+              <el-button
+                v-else-if="activeName == 'sixth'"
+                size="mini"
                 @click="zSure">确认</el-button>
-              <div v-else-if="activeName == 'sixth'">
+              <div v-else-if="activeName == 'seventh'">
                 <el-button
                   size="mini"
                   @click="dialogYiJiaoVisible = true">下载</el-button>
                 <el-button
                   size="mini"
-                  @click="zLook">查看</el-button>
+                  @click="yijiaoDialog(scope.row,5)">查看</el-button>
               </div>
             </template>
           </el-table-column>
@@ -189,11 +205,10 @@
     <el-dialog
       :visible.sync="dialogYiJiaoVisible"
       :before-close="handleClose"
-      width="50%"
       title="移交">
       <taskDetail :transfe="transfe"/>
       <comInfo :transfe="transfe"/>
-      <transferInfo @closed="dialogYiJiaoVisible = false"/>
+      <transferInfo :transfe="transfe" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 审核移交 -->
     <el-dialog
@@ -201,9 +216,9 @@
       :before-close="handleClose"
       width="50%"
       title="审核移交">
-      <taskDetail />
-      <comInfo />
-      <instrucInfo @closed="dialogShenHeYiJiaoVisible = false"/>
+      <taskDetail :transfe="transfe"/>
+      <comInfo :transfe="transfe"/>
+      <instrucInfo :transfe="transfe" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 处理 -->
     <el-dialog
@@ -211,10 +226,10 @@
       :before-close="handleClose"
       width="50%"
       title="处理">
-      <taskDetail />
-      <comInfo />
-      <yijiaoInfo />
-      <replyLetterSub @closed="dialogChuLiVisible = false"/>
+      <taskDetail :transfe="transfe"/>
+      <comInfo :transfe="transfe"/>
+      <yijiaoInfo :transfe="transfe"/>
+      <replyLetterSub :transfe="transfe" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 审核 -->
     <el-dialog
@@ -223,14 +238,14 @@
       width="50%"
       title="处理">
       <!-- 任务信息 -->
-      <taskDetail />
+      <taskDetail :transfe="transfe"/>
       <!-- 企业信息 -->
-      <comInfo />
+      <comInfo :transfe="transfe"/>
       <!-- 移交信息 -->
-      <yijiaoInfo />
+      <yijiaoInfo :transfe="transfe"/>
       <!-- 回复书信息 -->
-      <replyLetterInfo/>
-      <examineSub @closed="dialogShenHeVisible = false"/>
+      <replyLetterInfo :transfe="transfe"/>
+      <examineSub :transfe="transfe" :status="4" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 确认 -->
     <el-dialog
@@ -238,11 +253,11 @@
       :before-close="handleClose"
       width="50%"
       title="处理">
-      <taskDetail />
-      <comInfo />
-      <yijiaoInfo />
-      <replyLetterInfo />
-      <examineSub @closed="dialogSureVisible = false"/>
+      <taskDetail :transfe="transfe"/>
+      <comInfo :transfe="transfe"/>
+      <yijiaoInfo :transfe="transfe"/>
+      <replyLetterInfo :transfe="transfe"/>
+      <examineSub :transfe="transfe" :status="5" @closed="dialogSureVisible = false"/>
     </el-dialog>
     <!-- 查看 -->
     <el-dialog
@@ -250,11 +265,11 @@
       :before-close="handleClose"
       width="50%"
       title="处理">
-      <taskDetail />
-      <comInfo />
-      <zhilingshuInfo />
-      <yijiaoInfo />
-      <replyLetterInfo />
+      <taskDetail :transfe="transfe"/>
+      <comInfo :transfe="transfe"/>
+      <zhilingshuInfo :transfe="transfe"/>
+      <yijiaoInfo :transfe="transfe"/>
+      <replyLetterInfo :transfe="transfe"/>
     </el-dialog>
   </div>
 </template>
@@ -271,7 +286,7 @@ import yijiaoInfo from './component/yijiaoInfo'
 import replyLetterSub from './component/replyLetterSub'
 import examineSub from './component/examineSub'
 import zhilingshuInfo from './component/zhilingshuInfo'
-import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe } from '@/api/instruction'
+import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop } from '@/api/instruction'
 import { baseUrl } from '@/utils/config'
 export default {
   components: {
@@ -335,7 +350,6 @@ export default {
   },
   watch: {
     activeName(newValue, oldValue) {
-      console.log(newValue, oldValue)
       /**
       * 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理
        8回复审核 4 待确认  5:完成
@@ -367,6 +381,7 @@ export default {
           status = ''
           break
       }
+      this.$store.dispatch('changeStatus', status)
       this.search.commandExecTaskStatus = status
       this.fecthData()
     }
@@ -378,17 +393,105 @@ export default {
     zSure() {
       this.dialogSureVisible = true
     },
+    /** 复查 */
+    reviewDialog(row) {
+      console.log(row)
+      const {
+        checkTypeId,
+        checkIntro,
+        checkResultEndDate,
+        checkDeptId,
+        checkDeptName,
+        list
+      } = row
+      const info = {
+        checkTypeId,
+        checkIntro,
+        checkResultEndDate,
+        checkDeptId,
+        checkDeptName
+      }
+      this.$router.push({
+        path: '/paifa',
+        query: {
+          info,
+          arr: list
+        }
+      })
+    },
+    /** 闭环 */
+    closedLoopDialog(row) {
+      // console.log(row)
+      this.$confirm('此操作将闭环指令书, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const info = {
+          id: row.id,
+          commandExecTaskStatus: '51'
+        }
+        fetchClosedLoop(info).then(res => {
+          if (res.resultCode === '0000000') {
+            this.$message(res.resultDesc)
+            this.fecthData()
+          }
+        })
+      }).catch(() => {})
+    },
+    /** 处理 */
+    chuiliDialog(row) {
+      console.log(row)
+    },
     /** 查看 */
     zLook() {
       this.dialogLookVisible = true
     },
     /** 移交 */
-    yijiaoDialog(row) {
-      fetchBeforeTransfe(row.id).then(res => {
+    yijiaoDialog(row, opt = 1) { // opt 1移交， 2审核移交 3 处理
+      const data = {
+        id: row.id
+      }
+      switch (opt) {
+        case 1:
+          data.isTrans = '1'
+          break
+        case 2:
+          data.isReply = '1'
+          break
+      }
+      fetchBeforeTransfe(data).then(res => {
         const data = res.returnData
         this.transfe = data
-        this.dialogYiJiaoVisible = true
+        switch (opt) {
+          case 1:
+            this.dialogYiJiaoVisible = true
+            break
+          case 2:
+            this.dialogShenHeYiJiaoVisible = true
+            break
+          case 3:
+            this.dialogChuLiVisible = true
+            break
+          case 4:
+            this.dialogShenHeVisible = true
+            break
+          case 5:
+            this.dialogLookVisible = true
+            break
+          case 6: // 镇街移交
+            this.dialogYiJiaoVisible = true
+            break
+        }
       })
+    },
+    /** 关闭移交 */
+    closedYiJiao() {
+      this.dialogYiJiaoVisible = false
+      this.dialogShenHeYiJiaoVisible = false
+      this.dialogChuLiVisible = false
+      this.dialogShenHeVisible = false
+      this.fecthData()
     },
     /** 整改查看 */
     recitfyDialog(row) {
@@ -397,7 +500,7 @@ export default {
         if (!data) {
           this.$message('没有数据')
         }
-        if (!data.rectifyImg) {
+        if (data.rectifyImg === null) {
           data.rectifyImg = []
         } else {
           data.rectifyImg = data.rectifyImg.split(',')
@@ -465,7 +568,7 @@ export default {
         pageSize: `${this.pageSize}`,
         pageNum: `${this.pageNum}`
       }
-      console.log(data)
+      // console.log(data)
       this.$store.dispatch('fetchInstructionList', data).then(() => {
         this.loading = false
       })

@@ -4,7 +4,7 @@
     <el-row type="flex" align="middle" class="row">
       <el-col :span="24">
         <span class="label"><span class="red">*</span> 回复书编号</span>
-        <span class="mes">三质监稽[2019]第0052号</span>
+        <span class="mes">{{ transfe.commandReplyNo }}</span>
         <el-button type="primary" size="small">预览回复书</el-button>
         <el-button type="primary" size="small">下载回复书</el-button>
       </el-col>
@@ -16,33 +16,55 @@
       </el-col>
       <el-col :span="12">
         <span class="label">任务回复时间</span>
-        <span class="mes">2019-1-23</span>
+        <span class="mes">{{ transfe.commandExecTaskReplyTime }}</span>
       </el-col>
     </el-row>
     <el-row class="row" type="flex">
       <el-col :span="12">
         <span class="label">回复书日期</span>
-        <span class="mes">2019-1-23</span>
+        <span class="mes">{{ transfe.commandExecTaskAddTime }}</span>
       </el-col>
     </el-row>
     <el-row type="flex" class="row">
       <span class="label">任务回复相册</span>
       <span>
-        <img src="http://placehold.it/100x100" alt="">
+        <el-image
+          v-for="url in urlImgs"
+          :key="url"
+          :src="baseUrl+url"
+          style="width: 100px; height: 100px"/>
       </span>
     </el-row>
     <el-row class="row" type="flex">
       <el-col :span="12">
         <span class="label">任务回复描述</span>
-        <span class="mes">sss</span>
+        <span class="mes">{{ transfe.commandExecTaskReplyConfirmDesc }}</span>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+import { baseUrl } from '@/utils/config'
 export default {
-
+  props: {
+    transfe: {
+      type: Object,
+      default: () => {}
+    }
+  },
+  data() {
+    return {
+      baseUrl: `${baseUrl}/file/show/reply/`,
+      urlImgs: []
+    }
+  },
+  mounted() {
+    const urlImgs = this.transfe.commandExecTaskReplyIntroPhotoList
+    if (urlImgs) {
+      this.urlImgs = urlImgs.split(',')
+    }
+  }
 }
 </script>
 

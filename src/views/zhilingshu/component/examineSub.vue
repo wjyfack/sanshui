@@ -5,8 +5,8 @@
       <el-col :span="12">
         <span class="label"><span class="red">*</span> 任务状态</span>
         <el-radio-group v-model="taskStatus">
-          <el-radio :label="1">通过</el-radio>
-          <el-radio :label="2">不通过</el-radio>
+          <el-radio :label="'1'">通过</el-radio>
+          <el-radio :label="'0'">不通过</el-radio>
         </el-radio-group>
       </el-col>
     </el-row>
@@ -22,16 +22,42 @@
 </template>
 
 <script>
+import { fetchClosedLoop } from '@/api/instruction'
 export default {
+  props: {
+    transfe: {
+      type: Object,
+      default: () => {}
+    },
+    status: {
+      type: Number,
+      default: 4
+    }
+  },
   data() {
     return {
-      taskStatus: '',
+      taskStatus: '1',
       taskDesc: ''
     }
   },
   methods: {
     isOk() {
-      this.closed()
+      if (!this.taskDesc) {
+        this.$message({ message: '请输入任务描述', type: 'error' })
+        return ''
+      }
+      const data = {
+        id: this.transfe.id,
+        commandExecTaskReplyAuditStatus: this.taskStatus,
+        commandExecTaskReplyConfirmDesc: this.taskDesc,
+        commandExecTaskStatus: `${this.status}`
+      }
+      fetchClosedLoop(data).then(res => {
+        if (res.resultCode === '0000000') {
+          this.$message({ message: res.resultDesc, type: 'success' })
+          this.closed()
+        }
+      })
     },
     closed() {
       this.$emit('closed')

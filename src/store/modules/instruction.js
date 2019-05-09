@@ -6,7 +6,8 @@ const instruction = { // 通用滴
   state: {
     total: 0,
     list: [],
-    pages: 0
+    pages: 0,
+    status: '1'
   },
   mutations: {
     SET_TOTAL: (state, total) => {
@@ -17,6 +18,9 @@ const instruction = { // 通用滴
     },
     SET_PAGES: (state, pages) => {
       state.pages = pages
+    },
+    SET_STATUS: (state, status) => {
+      state.status = status
     }
   },
   actions: {
@@ -30,6 +34,9 @@ const instruction = { // 通用滴
           resolve()
         }).catch(error => reject(error))
       })
+    },
+    changeStatus({ commit }, data) {
+      commit('SET_STATUS', data)
     }
   }
 }

@@ -4,33 +4,37 @@
     <el-row type="flex" align="middle" class="row">
       <el-col :span="12">
         <span class="label"><span class="red">*</span> 回复书编号</span>
-        <span class="mes">三质监稽[2019]第0052号</span>
+        <span class="mes">{{ info.commandReplyNo }}</span>
       </el-col>
       <el-col :span="12">
         <span class="label">回复书日期</span>
         <el-date-picker
-          v-model="replyDate"
+          v-model="info.commandReplyDate"
           type="date"
-          placeholder="选择日期"/>
+          style="width:300px"
+          value-format="yyyy-MM-dd"
+          placeholder="如非特殊情况,此项不用输入"/>
       </el-col>
     </el-row>
     <el-row class="row">
       <span class="label"><span class="red">*</span> 是否立案</span>
-      <el-radio-group v-model="isReister">
-        <el-radio :label="1">立案查处</el-radio>
-        <el-radio :label="2">不予立案</el-radio>
+      <el-radio-group v-model="info.commandExecIsFiling">
+        <el-radio :label="'1'">立案查处</el-radio>
+        <el-radio :label="'2'">不予立案</el-radio>
       </el-radio-group>
     </el-row>
     <el-row class="row" type="flex">
       <span class="label"><span class="red">*</span>任务移交描述</span>
-      <el-input v-model="taskDesc" type="textarea" class="textarea"/>
+      <el-input v-model="info.commandExecTaskReplyIntro" type="textarea" class="textarea"/>
     </el-row>
     <el-row type="flex" class="row">
       <span class="label"><span class="red">*</span>任务回复相册</span>
       <el-upload
         :on-preview="handlePictureCardPreview"
+        :on-success="handleSuccess"
         :on-remove="handleRemove"
-        :action="baseUrl+'/file/upload/ScenePictures'"
+        :action="baseUrl"
+        :limit="3"
         list-type="picture-card">
         <i class="el-icon-plus avatar-uploader-icon"/>
       </el-upload>
@@ -47,31 +51,83 @@
 
 <script>
 import { baseUrl } from '@/utils/config'
+import { fetchClosedLoop } from '@/api/instruction'
 export default {
+  props: {
+    transfe: {
+      type: Object,
+      default: () => {}
+    }
+  },
   data() {
     return {
-      baseUrl,
-      replyDate: '', // 回复书
-      isReister: '1', // 立案
-      taskDesc: '', // 任务移交描述
-      taskImgs: '', // 任务回复相册
+      baseUrl: `${baseUrl}/file/upload/reply`,
+      info: {
+        id: '',
+        commandReplyNo: '', // 回复书
+        commandReplyDate: '',
+        commandExecIsFiling: '1', // 立案
+        commandExecTaskReplyIntro: '' // 任务移交描述
+      },
+      commandExecTaskReplyIntroPhotoList: [], // 任务回复相册
       dialogVisible: false,
       dialogImageUrl: ''
     }
   },
+  mounted() {
+    // console.log(this.transfe)
+    // const {
+    //   id,
+    //   commandReplyNo
+    //   // commandExecIsFiling,
+    //   // commandExecTaskReplyIntro,
+    //   // commandExecTaskReplyIntroPhotoList,
+    //   // commandReplyDate
+    // } = this.transfe
+    // this.info = { id, commandReplyNo }
+  },
   methods: {
     isOk() {
-      this.closed()
+      const {
+        id,
+        commandReplyNo
+      } = this.transfe
+      const info = this.info
+      if (!info.commandExecTaskReplyIntro) {
+        this.$message({ message: '任务移交描述', type: 'error' })
+        return ''
+      }
+      info.id = id
+      info.commandReplyNo = commandReplyNo
+
+      const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.map(item => {
+        return item.response.returnData
+      }).join(',')
+      // console.log(this.commandExecTaskReplyIntroPhotoList)
+      if (!commandExecTaskReplyIntroPhotoList) {
+        this.$message({ message: '请选择任务回复相册', type: 'error' })
+        return ''
+      }
+      info.commandExecTaskReplyIntroPhotoList = commandExecTaskReplyIntroPhotoList
+
+      fetchClosedLoop(info).then(res => {
+        if (res.resultCode === '0000000') {
+          this.$message({ message: res.resultDesc, type: 'success' })
+          this.closed()
+        }
+      })
+      // this.closed()
     },
     closed() {
       this.$emit('closed')
     },
     handleSuccess(response, file, fileList) {
-      this.taskImgs = fileList
+      console.log(fileList)
+      this.commandExecTaskReplyIntroPhotoList = fileList
     },
     handleRemove(file, fileList) {
-      // console.log(file, fileList)
-      this.taskImgs = fileList
+      console.log(file, fileList)
+      this.commandExecTaskReplyIntroPhotoList = fileList
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
@@ -105,7 +161,7 @@ export default {
       .name {
         display: inline-block;
         min-width: 130px;
-        text-align: right;
+        // text-align: right;
       }
       .info {
         min-width: 150px;

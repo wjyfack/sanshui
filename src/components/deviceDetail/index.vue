@@ -25,7 +25,7 @@
           <span class="name">使用单位部门地址</span><span class="info">{{ info.deviceCertNo }}</span>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
-          <span class="name">设备安装地址</span><span class="info">{{ info.DeviceInstallAddress }}</span>
+          <span class="name">设备安装地址</span><span class="info">{{ info.DeviceAddress }}</span>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <span class="name">经纬度</span><span class="info">{{ info.DeviceLng }}/{{ info.DeviceLat }}</span>

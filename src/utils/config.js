@@ -418,34 +418,34 @@ export const equipmentAllType = [
 
 export const status = [
   {
-    value: '0',
+    value: '00',
     label: '未知'
   }, {
-    value: '1',
+    value: '01',
     label: '在用'
   }, {
-    value: '2',
+    value: '02',
     label: '停用'
   }, {
-    value: '3',
+    value: '03',
     label: '检测中'
   }, {
-    value: '4',
+    value: '04',
     label: '整改中'
   }, {
-    value: '5',
+    value: '05',
     label: '停电话'
   }, {
-    value: '6',
+    value: '06',
     label: '停目录停用'
   }, {
-    value: '7',
+    value: '07',
     label: '停检测员'
   }, {
-    value: '8',
+    value: '08',
     label: '停'
   }, {
-    value: '9',
+    value: '09',
     label: '拆除'
   }, {
     value: '10',
@@ -769,4 +769,3 @@ export const danWeiType = [ // 单位类型
     label: '其他'
   }
 ]
-

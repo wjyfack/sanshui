@@ -60,10 +60,10 @@ export default {
         .name {
           display: inline-block;
           min-width: 130px;
-          text-align: right;
+          // text-align: right;
         }
         .info {
-          min-width: 150px;
+          min-width: 200px;
           color:#999999;
         }
       }

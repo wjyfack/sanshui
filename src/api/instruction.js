@@ -37,12 +37,37 @@ export function fetchRectify({ sourceCommandId,
   })
 }
 /** 移交前查数据 */
-export function fetchBeforeTransfe(id) {
+export function fetchBeforeTransfe(data) {
   return request({
     url: '/taskCommand/command/getForTransfe',
     method: 'post',
     data: {
-      id
+      ...data
     }
+  })
+}
+
+/** 移交里的保存 */
+export function fetchTransferSave(data) {
+  return request({
+    url: '/taskCommand/command/transfe',
+    method: 'post',
+    data: data
+  })
+}
+/** 闭环 */
+export function fetchClosedLoop(data) {
+  return request({
+    url: '/taskCommand/closeCommand',
+    method: 'post',
+    data: data
+  })
+}
+/** 复查 */
+export function fetchReview(data) {
+  return request({
+    url: '/taskCheck/review',
+    method: 'post',
+    data: data
   })
 }

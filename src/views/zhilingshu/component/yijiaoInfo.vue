@@ -3,36 +3,43 @@
     <div class="bianhao"><label for="">移交信息</label></div>
     <el-row class="row">
       <span class="label">移交书编号</span>
-      <span class="mes">南质2193第00053号</span>
+      <span class="mes">{{ transfe.commandTransferNo }}</span>
       <el-button type="primary" size="small">预览移交书</el-button>
       <el-button type="primary" size="small">下载移交书</el-button>
     </el-row>
     <el-row class="row">
       <el-col :span="12" type="flex">
         <span class="label">任务移交人</span>
-        <span class="mes">超级管理员</span>
+        <span class="mes">{{ transfe.commandExecTaskAddManName }}</span>
       </el-col>
       <el-col :span="12" type="flex">
         <span class="label">移交人部门</span>
-        <span class="mes">质监局</span>
+        <span class="mes">{{ transfe.commandExecTaskAddDeptName }}</span>
       </el-col>
     </el-row>
     <el-row class="row">
       <span class="label">移交书日期</span>
       <el-date-picker
-        v-model="yijiaoDate"
+        v-model="transfe.commandExecTaskAddTime"
+        disabled
         type="date"
         placeholder="选择日期"/>
     </el-row>
     <el-row class="row" type="flex">
       <span class="label">任务移交描述</span>
-      <span class="mes">任务移交描述</span>
+      <span class="mes">{{ transfe.commandTransferDesc }}</span>
     </el-row>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    transfe: {
+      type: Object,
+      default: () => {}
+    }
+  },
   data() {
     return {
       yijiaoDate: ''

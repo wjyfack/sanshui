@@ -1,32 +1,10 @@
 import request from '@/utils/request'
 
-export function fetchList({
-  pageSize = '10', // 页大小
-  pageNum = '1', // 第几页
-  deviceUseName = '', // 使用单位名称
-  deviceType1 = '', // 种类1
-  deviceType2 = '', // 种类2
-  deviceTenanceName = '', // 维保单位
-  deviceCertNo = '', // 使用登记证
-  deviceNextYearTestDate1 = '', // 年检范围1
-  deviceNextYearTestDate2 = '', // 年检范围2
-  isOverdue = '0', // 是否超期  0否1是
-  orderType = '2' }) { // 排序类型 1降序 2升序de
+export function fetchList(data) { // 排序类型 1降序 2升序de
   return request({
     url: '/device/ss/get',
     method: 'post',
-    data: {
-      pageSize,
-      pageNum,
-      deviceUseName,
-      deviceType1,
-      deviceType2,
-      deviceTenanceName,
-      deviceCertNo,
-      deviceNextYearTestDate1,
-      deviceNextYearTestDate2,
-      isOverdue,
-      orderType }
+    data: data
   })
 }
 export function fetchAddDevice(data) { // 新增设备
