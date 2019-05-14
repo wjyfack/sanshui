@@ -123,4 +123,12 @@ export function fecthExamineTask(data) {
     data: data
   })
 }
+/** 处理任务 */
+export function fecthHandleTask(data) {
+  return request({
+    url: '/taskCheck/handleTaskCheck',
+    method: 'post',
+    data: data
+  })
+}
 

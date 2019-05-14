@@ -30,3 +30,12 @@ export function fetchIntructionModel(isApp = 0) {
     data: { isApp }
   })
 }
+/** 接收任务部门 */
+
+export function fetchDtName(deptIsRecive = '1') {
+  return request({
+    url: '/base/param/getDtNameTemplate',
+    method: 'post',
+    data: { deptIsRecive }
+  })
+}

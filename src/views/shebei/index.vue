@@ -174,10 +174,13 @@
         </el-row>
         <el-row class="row">
           <label for="" class="label">设备地址选择：</label>
-          <el-cascader
-            ref="addrCascRefs"
-            v-model="search.addrCasc"
-            :options="addrCasc"/>
+          <el-select v-model="search.addrCasc" placeholder="请选择">
+            <el-option
+              v-for="item in townType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.label"/>
+          </el-select>
         </el-row>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -218,7 +221,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="状态" prop="status">
-                <el-select v-model="info.status" placeholder="请选择">
+                <el-select ref="statusName" v-model="info.status" placeholder="请选择">
                   <el-option
                     v-for="item in status"
                     :key="item.value"
@@ -377,7 +380,7 @@ import BaiduMap from 'vue-baidu-map/components/map/Map.vue'
 import equementCascader from './component/equementCascader'
 import addTaskDialog from './component/addTaskDialog'
 import deviceDetail from '@/components/deviceDetail'
-import { equipmentType, status, checkStatus, overdue, addrCasc } from '@/utils/config'
+import { equipmentType, status, checkStatus, overdue, addrCasc, townType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchAddDevice, fetchMohuCom, fetchDeviceDetail, fetchGetDevice, fetchUpdateDevice } from '@/api/shebei'
 //  fetchMakeTakes,
@@ -390,6 +393,7 @@ export default {
   },
   data() {
     return {
+      townType,
       center: { lng: 0, lat: 0 },
       zoom: 3,
       point: {
@@ -490,6 +494,7 @@ export default {
       'deviceList',
       'companyList',
       'equipmentAllType'
+      // 'deptArea' 不要了
     ])
   },
   mounted() {
@@ -578,19 +583,21 @@ export default {
     tableEdit(row) { // 设备编辑
       console.log(row.id)
       this.infoTitle = '编辑'
-      this.dialogAddVisible = true
       fetchGetDevice(row.id).then(response => {
         const data = response
         if (data.resultCode === '0000000') {
+          this.dialogAddVisible = true
           const res = data.returnData
           console.log(res)
           const {
+            deviceUseID,
             id,
             deviceType1, // 设备类型1
             // deviceTypeName1, // 设备类型名称1
             deviceType2, // 设备类型2
             // deviceTypeName2, // 设备类型名称2
-            deviceStatusName, // 状态
+            // deviceStatusName, // 状态
+            deviceStatusCode,
             deviceNo, // 设备编号
             deviceName, // 设备名称
             deviceModel, // 设备型号
@@ -598,15 +605,15 @@ export default {
             deviceCertNo, // 使用证编号
             deviceProduceNo, // 设备出厂编号
             deviceIndexesID, // 设备系统编号
-            // deviceInstallArea1, // 设备安装地址1
-            deviceInstallArea2, // 设备安装地址2
-            deviceInstallArea3, // 设备安装地址3
-            deviceInstallArea4, // 设备安装地址4
-            // deviceInstallAreaName1, // 设备安装地址名1
-            // deviceInstallAreaName2, // 设备安装地址名2
-            // deviceInstallAreaName3, // 设备安装地址名3
-            // deviceInstallAreaName4, // 设备安装地址名4
-            deviceInstallAddress, // 详细地址
+            // deviceArea1, // 设备安装地址1
+            deviceArea2, // 设备安装地址2
+            deviceArea3, // 设备安装地址3
+            deviceArea4, // 设备安装地址4
+            // deviceAreaName1, // 设备安装地址名1
+            // deviceAreaName2, // 设备安装地址名2
+            // deviceAreaName3, // 设备安装地址名3
+            // deviceAreaName4, // 设备安装地址名4
+            deviceAddress, // 详细地址
             deviceLng, // 经度
             deviceLat, // 纬度
             deviceIsMonitoring, // 重点监控设备
@@ -616,27 +623,29 @@ export default {
             deviceUseAddress, // 使用单位地址
             deviceIntro // 设备详情
           } = res
-          const useEque = (deviceType1, deviceType2) => {
+          const useEques = (deviceType1, deviceType2) => {
             if (deviceType2) {
-              return [~~deviceType1, ~~deviceType2]
+              return [deviceType1, deviceType2]
             } else {
-              return [~~deviceType1]
+              return [deviceType1]
             }
           }
-          const installAddr = (deviceInstallArea2, deviceInstallArea3, deviceInstallArea4) => {
-            return [deviceInstallArea2, deviceInstallArea3, deviceInstallArea4]
+          const installAddr = (deviceArea2, deviceArea3, deviceArea4) => {
+            return [deviceArea2, deviceArea3, deviceArea4]
           }
+          console.log(useEques(deviceType1, deviceType2))
           this.info = {
+            deviceUseID,
             id,
-            useEque: useEque(deviceType1, deviceType2), // 设备种类
-            status: deviceStatusName, // 状态
+            useEque: useEques(deviceType1, deviceType2), // 设备种类
+            status: deviceStatusCode, // 状态
             devNum: deviceNo, // 设备编号
             devName: deviceName, // 设备名称
             devUnit: deviceModel, // 设备型号
             devReg: deviceRegNo, // 设备注册号
             useCert: deviceCertNo, // 使用证编号
             deviceIndexesID, // 设备系统编号
-            detailAddr: deviceInstallAddress, // 详细地址
+            detailAddr: deviceAddress, // 详细地址
             Longitude: deviceLng, // 经度
             latitude: deviceLat, // 纬度
             useUnitName: deviceUseName, // 使用单位名称
@@ -645,7 +654,7 @@ export default {
             unitAddr: deviceUseAddress, // 使用单位地址
             devDetail: deviceIntro, // 设备详情
             factNum: deviceProduceNo, // 设备出厂编号
-            installAddr: installAddr(deviceInstallArea2, deviceInstallArea3, deviceInstallArea4), // 设备安装地址
+            installAddr: installAddr(deviceArea2, deviceArea3, deviceArea4), // 设备安装地址
             keyMonitor: deviceIsMonitoring === '0' ? '' : '1' // 重点监控设备
           }
         }
@@ -679,13 +688,18 @@ export default {
           } = this.info
           const useEqueArr = this.$refs['useEque'].$el.innerText.replace(/\s+/g, '').split('/')
           const deviceInstallAreaArr = this.$refs['deviceInstallArea'].$el.innerText.replace(/\s+/g, '').split('/')
+          const statusName = this.status.filter(item => {
+            return item.value === status
+          })
+          console.log(statusName)
           // console.log(useEqueArr, 123123)
           const data = {
             deviceType1: `${useEque[0]}`, // 设备类型1
             deviceTypeName1: useEqueArr[0], // 设备类型名称1
             deviceType2: `${useEque[1]}`, // 设备类型2
             deviceTypeName2: useEqueArr[1], // 设备类型名称2
-            deviceStatusName: status, // 状态
+            deviceStatusName: statusName[0].label, // 状态
+            deviceStatusCode: status,
             deviceNo: devNum, // 设备编号
             deviceName: devName, // 设备名称
             deviceModel: devUnit, // 设备型号
@@ -760,14 +774,15 @@ export default {
         maintUnit, // 维保单位
         // equiStatus, // 设备检查状态
         isOverdue, // 是否超期
-        inspecDate // 年检日期
-        // addrCasc // 地区联级
+        inspecDate, // 年检日期
+        addrCasc // 地区联级
       } = this.search
       const deviceType1 = useEque[0] ? `${useEque[0]}` : ''
       const deviceType2 = useEque[1] ? `${useEque[1]}` : ''
       // console.log(this)
-      const addr = this.$refs['addrCascRefs'] ? this.$refs['addrCascRefs'].innerText : ''
-      const addrCascArr = addr ? addr.replace(/\s+/g, '').split('/') : []
+      // const addr = this.$refs['addrCascRefs'] ? this.$refs['addrCascRefs'].innerText : ''
+      // const addrCascArr = addr ? addr.replace(/\s+/g, '').split('/') : []
+      // console.log(this.$refs['addrCascRefs'], addrCascArr)
       const data = {
         pageSize: `${this.pageSize}`, // 页大小
         pageNum: `${this.pageNum}`, // 第几页
@@ -775,15 +790,16 @@ export default {
         deviceType1, // 种类1
         deviceType2, // 种类2
         deviceProduceNo: facNum, // 出厂编号
-        deviceStatusName: status, // 状态
+        deviceStatusCode: status, // 状态
         deviceTenanceName: maintUnit, // 维保单位
         deviceCertNo: userReg, // 使用登记证
-        deviceAreaName4: addrCascArr.length !== 0 ? addrCascArr[addrCascArr.length - 1] : '', // 设备地址选择
+        // deviceAreaName4: addrCascArr.length !== 0 ? addrCascArr[addrCascArr.length - 1] : '', // 设备地址选择
+        deviceAreaName4: addrCasc,
         deviceNextYearTestDate1: inspecDate[0], // 年检范围1
         deviceNextYearTestDate2: inspecDate[1], // 年检范围2
         isOverdue: `${isOverdue}`, // 是否超期  0否1是
         orderType: '1', // 排序类型 1降序 2升序
-        deviceArea3: '7' // 设备区域
+        deviceArea3: '' // 设备区域
       }
       this.$store.dispatch('getDeviceList', data).then(() => {
         this.loading = false

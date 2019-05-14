@@ -54,8 +54,17 @@
             prop="checkResultEndDate"
             label="最迟反馈时间"/> -->
           <el-table-column
-            prop="checkDeptName"
-            label="接收部门"/>
+            label="接收部门">
+            <template slot-scope="scope">
+              <el-select v-model="deviceList[scope.$index].checkDeptId" placeholder="请选择" @change="deptChange">
+                <el-option
+                  v-for="(item) in deptNames"
+                  :key="item.id"
+                  :label="item.deptName"
+                  :value="item.id"/>
+              </el-select>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="btnG">
@@ -69,6 +78,7 @@
 <script>
 import { fetchDistributeTask } from '@/api/task'
 import { fetchReview } from '@/api/instruction'
+import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
@@ -100,10 +110,19 @@ export default {
       }]
     }
   },
+  computed: {
+    ...mapGetters([
+      'deptNames'
+    ])
+  },
   mounted() {
+    if (this.deptNames.length === 0) {
+      this.$store.dispatch('actionsDeptNames')
+    }
     const { arr, taskTotal, info } = this.$route.query
     this.deviceList = arr
-    if (info) {
+    console.log(arr)
+    if (info) { // 重新派发
       console.log(info)
       this.checkIntro = info.checkIntro // 任务要求
       this.checkResultEndDate = info.checkResultEndDate // 反馈时间
@@ -119,6 +138,10 @@ export default {
     }
   },
   methods: {
+    deptChange(event) {
+      console.log(event)
+      console.log(this.deviceList)
+    },
     submit() {
       if (!this.checkIntro) {
         this.$message('请输入任务要求')
@@ -135,6 +158,10 @@ export default {
       if (this.isShow) {
         const deviceList = this.deviceList
         const arr = deviceList.map(item => {
+          const [{ deptName }] = this.deptNames.filter(val => {
+            return val.id === item.checkDeptId
+          })
+          item.checkDeptName = deptName
           item.checkIntro = this.checkIntro
           item.checkResultEndDate = this.checkResultEndDate
           item.checkTypeId = this.checkTypeId

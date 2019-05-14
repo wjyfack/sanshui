@@ -25,7 +25,7 @@
             <label for="" class="label">所属镇街：</label>
             <el-select v-model="search.deviceAreaName4" placeholder="请选择" clearable>
               <el-option
-                v-for="item in townType"
+                v-for="item in deptArea"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
@@ -275,7 +275,6 @@
 </template>
 
 <script>
-import { townType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import comInfo from './component/comInfo'
 import instrucInfo from './component/instrucInfo'
@@ -303,7 +302,6 @@ export default {
   data() {
     return {
       baseUrl: `${baseUrl}/file/show/rectify/`,
-      townType,
       loading: false,
       search: {
         checkNo: '', // 任务编号
@@ -345,7 +343,8 @@ export default {
   computed: {
     ...mapGetters([
       'instructionTotal',
-      'instructionList'
+      'instructionList',
+      'deptArea'
     ])
   },
   watch: {

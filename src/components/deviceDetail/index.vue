@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="infoDialog">
+  <div v-loading="loading" class="infodialog">
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="first">
         <el-row type="flex" align="middle" class="row pd-top">
@@ -9,85 +9,85 @@
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">设备编号</span><span class="info">{{ info.deviceNo }}</span> </el-col>
           <el-col :span="8"><span class="name">设备名称</span><span class="info">{{ info.deviceName }}</span> </el-col>
-          <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastTestDate }}</span> </el-col>
+          <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastTestdate }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">设备型号</span><span class="info">{{ info.deviceModel }}</span> </el-col>
           <el-col :span="8"><span class="name">设备注册号</span><span class="info">{{ info.deviceRegNo }}</span> </el-col>
-          <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextTestDate }}</span> </el-col>
+          <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextTestdate }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">使用证编号</span><span class="info">{{ info.deviceCertNo }}</span> </el-col>
           <el-col :span="8"><span class="name">设备出厂编号</span><span class="info">{{ info.deviceProduceNo }}</span> </el-col>
-          <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ info.DeviceIndexesID }}</span> </el-col>
+          <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ info.deviceIndexesId }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <span class="name">使用单位部门地址</span><span class="info">{{ info.deviceCertNo }}</span>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
-          <span class="name">设备安装地址</span><span class="info">{{ info.DeviceAddress }}</span>
+          <span class="name">设备安装地址</span><span class="info">{{ info.deviceAddress }}</span>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
-          <span class="name">经纬度</span><span class="info">{{ info.DeviceLng }}/{{ info.DeviceLat }}</span>
+          <span class="name">经纬度</span><span class="info">{{ info.deviceLng }}/{{ info.deviceLat }}</span>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
-          <span class="name">设备详情</span><span class="info">{{ info.DeviceIntro }}</span>
+          <span class="name">设备详情</span><span class="info">{{ info.deviceIntro }}</span>
         </el-row>
         <!-- <el-row type="flex" align="middle" class="row pd-top">
-          <span class="name">设备相册</span><span class="info">DevicePhotos</span>
+          <span class="name">设备相册</span><span class="info">devicePhotos</span>
         </el-row> -->
       </el-tab-pane>
       <el-tab-pane label="单位信息" name="second">
         <div>
           <div class="titles">使用单位信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="12"><span class="name">使用单位名称</span><span class="info">{{ info.DeviceUseName }}</span> </el-col>
+            <el-col :span="12"><span class="name">使用单位名称</span><span class="info">{{ info.deviceUseName }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.DeviceUseContactMan }}</span> </el-col>
-            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.DeviceUseContactManTel }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.deviceUseContactMan }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.deviceUseContactManTel }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.DeviceUseAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.deviceUseAddress }}</span> </el-col>
           </el-row>
         </div>
         <div>
           <div class="titles">制造单位信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="12"><span class="name">制造单位名称</span><span class="info">{{ info.DeviceProduceName }}</span> </el-col>
+            <el-col :span="12"><span class="name">制造单位名称</span><span class="info">{{ info.deviceProduceName }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.DeviceProduceContactMan }}</span> </el-col>
-            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.DeviceProduceContactTel }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.deviceProduceContactMan }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.deviceProduceContactTel }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.DeviceProduceAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.deviceProduceAddress }}</span> </el-col>
           </el-row>
         </div>
         <div>
           <div class="titles">安装单位信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="12"><span class="name">安装单位名称</span><span class="info">{{ info.DeviceInstallName }}</span> </el-col>
+            <el-col :span="12"><span class="name">安装单位名称</span><span class="info">{{ info.deviceInstallName }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.DeviceInstallContactTel }}</span> </el-col>
-            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.DeviceUseAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.deviceInstallContactTel }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.deviceUseAddress }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.DeviceUseAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.deviceUseAddress }}</span> </el-col>
           </el-row>
         </div>
         <div>
           <div class="titles">维保单位信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="12"><span class="name">维保单位名称</span><span class="info">{{ info.DeviceTenanceName }}</span> </el-col>
+            <el-col :span="12"><span class="name">维保单位名称</span><span class="info">{{ info.deviceTenanceName }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.DeviceTenanceContactMan }}</span> </el-col>
-            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.DeviceTenanceContactManTel }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.deviceTenanceContactMan }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.deviceTenanceContactManTel }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.DeviceTenanceAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.deviceTenanceAddress }}</span> </el-col>
           </el-row>
         </div>
       </el-tab-pane>
@@ -95,36 +95,36 @@
         <div>
           <div class="titles">定期检验信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ info.DeviceLastTestResult }}</span> </el-col>
-            <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.DeviceLastTestDate }}</span> </el-col>
-            <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.DeviceNextTestDate }}</span> </el-col>
+            <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ info.deviceLastTestResult }}</span> </el-col>
+            <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastTestDate }}</span> </el-col>
+            <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextTestDate }}</span> </el-col>
           </el-row>
         </div>
         <div>
           <div class="titles">年度检验信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ info.DeviceLastYearTestResult }}</span> </el-col>
-            <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.DeviceLastYearTestDate }}</span> </el-col>
-            <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.DeviceNextYearTestDate }}</span> </el-col>
+            <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ info.deviceLastYearTestResult }}</span> </el-col>
+            <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastYearTestDate }}</span> </el-col>
+            <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextYearTestDate }}</span> </el-col>
           </el-row>
         </div>
         <div>
           <div class="titles">耐压检验信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ info.DeviceLastPressureTestResult }}</span> </el-col>
-            <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.DeviceLastPressureTestDate }}</span> </el-col>
-            <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.DeviceNextPressureTestDate }}</span> </el-col>
+            <el-col :span="8"><span class="name">上次检验结论</span><span class="info">{{ info.deviceLastPressureTestResult }}</span> </el-col>
+            <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastPressureTestDate }}</span> </el-col>
+            <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextPressureTestDate }}</span> </el-col>
           </el-row>
         </div>
         <div>
           <div class="titles">约检通知信息</div>
           <el-row type="flex" align="middle" class="row pd-top">
-            <el-col :span="8"><span class="name">登记人</span><span class="info">{{ info.DeviceInsNoticeRegister }}</span> </el-col>
-            <el-col :span="8"><span class="name">登记时间</span><span class="info">{{ info.DeviceInsNoticeTime }}</span> </el-col>
+            <el-col :span="8"><span class="name">登记人</span><span class="info">{{ info.deviceInsNoticeRegister }}</span> </el-col>
+            <el-col :span="8"><span class="name">登记时间</span><span class="info">{{ info.deviceInsNoticeTime }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="8"><span class="name">通知结果描述</span><span class="info">{{ info.DeviceInsNoticeIntro }}</span> </el-col>
-            <el-col :span="8"><span class="name">联系人</span><span class="info">{{ info.DeviceTenanceContactMan }}</span> </el-col>
+            <el-col :span="8"><span class="name">通知结果描述</span><span class="info">{{ info.deviceInsNoticeIntro }}</span> </el-col>
+            <el-col :span="8"><span class="name">联系人</span><span class="info">{{ info.deviceTenanceContactMan }}</span> </el-col>
           </el-row>
         </div>
       </el-tab-pane>
@@ -142,10 +142,10 @@
             property="checkNo"
             label="任务编号"/>
           <el-table-column
-            property="checkTypeID"
+            property="checkTypeId"
             label="任务类型"/>
           <el-table-column
-            property="checkDeptName"
+            property="checkdeptName"
             label="接收部门"/>
           <el-table-column
             property="checkExecManName"
@@ -215,11 +215,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.infoDialog {
+.infodialog {
   .titles {
     padding: 10px;
     color:#191919;
-    background: #EDEFF4
+    background: #EdEFF4
   }
   .pd-top{padding-top: 16px;}
   .row {

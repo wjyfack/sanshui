@@ -8,7 +8,8 @@ const user = {
     name: '',
     avatar: avatar,
     roles: [],
-    userInfo: {}
+    userInfo: {},
+    deptArea: []
   },
 
   mutations: {
@@ -26,6 +27,9 @@ const user = {
     },
     SET_USERINFO: (state, userInfo) => {
       state.userInfo = userInfo
+    },
+    SET_DEPTAREA: (state, deptArea) => {
+      state.deptArea = deptArea
     }
   },
 
@@ -37,11 +41,23 @@ const user = {
         login(username, userInfo.password).then(response => {
           if (response.resultCode === '0000000') {
             const data = response.returnData
-            console.log(response)
+            console.log(response, 123123)
             setToken(data.token)
             commit('SET_TOKEN', data.token)
             // commit('SET_ROLES', data.roleNavList) // 获取角色
             commit('SET_USERINFO', data)
+            if (data.deptArea4Ids && data.deptArea4Names) {
+              const deptArea4Ids = data.deptArea4Ids.split(',')
+              const deptArea4Names = data.deptArea4Names.split(',')
+              const deptArea = deptArea4Ids.map((item, index) => {
+                return {
+                  value: item,
+                  label: deptArea4Names[index]
+                }
+              })
+              commit('SET_DEPTAREA', deptArea)
+            }
+
             resolve()
           } else {
             Message({ message: response.resultDesc, type: 'error' })

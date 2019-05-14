@@ -103,45 +103,49 @@
 
           <el-table-column
             v-if="activeStatus1"
+            key="checkIntro"
             prop="checkIntro"
             label="任务要求"
             min-width="150"/>
           <el-table-column
             v-if="activeStatus1"
+            key="taskCreateTime"
             prop="taskCreateTime"
             label="任务生成日期"
             min-width="150"/>
 
           <el-table-column
             v-if="activeStatus2"
+            key="taskStatus"
             label="任务类型"
             min-width="150">
-            <template>
-              <span v-if="activeName == '4'" >处理中</span>
-              <span v-else-if="activeName == '5'">处理中</span>
-              <span v-else-if="activeName == '6'">处理中</span>
+            <template slot-scope="scope">
+              <!-- scope.row && scope.row.taskStatus ?taskType[~~scope.row.taskStatus].label: '' -->
+              <span>{{ getTaskStatus(scope.row) }}</span>
             </template>
           </el-table-column>
           <el-table-column
             v-if="activeStatus2"
+            key="checkResulTreatment"
             prop="checkResulTreatment"
             label="任务处理方式"
             min-width="150"/>
 
-          <el-table-column v-if="activeName == 'fifth'" label="审核状态">
+          <!-- <el-table-column v-if="activeName == 'fifth'" key="shenhe" label="审核状态">
             <template slot-scope="scope">
               <el-button
                 :ab="scope.$index"
                 size="mini"
                 type="primary">审核</el-button>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
+            v-if="activeName != '6'"
+            key="optionss"
             label="操作"
             width="280">
             <template slot-scope="scope">
               <el-button
-                click="handleDelete(scope.$index, scope.row)"
                 size="mini"
                 @click="taskDetail(scope.row)">详情</el-button>
               <el-button
@@ -176,6 +180,19 @@
                 @click="taskLook(scope.row)">查看</el-button>
             </template>
           </el-table-column>
+          <el-table-column
+            v-if="activeName == '6'"
+            key="optionS"
+            label="操作"
+            width="280">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                icon="el-icon-search"
+                type="primary"
+                @click="radirtaskDetail(scope.row)">详情</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="page">
@@ -198,6 +215,7 @@
           v-for="(item, index) in deviceDetailArr"
           :key="index"
           type="primary"
+          class="button"
           @click="getdeviceDetail(item)">设备{{ index+1 }}</el-button>
       </div>
       <deviceDetail :loading="dialogInfoLoading" :info="taskdeviceDetail" />
@@ -220,7 +238,7 @@
       width="60%"
       class="dialogForm"
       title="">
-      <editDialog :task.sync="editTask" @closed="dialogEditVisible = false"/>
+      <editDialog :task.sync="editTask" @closed="closed"/>
     </el-dialog>
     <!-- 退回 -->
     <el-dialog
@@ -240,21 +258,8 @@
     <el-dialog
       :visible.sync="dialogChuliVisible"
       :before-close="handleClose"
-      title="处理方式"
-      width="25%">
-      <span>
-        <el-select v-model="handle" placeholder="请选择处理方式" class="select">
-          <el-option
-            v-for="(item, index) in handleType"
-            :key="item.value"
-            :label="item.label"
-            :value="index"/>
-        </el-select>
-      </span>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="taskHandle">确定</el-button>
-        <el-button @click="dialogChuliVisible = false">取消</el-button>
-      </span>
+      title="处理方式">
+      <addTaskDialog :infos="editTask" :visible="dialogAddTask" @closed="closed"/>
     </el-dialog>
     <!-- 查看 -->
     <el-dialog
@@ -263,7 +268,7 @@
       width="60%"
       class="dialogForm"
       title="">
-      <lookDialog :task="editTask" @closed="dialogLookVisible = false"/>
+      <lookDialog :task="editTask" @closed="closed"/>
     </el-dialog>
     <!-- 图片预览 -->
     <el-dialog
@@ -272,12 +277,24 @@
       title="">
       <vue-preview :slides="slides" />
     </el-dialog>
-    <!-- 生成任务 -->
+    <!-- 新增任务 -->
     <el-dialog
       :visible.sync="dialogAddTask"
       :before-close="handleClose"
-      title="生成任务">
-      <addTaskDialog :visible="dialogAddTask" @closed="closed"/>
+      title="新增任务">
+      <addTaskDialog :isadd="true" @closed="closed"/>
+    </el-dialog>
+    <!-- 完成时详情 -->
+    <el-dialog
+      :visible.sync="dialogEndVisible"
+      :before-close="handleClose"
+      width="60%"
+      title="">
+      <statusRecord :status="[]"/>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogEndVisible = false">确认</el-button>
+        <el-button @click="dialogEndVisible = false">关闭</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -288,6 +305,7 @@ import searchDialog from './component/searchDialog'
 import addTaskDialog from './component/addTaskDialog'
 import lookDialog from './component/lookDialog'
 import editDialog from './component/editDialog'
+import statusRecord from '@/components/statusRecord/index'
 import { taskType, status, townType, handleType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask } from '@/api/task'
@@ -298,7 +316,8 @@ export default {
     searchDialog,
     addTaskDialog,
     lookDialog,
-    editDialog
+    editDialog,
+    statusRecord
   },
   data() {
     return {
@@ -314,6 +333,7 @@ export default {
       dialogBackVisible: false,
       dialogAddTask: false,
       dialogLookVisible: false,
+      dialogEndVisible: false,
       search: { // 搜索
         checkNo: '', // 任务编号
         companyUseName: '', // 使用单位
@@ -388,14 +408,23 @@ export default {
     }
   },
   methods: {
+    /** 已完成查询 */
+    radirtaskDetail(row) {
+      this.dialogEndVisible = true
+    },
+    getTaskStatus(row) {
+      return row && row.taskStatus ? taskType[~~row.taskStatus].label : ''
+    },
     /** 编辑 */
     taskEdit(row) {
       fecthBeforeEdit(row.id).then(res => {
-        const data = res.returnData
-        // console.log(data)
-        this.editTask = data
-      }).then(() => {
-        this.dialogEditVisible = true
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          this.editTask = data
+          this.dialogEditVisible = true
+        } else {
+          this.$message.error(res.resultDesc)
+        }
       })
     },
     /** 查看 */
@@ -405,16 +434,27 @@ export default {
       if (!commandId) { commandId = '' }
       const data = { id, commandId }
       fectLookTask(data).then(res => {
-        const data = res.returnData
-        this.editTask = data
-      }).then(() => {
-        this.dialogLookVisible = true
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          this.editTask = data
+          this.dialogLookVisible = true
+        } else {
+          this.$message.error(res.resultDesc)
+        }
       })
     },
-    /** 处理  下拉框选择 1 无需处理 3 下达指令书*/
+    /** 处理  */
     taskHandleDailog(row) {
-      this.dialogChuliVisible = true
-      this.taskRow = row
+      fecthBeforeEdit(row.id).then(res => {
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          // console.log(data)
+          this.editTask = data
+          this.dialogChuliVisible = true
+        } else {
+          this.$message.error(res.resultDesc)
+        }
+      })
     },
     taskHandle() {
       if (this.handle === '') {
@@ -640,7 +680,7 @@ export default {
         deviceAreaName4: cont,
         updateTime: dateChecked[0],
         commandAddDate: dateChecked[1],
-        orderType: '1'
+        orderType: '2'
       }
       // console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
@@ -723,6 +763,10 @@ export default {
     },
     closed() {
       this.dialogAddTask = false
+      this.dialogChuliVisible = false
+      this.dialogEditVisible = false
+      this.dialogLookVisible = false
+      this.fecthData()
     },
     /**
      * 下面没啥用
@@ -773,9 +817,11 @@ export default {
     }
   }
   .more-shebei {
-    display: flex;
-    padding: 16px 30px;
-    justify-content: space-around;
+    overflow-x: scroll;
+    display:flex;
+    .button {
+      margin-right: 16px;
+    }
   }
   .page {
     display: flex;

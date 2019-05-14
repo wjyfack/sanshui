@@ -23,7 +23,12 @@ router.beforeEach((to, from, next) => {
             router.options.routes = routes
             console.log(routes, store.getters.addRouters)
             router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
-            next()
+            if (from.name === null) {
+              next(`/`)
+              NProgress.done()
+            } else {
+              next()
+            }
           })
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {

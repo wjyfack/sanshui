@@ -52,7 +52,7 @@
         <el-table-column>
           <template slot-scope="scope">
             <el-form-item label="出厂编号" >
-              <el-input v-model="scope.row.deviceCertNo" placeholder="请输入出厂编号"/>
+              <el-input v-model="scope.row.deviceProduceNo" placeholder="请输入出厂编号"/>
             </el-form-item>
           </template>
         </el-table-column>
@@ -170,7 +170,8 @@
               range-separator="~"
               start-placeholder="年/月/日"
               end-placeholder="年/月/日"
-              value-format="yyyy-MM-dd"/>
+              value-format="yyyy-MM-dd"
+              @change="selectDatePick"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -215,12 +216,12 @@
         </el-row> -->
         <el-row class="row">
           <el-form-item label="指令书模板">
-            <el-select v-model="command.commandModelId" placeholder="请选择指令书模板">
+            <el-select :value="command.commandModel" placeholder="请选择指令书模板" @change="changeCommandMode">
               <el-option
                 v-for="item in instructionModels"
                 :key="item.id"
                 :label="item.name"
-                :value="item.id"/>
+                :value="item"/>
             </el-select>
           </el-form-item>
         </el-row>
@@ -231,19 +232,15 @@
         </el-row>
         <el-row class="row">
           <el-form-item label="隐患描述">
-            <el-select v-model="command.dangerDescription" placeholder="请选择" style="flex:1">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
+            <div class="cont">
+              <el-input v-model="command.dangerDescription" type="input" class="area" style="flex:1"/>
+            </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="违反条例">
             <div class="cont">
-              <el-select v-model="command.commandAgainstRulesIds" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandAgainstRulesNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -257,7 +254,7 @@
         <el-row class="row">
           <el-form-item label="处罚依据条例">
             <div class="cont">
-              <el-select v-model="command.commandCcordingRulesIds" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandCcordingRulesNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -271,7 +268,7 @@
         <el-row class="row">
           <el-form-item label="整改措施">
             <div class="cont">
-              <el-select v-model="command.commandChangedIds" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandChangedNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -400,7 +397,11 @@ export default {
       multipleSelection: [],
       insprcType: [],
       company: { // 公司
-        useName: ''
+        useName: '',
+        useLegalPerson: '',
+        useContactMan: '',
+        useContactManTel: '',
+        checkUseContactPosition: ''
       },
       command: {
         commandNo: '',
@@ -437,7 +438,7 @@ export default {
         checkUseLegalPerson: '', // 单位法人
         checkUseContactMan: '', // 单位联系人
         checkUseContactManTel: '', // 单位联系方式
-        checkUseContactPosition: '', // 联系人职位
+        checkUseContactPosition: '主管负责人', // 联系人职位
         IllegalCountIds: '', // 违法模板
         deviceIds: '', // 设备ids
         deviceType1Count: '', // 锅炉数量
@@ -466,13 +467,13 @@ export default {
         commandDeviceProblem: '', // 设备描述
         dangerDescription: '', // 隐患描述
         commandAgainstRulesIds: '', // 违反条例
-        commandAgainstRulesNames: '', // 违反条例名称
+        commandAgainstRulesNames: [], // 违反条例名称
         commandAgainstRulesInfo: '', // 违反条例描述
         commandCcordingRulesIds: '', // 处罚依据条例id
-        commandCcordingRulesNames: '', // 处罚依据条例名称
+        commandCcordingRulesNames: [], // 处罚依据条例名称
         commandCcordingRulesInfo: '', // 处罚依据条例描述
         commandChangedIds: '', // 整改截止日期id
-        commandChangedNames: '', // 整改截止日期名称
+        commandChangedNames: [], // 整改截止日期名称
         commandChangedInfo: '', // 整改措施描述
         commandChangedEndDate: '', // 整改截止日期
         commandDate: '', // 指令书日期
@@ -486,10 +487,6 @@ export default {
       value5: '',
       value: '',
       options: [
-        { value: '1', label: 'gugugu1' },
-        { value: '2', label: 'gugugu2' },
-        { value: '3', label: 'gugugu3' },
-        { value: '4', label: 'gugugu4' }
       ],
       radio2: ''
     }
@@ -499,40 +496,97 @@ export default {
       'instructionModels'
     ])
   },
+  watch: {
+    task: function(val) {
+      this.tackCheck()
+    }
+  },
   mounted() {
     if (this.instructionModels.length === 0) {
       this.$store.dispatch('actionsInstructionModels')
     }
-    // this.info = this.task
-    const task = this.task
-    // console.log(task)
-    const company = task.companyUse
-    const record = task.checkRecord
-    if (record && record.id) {
-      company.useLegalPerson = record.checkUseLegalPerson
-      company.useContactMan = record.checkUseContactMan
-      company.useContactManTel = record.checkUseContactManTel
-      company.checkUseContactPosition = record.checkUseContactPosition
-    }
-    const command = task.command
-    if (command && command.commandNo) {
-      console.log(command.commandAgainstRulesIds, 111231)
-      command.commandAgainstRulesIds = command.commandAgainstRulesIds && typeof command.commandAgainstRulesIds !== 'object' ? command.commandAgainstRulesIds.split(',') : []
-      command.commandCcordingRulesIds = command.commandCcordingRulesIds && typeof command.commandCcordingRulesIds !== 'object' ? command.commandCcordingRulesIds.split(',') : []
-      command.commandChangedIds = command.commandChangedIds && typeof command.commandChangedIds !== 'object' ? command.commandChangedIds.split(',') : []
-      this.command = command
-    }
-    this.company = company
-
-    // checkType2有值
-    if (record.checkType2) this.insprcType = inspectionType
-    record.checkDate = [record.checkDateStart, record.checkDateEnd]
-    if (record.checkResulTreatmentId === '1') { this.isShow = true }
-    this.record = record
-    this.deviceList = task.list
-    this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+    this.tackCheck()
   },
   methods: {
+    selectDatePick(event) {
+      console.log(event)
+    },
+    tackCheck() {
+      // this.info = this.task
+      const task = this.task
+      // console.log(task)
+      const company = task.companyUse
+      const record = task.checkRecord
+      if (record && record.id) {
+        company.useLegalPerson = record.checkUseLegalPerson ? record.checkUseLegalPerson : ''
+        company.useContactMan = record.checkUseContactMan
+        company.useContactManTel = record.checkUseContactManTel
+        company.checkUseContactPosition = record.checkUseContactPosition
+      }
+      const command = task.command
+      if (command && command.commandNo) {
+        // console.log(command.commandAgainstRulesIds, 111231)
+        command.commandAgainstRulesNames = command.commandAgainstRulesNames && typeof command.commandAgainstRulesNames !== 'object' ? command.commandAgainstRulesNames.split(',') : []
+        command.commandCcordingRulesNames = command.commandCcordingRulesNames && typeof command.commandCcordingRulesNames !== 'object' ? command.commandCcordingRulesNames.split(',') : []
+        command.commandChangedNames = command.commandChangedNames && typeof command.commandChangedNames !== 'object' ? command.commandChangedNames.split(',') : []
+        this.command = command
+      }
+
+      this.company = company
+      if (!this.company.checkUseContactPosition) {
+        this.company.checkUseContactPosition = '主管负责人'
+      }
+
+      // checkType2有值
+      if (record.checkType2) this.insprcType = inspectionType
+      if (record.checkDateStart || record.checkDateEnd) {
+        const tt = record.checkDateStart ? record.checkDateStart : ''
+        const tts = record.checkDateEnd ? record.checkDateEnd : ''
+        record.checkDate = [tt, tts]
+      } else {
+        record.checkDate = []
+      }
+      console.log(record.checkDate)
+      if (record.checkResulTreatmentId === '1') { this.isShow = true }
+      this.record = record
+      // console.log(record)
+      this.deviceList = task.list
+      this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+    },
+    changeCommandMode(event) {
+      console.log(event)
+      const {
+        id,
+        name,
+        templateRulesTitel,
+        templateProblemTitel,
+        templatePenaltyTitel,
+        templateMeasureTitel,
+        // problem_dspt,
+        rules_dspt,
+        penalty_dspt,
+        measure_dspt,
+        // problem,
+        rules,
+        penalty,
+        measure
+      } = event
+      this.command.commandAgainstRulesIds = rules
+      this.command.commandCcordingRulesIds = penalty
+      this.command.commandChangedIds = measure
+      this.command.commandCcordingRulesInfo = penalty_dspt
+      this.command.commandAgainstRulesInfo = rules_dspt
+      this.command.commandChangedInfo = measure_dspt
+      this.command.commandModelId = id
+      this.command.commandModel = name
+      this.command.dangerDescription = templateProblemTitel
+      const commandAgainstRulesNames = templateRulesTitel.split(',').filter(item => { return item !== '' }) // 违反条例名称
+      this.command.commandAgainstRulesNames = commandAgainstRulesNames
+      const commandChangedNames = templateMeasureTitel.split(',').filter(item => { return item !== '' }) // 整改措施名称
+      this.command.commandChangedNames = commandChangedNames
+      const commandCcordingRulesNames = templatePenaltyTitel.split(',').filter(item => { return item !== '' }) // 处罚依据条例名称
+      this.command.commandCcordingRulesNames = commandCcordingRulesNames
+    },
     taskSelect(event) { // 检查类别
       console.log(event)
       switch (~~event) {
@@ -630,16 +684,17 @@ export default {
         commandDeviceProblem,
         dangerDescription,
         commandAgainstRulesIds,
-        // commandAgainstRulesNames, // 暂无
+        commandAgainstRulesNames, // 暂无
         commandAgainstRulesInfo,
         commandCcordingRulesIds,
-        // commandCcordingRulesNames, // 暂无
+        commandCcordingRulesNames, // 暂无
         commandCcordingRulesInfo,
         commandChangedIds,
-        // commandChangedNames, // 暂无
+        commandChangedNames, // 暂无
         commandChangedInfo,
         commandChangedEndDate,
         commandDate,
+        commandModel,
         remark, // 注明情况
         companyUseConfirmMan,
         companyUseConfirmManPhone
@@ -687,20 +742,21 @@ export default {
         checkResulTreatmentName,
         checkOpinion,
         checkRecordId,
+        checkStatus: '5',
         commandId,
         commandNo,
-        commandModel: this.getMoreSelect(commandModelId, this.options),
+        commandModel,
         commandModelId,
         commandDeviceProblem,
         dangerDescription,
-        commandAgainstRulesIds: commandAgainstRulesIds.join(','),
-        commandAgainstRulesNames: this.getMoreSelect(commandAgainstRulesIds, this.options),
+        commandAgainstRulesIds: commandAgainstRulesIds,
+        commandAgainstRulesNames: commandAgainstRulesNames.join(','),
         commandAgainstRulesInfo,
-        commandCcordingRulesIds: commandCcordingRulesIds.join(','),
-        commandCcordingRulesNames: this.getMoreSelect(commandCcordingRulesIds, this.options),
+        commandCcordingRulesIds: commandCcordingRulesIds,
+        commandCcordingRulesNames: commandCcordingRulesNames.join(','),
         commandCcordingRulesInfo,
-        commandChangedIds: commandChangedIds.join(','),
-        commandChangedNames: this.getMoreSelect(commandChangedIds, this.options),
+        commandChangedIds: commandChangedIds,
+        commandChangedNames: commandChangedNames.join(','),
         commandChangedInfo,
         commandChangedEndDate,
         commandDate,
@@ -710,7 +766,7 @@ export default {
       }
       console.log(data, 11)
       fectEditTask(data).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.resultCode === '0000000') {
           this.$message({
             message: res.resultDesc,

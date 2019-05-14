@@ -1,5 +1,5 @@
 
-export const baseUrl = 'http://192.168.0.142:8607' // 'http://192.168.0.142:8607'
+export const baseUrl = 'http://192.168.0.116:8607' // 'http://192.168.0.142:8607'
 export const equipmentType = [ // 设备种类 一级分类
   {
     value: 1,
@@ -474,7 +474,7 @@ export const checkStatus = [ // 设备检查状态
 
 export const overdue = [ // 超期
   {
-    value: '0',
+    value: '2',
     label: '否'
   }, {
     value: '1',

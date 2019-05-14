@@ -23,11 +23,15 @@ const device = {
     getDeviceList({ commit }, listInfo) {
       return new Promise((resolve, reject) => {
         fetchList(listInfo).then(response => {
-          const data = response.returnData
-          commit('SET_TOTAL', data.total)
-          commit('SET_LIST', data.list)
-          commit('SET_PAGES', data.pages)
-          resolve()
+          if (response.resultCode === '0000000') {
+            const data = response.returnData
+            commit('SET_TOTAL', data.total)
+            commit('SET_LIST', data.list)
+            commit('SET_PAGES', data.pages)
+            resolve()
+          } else {
+            reject(response.resultDesc)
+          }
         }).catch(error => reject(error))
       })
     }

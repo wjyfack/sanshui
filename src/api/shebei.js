@@ -28,7 +28,7 @@ export function fetchDeviceDetail(id = 0) { // 详情设备
     data: { id }
   })
 }
-export function fetchMohuCom(useArea3 = '7') { // 模糊搜索公司
+export function fetchMohuCom(useArea3 = '') { // 模糊搜索公司
   return request({
     url: '/company/name/companyNamelist',
     method: 'post',

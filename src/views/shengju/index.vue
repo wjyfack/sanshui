@@ -40,6 +40,7 @@
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ total }} <el-button type="text" @click="clearing">清空</el-button></span></div>
       <el-table
         v-loading="loading"
+        v-show="deviceShow"
         ref="multipleTable"
         :data="list"
         tooltip-effect="dark"
@@ -49,68 +50,64 @@
           type="selection"
           width="55"/>
         <el-table-column
-          v-if="deviceShow"
           prop="use_org_name"
           label="使用单位"/>
         <el-table-column
-          v-if="deviceShow"
           prop="use_org_addr"
           label="使用单位地址"/>
         <el-table-column
-          v-if="deviceShow"
           prop="cert_code"
           label="使用登记证"/>
         <el-table-column
-          v-if="deviceShow"
           prop="product_code"
           label="出厂编号"/>
         <el-table-column
-          v-if="deviceShow"
           prop="reg_code"
           label="设备注册代码"/>
         <el-table-column
-          v-if="deviceShow"
           prop="mai_org_cert_code"
           label="维保单位证书编号"/>
         <el-table-column
-          v-if="deviceShow"
-          prop="use_status"
-          label="设备状态"/>
+          label="设备状态">
+          <template slot-scope="scope">
+            <span>{{ getDeviceStatus(scope.row.use_status) }}</span>
+          </template>
+        </el-table-column>
         <!-- x-_-x -->
+      </el-table>
+      <el-table
+        v-loading="loading"
+        v-show="!deviceShow"
+        ref="multipleTable"
+        :data="bianlist"
+        tooltip-effect="dark"
+        style="width: 100%"
+        @selection-change="handleSelectionChange">
         <el-table-column
-          v-if="!deviceShow"
           prop="apply_type"
           label="申请类别"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="out_org_name"
           label="单位名称"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="out_org_name"
           label="使用单位"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="out_org_addr"
           label="使用单位地址"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="out_corp"
           label="单位法人"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="out_tel"
           label="电话"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="in_org_name"
           label="转入单位名称"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="in_org_addr"
           label="转入单位地址"/>
         <el-table-column
-          v-if="!deviceShow"
           prop="in_corp"
           label="转入法定代表人"/>
       </el-table>
@@ -128,7 +125,7 @@
 
 <script>
 import equementCascader from './../shebei/component/equementCascader'
-import { status, addrCasc } from '@/utils/config'
+import { status } from '@/utils/config'
 import { fetchDeviceList, fetchChangeList } from '@/api/shengju'
 import { mapGetters } from 'vuex'
 export default {
@@ -142,7 +139,6 @@ export default {
       selectBtns: ['primary', 'info', 'info'],
       // 单个信息
       status,
-      addrCasc,
       // 已选择状态
       equipmentTypeChecked: '',
       statusChecked: '',
@@ -164,6 +160,7 @@ export default {
         use_org_name: ''
       },
       list: [],
+      bianlist: [],
       total: 0,
       opt: 1,
       options: [],
@@ -184,6 +181,12 @@ export default {
     this.fecthData()
   },
   methods: {
+    getDeviceStatus(value) {
+      const [item] = this.status.filter(item => {
+        return item.value === value
+      })
+      return item.label
+    },
     changeInfo(opt) {
       switch (~~opt) {
         case 1:
@@ -222,7 +225,8 @@ export default {
           if (res.resultCode === '0000000') {
             this.loading = false
             this.total = res.returnData.total
-            this.list = res.returnData.list
+            const list = res.returnData.list
+            this.list = list
           }
         })
       } else {
@@ -233,7 +237,7 @@ export default {
           if (res.resultCode === '0000000') {
             this.loading = false
             this.total = res.returnData.total
-            this.list = res.returnData.list
+            this.bianlist = res.returnData.list
           }
         })
       }

@@ -5,6 +5,7 @@ const getters = {
   avatar: state => state.user.avatar,
   name: state => state.user.name,
   roles: state => state.user.roles,
+  deptArea: state => state.user.deptArea, // 地区名
   deviceTotal: state => state.device.total,
   deviceList: state => state.device.list,
   taskTotal: state => state.task.total, // 任务
@@ -15,6 +16,7 @@ const getters = {
   companyList: state => state.common.comlist, // 公司名称
   equipmentAllType: state => state.common.deviceType, // 设备类型
   instructionModels: state => state.common.instructionModels, // 指令书模板
+  deptNames: state => state.common.deptNames, // 接收任务部门
   addRouters: state => state.permission.addRouters
 }
 export default getters

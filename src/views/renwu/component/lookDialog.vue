@@ -52,7 +52,7 @@
         <el-table-column>
           <template slot-scope="scope">
             <el-form-item label="出厂编号" >
-              <el-input v-model="scope.row.deviceCertNo" placeholder="请输入出厂编号"/>
+              <el-input v-model="scope.row.DeviceProduceNo" placeholder="请输入出厂编号"/>
             </el-form-item>
           </template>
         </el-table-column>
@@ -70,41 +70,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="title">关联设备数量</div>
-      <el-row class="row">
-        <el-col :span="8">
-          <el-form-item label="电梯">
-            <el-input v-model="record.deviceType3Count" placeholder="请输入电梯"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="专用机动车">
-            <el-input v-model="record.deviceType8Count" placeholder="请输入专用机动车"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="起重机">
-            <el-input v-model="record.deviceType7Count" placeholder="请输入起重机"/>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row class="row">
-        <el-col :span="8">
-          <el-form-item label="锅炉">
-            <el-input v-model="record.deviceType1Count" placeholder="请输入锅炉"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="压力容器">
-            <el-input v-model="record.deviceType2Count" placeholder="请输入压力容器"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="压力管道">
-            <el-input v-model="record.deviceType5Count" placeholder="请输入压力管道"/>
-          </el-form-item>
-        </el-col>
-      </el-row>
       <div class="title">检查记录表信息</div>
       <el-row class="row">
         <el-col :span="12">
@@ -197,19 +162,15 @@
         </el-row>
         <el-row class="row">
           <el-form-item label="隐患描述">
-            <el-select v-model="command.dangerDescription" placeholder="请选择" style="flex:1">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
+            <div class="cont">
+              <el-input v-model="command.dangerDescription" type="input" class="area" style="flex:1"/>
+            </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="违反条例">
             <div class="cont">
-              <el-select v-model="command.commandAgainstRulesIds" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandAgainstRulesNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -223,7 +184,7 @@
         <el-row class="row">
           <el-form-item label="处罚依据条例">
             <div class="cont">
-              <el-select v-model="command.commandCcordingRulesIds" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandCcordingRulesNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -237,7 +198,7 @@
         <el-row class="row">
           <el-form-item label="整改措施">
             <div class="cont">
-              <el-select v-model="command.commandChangedIds" multiple placeholder="请选择" class="select">
+              <el-select v-model="command.commandChangedNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -298,8 +259,8 @@
         <el-row class="row">
           <el-form-item label="任务状态" required>
             <el-radio-group v-model="auditStatus">
-              <el-radio :label="3">通过</el-radio>
-              <el-radio :label="6">不通过</el-radio>
+              <el-radio :label="'1'">通过</el-radio>
+              <el-radio :label="'0'">不通过</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-row>
@@ -320,7 +281,7 @@
       width="45%"
       title=""
       append-to-body>
-      <el-form ref="forms" label-width="130px">
+      <el-form ref="tianjiaForm" :model="info" :rules="rules" label-width="130px">
         <div class="device-info">
           <div class="info">
             <span>系统导入关联设备</span>
@@ -330,8 +291,10 @@
             ref="multipleTable"
             :data="noDeviceList"
             height="250"
-            style="width: 100%"
-            @selection-change="handleSelectionChange">
+            border
+            style=""
+            @selection-change="handleSelectionChange"
+            @select.once="handelSameArea">
             <el-table-column
               type="selection"
               width="55"/>
@@ -349,6 +312,81 @@
               label="设备状态"/>
           </el-table>
         </div>
+        <div class="title">手动新增关联设备</div>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="设备类型" prop="useEque">
+              <el-cascader
+                ref="useEques"
+                v-model="info.useEque"
+                :options="equipmentAllType"
+                class="select"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="设备状态" prop="status">
+              <el-select v-model="info.status" placeholder="请选择">
+                <el-option
+                  v-for="item in status"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="设备编号" prop="deviceNo">
+              <el-input v-model="info.deviceNo" placeholder="请输入设备编号"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="设备名称" prop="deviceName">
+              <el-input v-model="info.deviceName" placeholder="请输入设备名称" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="设备型号" prop="deviceModel">
+              <el-input v-model="info.deviceModel" placeholder="请输入设备型号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="设备注册号" prop="deviceRegNo">
+              <el-input v-model="info.deviceRegNo" placeholder="请输入设备注册号" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="使用证编号" prop="deviceCertNo">
+              <el-input v-model="info.deviceCertNo" placeholder="请输入使用证编号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="设备出厂编号" prop="deviceProduceNo">
+              <el-input v-model="info.deviceProduceNo" placeholder="请输入设备出厂编号" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-form-item label="设备安装地址" prop="installAddr">
+            <el-cascader
+              ref="deviceInstallAreas"
+              v-model="info.installAddr"
+              :options="addrCasc"/>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="详细地址" prop="detailAddr">
+            <el-input v-model="info.detailAddr" class="input" placeholder="请输入详细地址"/>
+          </el-form-item>
+        </el-row>
+        <el-row type="flex" justify="end">
+          <el-button type="primary" @click="submitDevice('tianjiaForm')">添加</el-button>
+        </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="DialogAddDevice = false">取 消</el-button>
@@ -360,10 +398,10 @@
 
 <script>
 import taskCheck from '@/components/taskCheck/index'
-import { fetchBeforeTask } from '@/api/shebei'
+import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fecthExamineTask } from '@/api/task'
 import { mapGetters } from 'vuex'
-import { danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
+import { status, addrCasc, danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
 export default {
   components: {
     taskCheck
@@ -376,6 +414,8 @@ export default {
   },
   data() {
     return {
+      status,
+      addrCasc,
       baseUrl,
       danWeiType,
       taskType,
@@ -388,57 +428,118 @@ export default {
       noDeviceList: [],
       multipleSelection: [],
       insprcType: [],
-      company: {},
+      company: {
+        useLegalPerson: '',
+        useContactMan: '',
+        useContactManTel: '',
+        checkUseContactPosition: ''
+      },
       command: {},
       deviceList: [],
       illegalCount: [],
       record: {},
-      auditStatus: '',
+      auditStatus: '1',
       confirmDesc: '',
       value5: '',
       value: '',
       options: [],
-      radio: ''
+      radio: '',
+      info: {
+        useEque: [],
+        status: '',
+        deviceNo: '',
+        deviceName: '',
+        deviceRegNo: '',
+        deviceModel: '',
+        deviceCertNo: '',
+        deviceProduceNo: '',
+        installAddr: '',
+        detailAddr: ''
+      },
+      rules: {
+        useEque: [{ required: true, message: '请选择设备类型' }],
+        status: [{ required: true, message: '请选择设备状态' }],
+        deviceName: [{ required: true, message: '请输入设备名称' }],
+        deviceNo: [{ required: true, message: '请输入设备编号' }],
+        deviceRegNo: [{ required: true, message: '请输入设备注册号' }],
+        deviceModel: [{ required: true, message: '请输入活动资源' }],
+        deviceCertNo: [{ required: true, message: '请输入使用证编号' }],
+        deviceProduceNo: [{ required: true, message: '请输入设备出厂编号' }],
+        installAddr: [{ required: true, message: '请选择设备安装地址' }],
+        detailAddr: [{ required: true, message: '请输入详细地址' }]
+      }
     }
   },
   computed: {
     ...mapGetters([
-      'instructionModels'
+      'instructionModels',
+      'companyList',
+      'equipmentAllType'
     ])
+  },
+  watch: {
+    task: function(val, oldVal) {
+      this.tackCheck()
+    }
   },
   mounted() {
     if (this.instructionModels.length === 0) {
       this.$store.dispatch('actionsInstructionModels')
     }
-    // this.info = this.task
-    const task = this.task
-    // console.log(task)
-    const company = task.companyUse === null ? {} : task.companyUse
-    const record = task.checkRecord
-    if (record && record.id) {
-      company.useLegalPerson = record.checkUseLegalPerson
-      company.useContactMan = record.checkUseContactMan
-      company.useContactManTel = record.checkUseContactManTel
-      company.checkUseContactPosition = record.checkUseContactPosition
-    }
-    const command = task.command
-    if (command && command.commandNo) {
-      command.commandAgainstRulesIds = command.commandAgainstRulesIds && typeof command.commandAgainstRulesIds !== 'object' ? command.commandAgainstRulesIds.split(',') : []
-      command.commandCcordingRulesIds = command.commandCcordingRulesIds && typeof command.commandCcordingRulesIds !== 'object' ? command.commandCcordingRulesIds.split(',') : []
-      command.commandChangedIds = command.commandChangedIds && typeof command.commandChangedIds !== 'object' ? command.commandChangedIds.split(',') : []
-      this.command = command
-    }
-    this.company = company
-
-    // checkType2有值
-    if (record.checkType2) this.insprcType = inspectionType
-    record.checkDate = [record.checkDateStart, record.checkDateEnd]
-    if (record.checkResulTreatmentId === '1') { this.isShow = true }
-    this.record = record
-    this.deviceList = task.list
-    this.illegalCount = this.deviceList.length === 0 ? [] : this.deviceList.map(item => item.illegalCountId)
+    this.tackCheck()
   },
   methods: {
+    tackCheck() {
+      // this.info = this.task
+      const task = this.task
+      const company = task.companyUse !== null ? task.companyUse : {}
+      const record = task.checkRecord
+      console.log(company, record)
+      if (record && record.id) {
+        console.log(2222222)
+        if (company) {
+          company.id = record.checkUseId
+          company.useLegalPerson = record.checkUseLegalPerson ? record.checkUseLegalPerson : '' // 法人
+          company.useContactMan = record.checkUseContactMan
+          company.useContactManTel = record.checkUseContactManTel // 联系方式
+          company.checkUseContactPosition = record.checkUseContactPosition
+          company.useName = record.checkUseName // 单位名称
+          company.useAddress = record.checkUseFullAddress // 单位地址
+          company.useContactMan = record.checkUseContactMan // 联系人
+          company.checkUseContactPosition = record.checkUseContactPosition // 联系人职务
+        }
+      }
+      const command = task.command
+      if (command && command.commandNo) {
+        // console.log(command.commandAgainstRulesIds, 111231)
+        command.commandAgainstRulesNames = command.commandAgainstRulesNames && typeof command.commandAgainstRulesNames !== 'object' ? command.commandAgainstRulesNames.split(',') : []
+        command.commandCcordingRulesNames = command.commandCcordingRulesNames && typeof command.commandCcordingRulesNames !== 'object' ? command.commandCcordingRulesNames.split(',') : []
+        command.commandChangedNames = command.commandChangedNames && typeof command.commandChangedNames !== 'object' ? command.commandChangedNames.split(',') : []
+        this.command = command
+      }
+      if (company) {
+        this.company = company
+      }
+      // if (!this.company.checkUseContactPosition) {
+      //   this.company.checkUseContactPosition = '主管负责人'
+      // } del
+
+      // checkType2有值
+      if (record.checkType2) this.insprcType = inspectionType
+      if (record.checkDateStart || record.checkDateEnd) {
+        const tt = record.checkDateStart ? record.checkDateStart : ''
+        const tts = record.checkDateEnd ? record.checkDateEnd : ''
+        record.checkDate = [tt, tts]
+      } else {
+        record.checkDate = []
+      }
+      // console.log(record.checkType2)
+      // if (record.checkResulTreatmentId === '1') { this.isShow = true } del
+      this.record = record
+      // console.log(record)
+      this.deviceList = task.list === null ? [] : task.list
+      this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+    },
     taskSelect(event) { // 检查类别
       console.log(event)
       switch (~~event) {
@@ -472,6 +573,90 @@ export default {
       } else {
         this.$message('请输入单位名称')
       }
+    },
+    submitDevice(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const {
+            useEque,
+            status,
+            deviceNo,
+            deviceName,
+            deviceRegNo,
+            deviceModel,
+            deviceCertNo,
+            deviceProduceNo,
+            installAddr,
+            detailAddr
+          } = this.info
+          const useEqueArr = this.$refs['useEques'].$el.innerText.replace(/\s+/g, '').split('/')
+          const deviceInstallAreaArr = this.$refs['deviceInstallAreas'].$el.innerText.replace(/\s+/g, '').split('/')
+          const {
+            id,
+            useName,
+            useContactMan,
+            useContactManTel,
+            useAddress
+          } = this.com
+          const [{ label }] = this.status.filter(item => { return item.value === status })
+          const data = {
+            deviceType1: `${useEque[0]}`, // 设备类型1
+            deviceTypeName1: useEqueArr[0], // 设备类型名称1
+            deviceType2: `${useEque[1]}`, // 设备类型2
+            deviceTypeName2: useEqueArr[1], // 设备类型名称2
+            deviceStatusCode: status,
+            deviceStatusName: label, // 状态
+            deviceNo, // 设备编号
+            deviceName, // 设备名称
+            deviceModel, // 设备型号
+            deviceRegNo, // 设备注册号
+            deviceCertNo, // 使用证编号
+            deviceProduceNo, // 设备出厂编号
+            deviceIndexesID: '', // 设备系统编号
+            deviceArea1: '1', // 设备安装地址1
+            deviceArea2: installAddr[0], // 设备安装地址2
+            deviceArea3: installAddr[1], // 设备安装地址3
+            deviceArea4: installAddr[2], // 设备安装地址4
+            deviceAreaName1: '广东省', // 设备安装地址名1
+            deviceAreaName2: deviceInstallAreaArr[0], // 设备安装地址名2
+            deviceAreaName3: deviceInstallAreaArr[1], // 设备安装地址名3
+            deviceAreaName4: deviceInstallAreaArr[2], // 设备安装地址名4
+            deviceAddress: detailAddr, // 详细地址
+            deviceLng: '', // 经度
+            deviceLat: '', // 纬度
+            // deviceIsMonitoring: keyMonitor ? '1' : '0', // 重点监控设备
+            deviceUseName: useName, // 使用单位名称
+            deviceUseContactMan: useContactMan, // 使用单位联系人
+            deviceUseTel: useContactManTel, // 使用单位电话
+            deviceUseAddress: useAddress, // 使用单位地址
+            // deviceIntro: devDetail, // 设备详情
+            deviceUseID: id
+          }
+          console.log(data)
+          fetchAddDevice(data).then(response => {
+            const data = response
+            if (data.resultCode === '0000000') {
+              this.$message({
+                message: data.resultDesc,
+                type: 'success'
+              })
+              this.$refs[formName].resetFields()
+              // 刷新设备
+              this.getDeviceList(id, 2)
+            } else {
+              this.$message({
+                message: data.resultDesc,
+                type: 'warning'
+              })
+            }
+          }).catch(err => {
+            this.$message.error(err)
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
     },
     selectDeviceQu() {
       if (this.multipleSelection.length !== 0) {
@@ -527,6 +712,13 @@ export default {
       this.record.checkType2 = instructionStatus // 检查类别2
     },
     sure() { // 确定
+      // 判断
+      const auditStatus = this.auditStatus
+      const confirmDesc = this.confirmDesc
+      if (!confirmDesc) {
+        this.$message.error('请输入确认描述')
+        return ''
+      }
       const { id, checkNo } = this.task
       const checkUseId = this.company.id // 使用单位id
       const {
@@ -538,16 +730,6 @@ export default {
         checkUseContactPosition // 联系人职务
       } = this.company
       const {
-        // deviceType1Count,
-        // deviceType2Count,
-        // deviceType3Count,
-        // deviceType4Count,
-        // deviceType5Count,
-        // deviceType6Count,
-        // deviceType7Count,
-        // deviceType8Count,
-        // deviceType9Count,
-        // deviceType10Count,
         checkType,
         checkType2,
         checkUseTypes,
@@ -559,19 +741,19 @@ export default {
       } = this.record
       const {
         commandNo,
-        // commandModel, // 暂无
+        commandModel, // 暂无
         commandModelId,
         commandDeviceProblem,
         dangerDescription,
         commandAgainstRulesIds,
-        // commandAgainstRulesNames, // 暂无
-        // commandAgainstRulesInfo,
+        commandAgainstRulesNames, // 暂无
+        commandAgainstRulesInfo,
         commandCcordingRulesIds,
-        // commandCcordingRulesNames, // 暂无
-        // commandCcordingRulesInfo,
+        commandCcordingRulesNames, // 暂无
+        commandCcordingRulesInfo,
         commandChangedIds,
-        // commandChangedNames, // 暂无
-        // commandChangedInfo,
+        commandChangedNames, // 暂无
+        commandChangedInfo,
         commandChangedEndDate,
         commandDate,
         remark // ,注明情况
@@ -588,11 +770,12 @@ export default {
       const [checkDateStart, checkDateEnd] = checkDate
       // 处理措施
       const checkResulTreatmentName = this.getCheckResulTreatment(checkResulTreatmentId)
-      // const checkRecordId = this.record.id
+      const checkRecordId = this.record.id
       const commandId = this.command.id
       // 监察指令书
+      // console.log(this.nowFileList)
       const commandProblemPhotoList = this.nowFileList.map(item => {
-        return item.returnData
+        return item.response.returnData
       }).join(',')
       const data = {
         taskCheckId: id, // 任务id
@@ -606,16 +789,6 @@ export default {
         checkUseContactPosition, // 联系人职务
         deviceIds,
         illegalCountIds,
-        // deviceType1Count,
-        // deviceType2Count,
-        // deviceType3Count,
-        // deviceType4Count,
-        // deviceType5Count,
-        // deviceType6Count,
-        // deviceType7Count,
-        // deviceType8Count,
-        // deviceType9Count,
-        // deviceType10Count,
         checkType,
         checkType2,
         checkUseTypes,
@@ -626,32 +799,33 @@ export default {
         checkResulTreatmentId,
         checkResulTreatmentName,
         checkOpinion,
-        // checkRecordId,
+        checkRecordId,
         commandId,
         commandNo,
-        commandModel: this.getMoreSelect(commandModelId, this.options),
+        commandModel,
         commandModelId,
         commandDeviceProblem,
         dangerDescription,
-        commandAgainstRulesIds: commandAgainstRulesIds.join(','),
-        commandAgainstRulesNames: this.getMoreSelect(commandAgainstRulesIds, this.options),
-        // commandAgainstRulesInfo,
-        commandCcordingRulesIds: commandCcordingRulesIds.join(','),
-        commandCcordingRulesNames: this.getMoreSelect(commandCcordingRulesIds, this.options),
-        // commandCcordingRulesInfo,
-        commandChangedIds: commandChangedIds.join(','),
-        commandChangedNames: this.getMoreSelect(commandChangedIds, this.options),
-        // commandChangedInfo,
+        commandAgainstRulesIds: commandAgainstRulesIds,
+        commandAgainstRulesNames: commandAgainstRulesNames.join(','),
+        commandAgainstRulesInfo,
+        commandCcordingRulesIds: commandCcordingRulesIds,
+        commandCcordingRulesNames: commandCcordingRulesNames.join(','),
+        commandCcordingRulesInfo,
+        commandChangedIds: commandChangedIds,
+        commandChangedNames: commandChangedNames.join(','),
+        commandChangedInfo,
         commandChangedEndDate,
         commandDate,
         remark, // 注明情况
         commandProblemPhotoList,
-        auditStatus: this.auditStatus,
-        confirmDesc: this.confirmDesc
+        auditStatus,
+        confirmDesc
         // companyUseConfirmMan,
         // companyUseConfirmManPhone
       }
       console.log(data, 11)
+      // return ''
       fecthExamineTask(data).then(res => {
         console.log(res)
         if (res.resultCode === '0000000') {

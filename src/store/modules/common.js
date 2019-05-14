@@ -1,14 +1,19 @@
 import {
   fetchMohuCom
 } from '@/api/shebei'
-import { fetchDeviceType, fetchIntructionModel } from '@/api/common'
+import { fetchDeviceType, fetchIntructionModel, fetchDtName } from '@/api/common'
 // import { getTree } from '@/utils/common'
 
 const common = { // 通用滴
   state: {
     comlist: [],
     deviceType: [],
-    instructionModels: []
+    instructionModels: [],
+    rules: [], // 违法条例
+    problems: [], // 隐患描述
+    penaltys: [], // 处罚依据条例
+    measures: [], // 整改措施
+    deptNames: [] // 接收任务部门
   },
   mutations: {
     SET_COMPANYLIST: (state, companyList) => {
@@ -19,6 +24,21 @@ const common = { // 通用滴
     },
     SET_INSTRUCTIONMODELS: (state, instructionModels) => {
       state.instructionModels = instructionModels
+    },
+    SET_RULES: (state, rules) => {
+      state.rules = rules
+    },
+    SET_PROBLEMS: (state, problems) => {
+      state.problems = problems
+    },
+    SET_PENALTYS: (state, penaltys) => {
+      state.penaltys = penaltys
+    },
+    SET_MEASURES: (state, measures) => {
+      state.measures = measures
+    },
+    SET_DEPTNAMES: (state, deptNames) => {
+      state.deptNames = deptNames
     }
   },
   actions: {
@@ -53,7 +73,16 @@ const common = { // 通用滴
       return new Promise((resolve, reject) => {
         fetchIntructionModel().then(response => {
           const data = response.returnData
-          commit('SET_INSTRUCTIONMODELS', data)
+          commit('SET_INSTRUCTIONMODELS', data) // 指令书模板
+          resolve()
+        }).catch(error => reject(error))
+      })
+    },
+    actionsDeptNames({ commit }) {
+      return new Promise((resolve, reject) => {
+        fetchDtName().then(response => {
+          const data = response.returnData
+          commit('SET_DEPTNAMES', data) // 指令书模板
           resolve()
         }).catch(error => reject(error))
       })
