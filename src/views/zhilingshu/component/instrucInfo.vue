@@ -3,7 +3,7 @@
     <div class="bianhao"><label for="">任务操作信息</label></div>
     <el-row class="row">
       <span class="label"><span class="red">*</span> 任务状态</span>
-      <el-radio-group v-model="taskStatus">
+      <el-radio-group v-model="taskStatus" @change="changeRadio">
         <el-radio :label="1">通过</el-radio>
         <el-radio :label="0">不通过</el-radio>
       </el-radio-group>
@@ -21,6 +21,7 @@
 
 <script>
 import { fetchClosedLoop } from '@/api/instruction'
+import { mapGetters } from 'vuex'
 export default {
   props: {
     transfe: {
@@ -31,28 +32,47 @@ export default {
   data() {
     return {
       taskStatus: 1,
-      taskDesc: ''
+      taskDesc: '通过'
     }
   },
+  computed: {
+    ...mapGetters([
+      'taskAddTime'
+    ])
+  },
   methods: {
+    changeRadio(event) {
+      if (event === 1) {
+        this.taskDesc = '通过'
+      } else {
+        this.taskDesc = '不通过'
+      }
+    },
     isOk() {
-      console.log(this.taskStatus, this.taskDesc)
+      // console.log(this.taskStatus, this.taskDesc)
       const taskDesc = this.taskDesc
       if (!taskDesc) {
         this.$message({ type: 'error', message: '请输入任务移交描述' })
         return ''
       }
-      const { id } = this.transfe
+      const { id, check } = this.transfe
       const data = {
         id,
         commandExecTaskApproveAuditStatus: `${this.taskStatus}`,
         commandExecTaskApproveConfirmDesc: taskDesc,
-        commandExecTaskStatus: '3'
+        commandExecTaskStatus: '3',
+        commandTransferDate: this.taskAddTime,
+        operateName: '审核移交',
+        checkNo: check.checkNo
       }
+      // console.log(data)
+      // return ''
       fetchClosedLoop(data).then(res => {
         if (res.resultCode === '0000000') {
           this.$message({ type: 'success', message: res.resultDesc })
           this.closed()
+        } else {
+          this.$message.error(res.resultDesc)
         }
       })
     },

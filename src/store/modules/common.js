@@ -13,7 +13,8 @@ const common = { // 通用滴
     problems: [], // 隐患描述
     penaltys: [], // 处罚依据条例
     measures: [], // 整改措施
-    deptNames: [] // 接收任务部门
+    deptNames: [], // 接收任务部门
+    taskAddTime: '' // 移交书日期
   },
   mutations: {
     SET_COMPANYLIST: (state, companyList) => {
@@ -39,6 +40,9 @@ const common = { // 通用滴
     },
     SET_DEPTNAMES: (state, deptNames) => {
       state.deptNames = deptNames
+    },
+    SET_TASKADDTIME: (state, taskAddTime) => {
+      state.taskAddTime = taskAddTime
     }
   },
   actions: {
@@ -86,6 +90,9 @@ const common = { // 通用滴
           resolve()
         }).catch(error => reject(error))
       })
+    },
+    actionsExecTaskAddTime({ commit }, data) {
+      commit('SET_TASKADDTIME', data)
     }
   }
 }

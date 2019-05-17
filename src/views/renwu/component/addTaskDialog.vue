@@ -103,6 +103,13 @@
       <el-button type="primary" @click="handleAddTask">确 定</el-button>
     </span>
     <!-- 添加设备 -->
+    <!-- <el-dialog
+      :visible.sync="DialogAddDevice"
+      width="45%"
+      title=""
+      append-to-body>
+      <add-device :device="device"/>
+    </el-dialog> -->
     <el-dialog
       :visible.sync="DialogAddDevice"
       width="45%"
@@ -120,8 +127,7 @@
             height="250"
             border
             style=""
-            @selection-change="handleSelectionChange"
-            @select.once="handelSameArea">
+            @selection-change="handleSelectionChange">
             <el-table-column
               type="selection"
               width="55"/>
@@ -242,7 +248,12 @@ import { status, addrCasc, taskType, inspectionType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fetchAddTask, fecthHandleTask } from '@/api/task'
+import { getFormatDate } from '@/utils/common'
+import addDevice from '@/components/addDevice/index'
 export default {
+  components: {
+    addDevice
+  },
   props: {
     infos: {
       type: Object,
@@ -253,6 +264,7 @@ export default {
       default: false
     }
   },
+
   data() {
     return {
       status,
@@ -269,6 +281,7 @@ export default {
       multipleSelections: [],
       sendTime: '1', // 第几次
       task: {},
+      device: {}, // 设备id 和 list
       com: {
         id: '',
         useName: '',
@@ -276,7 +289,7 @@ export default {
         useContactManTel: '',
         useAddress: '',
         requi: '',
-        checkDate: '',
+        checkDate: getFormatDate(),
         taskone: '',
         tasktwo: ''
       },
@@ -289,7 +302,7 @@ export default {
         deviceModel: '',
         deviceCertNo: '',
         deviceProduceNo: '',
-        installAddr: '',
+        installAddr: [],
         detailAddr: ''
       },
       rules: {
@@ -326,25 +339,28 @@ export default {
   },
   methods: {
     dataCheck() {
-      // console.log(this.infos.companyUse)
-      this.task.id = this.infos.id // 任务id
-      if (this.infos.companyUse && this.infos.companyUse.id) {
-        const {
-          id,
-          useAddress,
-          useContactMan,
-          useContactManTel,
-          useName
-        } = this.infos.companyUse
-        this.com.id = id
-        this.com.useName = useName
-        this.com.useContactMan = useContactMan
-        this.com.useContactManTel = useContactManTel
-        this.com.useAddress = useAddress
-      }
-      const list = this.infos.list
-      if (list) {
-        this.deviceList = list
+      console.log(this.infos)
+      if (this.infos) {
+        this.task.id = this.infos.id // 任务id
+        this.task.checkNo = this.infos.checkNo // 任务id
+        if (this.infos.companyUse && this.infos.companyUse.id) {
+          const {
+            id,
+            useAddress,
+            useContactMan,
+            useContactManTel,
+            useName
+          } = this.infos.companyUse
+          this.com.id = id
+          this.com.useName = useName
+          this.com.useContactMan = useContactMan
+          this.com.useContactManTel = useContactManTel
+          this.com.useAddress = useAddress
+        }
+        const list = this.infos.list
+        if (list) {
+          this.deviceList = list
+        }
       }
     },
     againTask() { // 重新更新任务
@@ -362,13 +378,14 @@ export default {
       })
     },
     changeTask(value) {
-      console.log(value)
+      // console.log(value)
       switch (~~value) {
         case 2:
         case 1:
           this.taksTypeSecond = inspectionType
           break
         default:
+          this.com.tasktwo = ''
           this.taksTypeSecond = []
       }
     },
@@ -380,6 +397,11 @@ export default {
         })
         return ''
       }
+      const device = {
+        id: this.com.id,
+        list: this.deviceList
+      }
+      this.device = device
       this.getDeviceList(this.com.id, 2)
       this.DialogAddDevice = true
     },
@@ -509,13 +531,14 @@ export default {
         deviceUseContactManTel: useContactManTel,
         checkResultDate: checkDate
       }
-      console.log(data)
-      console.log(listDevice, deviceIds)
+      // console.log(data)
+      // console.log(listDevice, deviceIds)
       if (this.isadd) {
         data.sendTime = this.sendTime
         data.listDevice = listDevice
         data.taskStatus = taskone
         data.taskStatusName = tasktwo
+        data.operateName = '新增任务'
         fetchAddTask(data).then(response => {
           const data = response
           if (data.resultCode === '0000000') {
@@ -538,6 +561,8 @@ export default {
         data.taskCheckId = this.task.id
         data.checkType = taskone
         data.checkType2 = tasktwo
+        data.operateName = '处理任务'
+        data.checkNo = this.task.checkNo
         fecthHandleTask(data).then(response => {
           const data = response
           if (data.resultCode === '0000000') {
@@ -574,7 +599,8 @@ export default {
     },
     querySearchAsync(queryString, cb) { // 模糊搜索公司名
       var restaurants = this.companyList
-      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)).splice(0, 10) : restaurants.splice(0, 10)
+      console.log(results)
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         cb(results)
@@ -621,6 +647,8 @@ export default {
           })
         }
       }).finally(() => {
+        console.log(this.deviceList)
+        this.toggleSelection(this.deviceList)
         this.loading = false
       })
     },

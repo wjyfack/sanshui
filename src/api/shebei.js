@@ -41,7 +41,7 @@ export function fetchMakeTakes(data) { // 生成任务
   return request({
     url: '/taskCheck/addTask',
     method: 'post',
-    data: data
+    data: { ...data, operateName: '生成派发任务' }
   })
 }
 export function fetchGetDevice(id = 0) { // 设备获取编辑

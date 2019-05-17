@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { systemKey, systemSign, refiyUrl } from '@/utils/config'
 
 export function fetchDeviceType(isApp = '0') {
   return request({
@@ -37,5 +38,15 @@ export function fetchDtName(deptIsRecive = '1') {
     url: '/base/param/getDtNameTemplate',
     method: 'post',
     data: { deptIsRecive }
+  })
+}
+
+/** 整改token */
+export function fetchIdRefiy() {
+  return request({
+    baseURL: refiyUrl,
+    url: '/open/api/system/vail',
+    method: 'post',
+    data: { systemKey, systemSign }
   })
 }

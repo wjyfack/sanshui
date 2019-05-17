@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="task-detail">
     <div class="bianhao"><label for="">审核状态</label></div>
     <el-row class="row" type="flex">
       <el-col :span="12">
@@ -15,8 +15,8 @@
       <el-input v-model="taskDesc" type="textarea" placeholder="请输入描述"/>
     </el-row>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="isOk">确认</el-button>
       <el-button @click="closed">取 消</el-button>
+      <el-button type="primary" @click="isOk">确认</el-button>
     </span>
   </div>
 </template>
@@ -46,12 +46,25 @@ export default {
         this.$message({ message: '请输入任务描述', type: 'error' })
         return ''
       }
+      const {
+        id,
+        check
+      } = this.transfe
       const data = {
-        id: this.transfe.id,
+        id: id,
         commandExecTaskReplyAuditStatus: this.taskStatus,
         commandExecTaskReplyConfirmDesc: this.taskDesc,
-        commandExecTaskStatus: `${this.status}`
+        commandExecTaskStatus: `${this.status}`,
+        commandTransferDate: this.$store.getters.taskAddTime,
+        checkNo: check.checkNo
       }
+      if (this.status === 4) {
+        data.operateName = '回复审核'
+      } else {
+        data.operateName = '回复确认'
+      }
+      // console.log(data)
+      // return ''
       fetchClosedLoop(data).then(res => {
         if (res.resultCode === '0000000') {
           this.$message({ message: res.resultDesc, type: 'success' })
@@ -89,6 +102,10 @@ export default {
     .mes {
       color: #333;
     }
+  }
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
   }
 }
 </style>

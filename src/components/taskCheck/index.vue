@@ -53,6 +53,7 @@ export default {
           this.insprcType = inspectionType
           break
         default:
+          this.instructionStatus = ''
           this.insprcType = []
       }
       this.instructionStatus = ''

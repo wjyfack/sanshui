@@ -28,25 +28,28 @@ export function translateDataToTree(data) {
   })
 }
 
-// export function getTree(data, root, idTxt, pidTxt, pushTxt) {
-//   var idTxt = idTxt || 'id'
-//   var pidTxt = pidTxt || 'deviceTypePID'
-//   var pushTxt = pushTxt || 'children'
-//   // 递归方法
-//   function getNode(id) {
-//     var node = []
-//     for (var i = 0; i < data.length; i++) {
-//       if (data[i][pidTxt] == id) {
-//         data[i][pushTxt] = getNode(data[i][idTxt])
-//         node.push(data[i])
-//       }
-//     }
-//     if (node.length == 0) {
-//       return
-//     } else {
-//       return node
-//     }
-//   }
-//   // 使用根节点
-//   return getNode(root)
-// }
+/** 时间格式化 */
+export function getFormatDate(val = '') {
+  var date = null
+  if (val === '') {
+    date = new Date()
+  } else {
+    date = new Date(val)
+  }
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+}
+/** 时间+30天后 */
+export function getFormatDate30() {
+  const date1 = new Date()
+  const date2 = new Date(date1)
+  date2.setDate(date1.getDate() + 30)
+  return `${date2.getFullYear()}-${date2.getMonth() + 1}-${date2.getDate()}`
+}
+/**
+ * @desc 自动关联设备数量
+ * @param list Array
+ * @return
+ */
+export function autoDeviceCountConcat(list) {
+
+}

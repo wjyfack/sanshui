@@ -2,30 +2,31 @@
   <div class="record">
     <div class="title">
       <div class="ti">状态变化记录</div>
-      <el-button icon="add" type="primary" size="mini" @click="open">添加记录</el-button>
+      <!-- <el-button icon="add" type="primary" size="mini" @click="open">添加记录</el-button> -->
     </div>
     <div class="table">
       <el-table
         :data="status"
         border
-        height="200">
+        height="200"
+        style="width: 100%;">
         <el-table-column
           type="index"/>
         <el-table-column
-          prop="date"
-          label="操作人"/>
+          prop="taskCheckOperateName"
+          label="	操作类型"/>
         <el-table-column
-          prop="name"
-          label="	发生时间"/>
+          prop="taskCheckLogManName"
+          label="操作员"/>
         <el-table-column
-          prop="address"
-          label="	操作"/>
+          prop="taskCheckOperateResult"
+          label="执行结果"/>
         <el-table-column
-          prop="address"
-          label="描述"/>
-        <el-table-column
-          prop="address"
-          label="部门"/>
+          prop="taskCheckLogDate"
+          label="	执行时间"/>
+          <!-- <el-table-column
+          prop="taskCheckDeptName"
+          label="部门"/> -->
       </el-table>
     </div>
   </div>
@@ -68,16 +69,17 @@ export default {
 
 <style lang="scss" scoped>
 .record {
-  padding: 15px 0;
+  padding-top: 15px;
   .title {
     display: flex;
-    padding-top: 15px;
-    height: 50px;
+    padding: 0 15px;
+    height: 45px;
     justify-content: space-between;
     align-items: center;
     background: #DBDBDB;
   }
   .table {
+    width: 100%;
   }
 }
 </style>

@@ -98,30 +98,32 @@
           <div class="info">
             <span>系统导入关联设备</span>
           </div>
-          <el-table
-            v-loading="loading"
-            ref="multipleTable"
-            :data="noDeviceList"
-            height="250"
-            border
-            style="width: 100%"
-            @selection-change="handleSelectionChange">
-            <el-table-column
-              type="selection"
-              width="55"/>
-            <el-table-column
-              prop="deviceName"
-              label="设备名称"/>
-            <el-table-column
-              prop="deviceSystemCode"
-              label="设备索引码"/>
-            <el-table-column
-              prop="deviceCertNo"
-              label="使用登记证号"/>
-            <el-table-column
-              prop="deviceStatusName"
-              label="设备状态"/>
-          </el-table>
+          <div style="width:100%">
+            <el-table
+              v-loading="loading"
+              ref="multipleTable"
+              :data="noDeviceList"
+              height="250"
+              border
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+              <el-table-column
+                type="selection"
+                width="55"/>
+              <el-table-column
+                prop="deviceName"
+                label="设备名称"/>
+              <el-table-column
+                prop="deviceSystemCode"
+                label="设备索引码"/>
+              <el-table-column
+                prop="deviceCertNo"
+                label="使用登记证号"/>
+              <el-table-column
+                prop="deviceStatusName"
+                label="设备状态"/>
+            </el-table>
+          </div>
         </div>
         <div class="title">手动新增关联设备</div>
         <el-row>
@@ -489,7 +491,7 @@ export default {
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         cb(results)
-      }, 300)
+      }, 200)
     },
     createStateFilter(queryString) {
       return (state) => {

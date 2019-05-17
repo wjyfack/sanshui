@@ -79,6 +79,7 @@
 import { fetchDistributeTask } from '@/api/task'
 import { fetchReview } from '@/api/instruction'
 import { mapGetters } from 'vuex'
+import { getFormatDate } from '@/utils/common'
 export default {
   data() {
     return {
@@ -87,11 +88,11 @@ export default {
       taskTotal: 0,
       id: '', // 任务id
       checkIntro: '', // 任务要求
-      checkResultEndDate: '', // 反馈时间
+      checkResultEndDate: getFormatDate(), // 反馈时间
       checkTypeId: '', // 检验类型
       checkDeptId: '', // 接收部门id
       checkDeptName: '', // 接收部门
-
+      checkNo: '',
       options: [{
         value: '2',
         label: '检验不合格'
@@ -129,6 +130,7 @@ export default {
       this.checkTypeId = info.checkTypeId // 检验类型
       this.checkDeptId = info.checkDeptId // 接收部门id
       this.checkDeptName = info.checkDeptName // 接收部门
+      this.checkNo = info.checkNo
     }
     if (!taskTotal) {
       this.isShow = false
@@ -165,6 +167,7 @@ export default {
           item.checkIntro = this.checkIntro
           item.checkResultEndDate = this.checkResultEndDate
           item.checkTypeId = this.checkTypeId
+          item.operateName = '派发任务' // 操作记录
           return item
         })
         fetchDistributeTask(arr).then(data => {
@@ -182,9 +185,12 @@ export default {
           checkResultEndDate: this.checkResultEndDate, // 反馈时间
           checkTypeId: this.checkTypeId, // 检验类型
           checkDeptId: this.checkDeptId, // 接收部门id
-          checkDeptName: this.checkDeptName // 接收部门
+          checkDeptName: this.checkDeptName, // 接收部门
+          operateName: '复查任务',
+          checkNo: this.checkNo
         }
-        console.log(data, 123)
+        // console.log(data, 123)
+        // return ''
         fetchReview(data).then(data => {
           if (data.resultCode === '0000000') {
             this.$message({

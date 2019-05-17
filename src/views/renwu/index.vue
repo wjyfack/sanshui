@@ -62,9 +62,14 @@
             <el-button type="primary">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '5'" :span="8">
-            <el-button type="primary">编辑</el-button>
+            <el-button type="primary" @click="mutilEditDailog">编辑</el-button>
             <el-button type="danger" @click="closedLoop">闭环</el-button>
             <el-button type="primary">导出Excel</el-button>
+          </el-col>
+          <el-col v-else-if="activeName == '6'" :span="8">
+            <el-button type="primary">检查记录表下载</el-button>
+            <el-button type="primary">指令书下载</el-button>
+            <el-button type="primary">指+检下载</el-button>
           </el-col>
         </el-row>
         <el-row type="flex" justify="center" class="row">
@@ -140,7 +145,7 @@
             </template>
           </el-table-column> -->
           <el-table-column
-            v-if="activeName != '6'"
+            v-if="activeName < 6"
             key="optionss"
             label="操作"
             width="280">
@@ -181,7 +186,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="activeName == '6'"
+            v-if="activeName == '6' || activeName == '7'"
             key="optionS"
             label="操作"
             width="280">
@@ -290,7 +295,19 @@
       :before-close="handleClose"
       width="60%"
       title="">
-      <statusRecord :status="[]"/>
+      <taskDetail :transfe="editTask" />
+      <comInfo :transfe="editTask"/>
+      <statusRecord :status="editTask.taskCheckLogList"/>
+      <div class="imgLists">
+        <span>现场图片：</span>
+        <div class="imglist">
+          <img v-for="item in commandPhotoList" :key="item.src" :src="item.src" class="imgitem" alt="" srcset="" @click="seeCommandList(item.src)">
+        </div>
+        <el-dialog :visible.sync="dialogShowVisible" append-to-body>
+          <img :src="dialogImageUrl" width="100%" alt="">
+        </el-dialog>
+        <!-- <vue-preview :slides="commandPhotoList" class="img-preview" @close="handleClose"/> -->
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogEndVisible = false">确认</el-button>
         <el-button @click="dialogEndVisible = false">关闭</el-button>
@@ -306,10 +323,13 @@ import addTaskDialog from './component/addTaskDialog'
 import lookDialog from './component/lookDialog'
 import editDialog from './component/editDialog'
 import statusRecord from '@/components/statusRecord/index'
-import { taskType, status, townType, handleType } from '@/utils/config'
+import taskDetail from '@/components/taskDetail/taskDetail'
+import comInfo from '@/components/comInfo/comInfo'
+import { taskType, status, townType, handleType, baseUrl } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
+import { opLoading } from '@/mixins/loading'
 export default {
   components: {
     deviceDetail,
@@ -317,10 +337,14 @@ export default {
     addTaskDialog,
     lookDialog,
     editDialog,
-    statusRecord
+    statusRecord,
+    taskDetail,
+    comInfo
   },
+  mixins: [opLoading],
   data() {
     return {
+      baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
       townType,
       taskType,
       handleType,
@@ -334,6 +358,7 @@ export default {
       dialogAddTask: false,
       dialogLookVisible: false,
       dialogEndVisible: false,
+      dialogShowVisible: false,
       search: { // 搜索
         checkNo: '', // 任务编号
         companyUseName: '', // 使用单位
@@ -349,6 +374,8 @@ export default {
       },
       pageSize: 10,
       pageNum: 1,
+      commandPhotoList: [], // 图片
+      dialogImageUrl: '',
       handle: '', // 处理方式
       statusChecked: '',
       taskTypeChecked: '',
@@ -370,22 +397,7 @@ export default {
       loopTittle: '',
       editTask: {}, // 编辑的内容
       addrSel: '',
-      options: [{
-        value: '选项1',
-        label: '选项1'
-      }, {
-        value: '选项2',
-        label: '选项2'
-      }, {
-        value: '选项3',
-        label: '选项3'
-      }, {
-        value: '选项4',
-        label: '选项4'
-      }, {
-        value: '选项5',
-        label: '选项5'
-      }],
+      options: [],
       value: '',
       radio2: '',
       value5: '',
@@ -408,15 +420,58 @@ export default {
     }
   },
   methods: {
+    /** 多选的编辑 */
+    mutilEditDailog() {
+      const multipleSelection = this.multipleSelection
+      if (multipleSelection.length === 0) {
+        this.$message({
+          message: '请选择任务',
+          type: 'warning'
+        })
+        return ''
+      }
+      this.taskEdit(multipleSelection[0])
+    },
+    /** 图片查看 */
+    seeCommandList(url) {
+      this.dialogShowVisible = true
+      this.dialogImageUrl = url
+    },
     /** 已完成查询 */
     radirtaskDetail(row) {
-      this.dialogEndVisible = true
+      this.opShowLoading()
+      fecthBeforeEdit(row.id).then(res => {
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          this.editTask = data
+          this.dialogEndVisible = true
+          let commandPhotoList = []
+          if (data.command && data.command.commandProblemPhotoList) {
+            const list = data.command.commandProblemPhotoList.split(',')
+            commandPhotoList = list.map(item => {
+              return {
+                src: `${this.baseImgUrl}${item}`,
+                msrc: `${this.baseImgUrl}${item}`,
+                w: 500,
+                h: 1000
+              }
+            })
+          }
+          console.log(commandPhotoList)
+          this.commandPhotoList = commandPhotoList // 现场图片
+        } else {
+          this.$message.error(res.resultDesc)
+        }
+      }).then(() => {
+        this.onCloseLoading()
+      })
     },
     getTaskStatus(row) {
       return row && row.taskStatus ? taskType[~~row.taskStatus].label : ''
     },
     /** 编辑 */
     taskEdit(row) {
+      this.opShowLoading()
       fecthBeforeEdit(row.id).then(res => {
         if (res.resultCode === '0000000') {
           const data = res.returnData
@@ -425,6 +480,8 @@ export default {
         } else {
           this.$message.error(res.resultDesc)
         }
+      }).then(() => {
+        this.onCloseLoading()
       })
     },
     /** 查看 */
@@ -501,11 +558,11 @@ export default {
       if (this.taskOpt === 1) {
         const multipleSelection = this.multipleSelection
         data = multipleSelection.map(item => {
-          return { id: item.id, checkStatus: '6', closedLoopReason: reason }
+          return { id: item.id, checkStatus: '6', closedLoopReason: reason, operateName: '闭环任务', checkNo: item.checkNo }
         })
       } else { // 2
         data = [this.taskRow].map(item => {
-          return { id: item.id, checkStatus: '1', rollbackReason: reason }
+          return { id: item.id, checkStatus: '1', rollbackReason: reason, operateName: '退回任务', checkNo: item.checkNo }
         })
       }
 
@@ -527,12 +584,12 @@ export default {
       switch (opt) {
         case 1:
           data = multipleSelection.map(item => {
-            return { id: item.id, isRecovery: '1' }
+            return { id: item.id, isRecovery: '1', operateName: '删除任务', checkNo: item.checkNo }
           })
           break
         case 3:
           data = multipleSelection.map(item => {
-            return { id: item.id, checkStatus: '3' }
+            return { id: item.id, checkStatus: '3', operateName: '接收任务', checkNo: item.checkNo }
           })
           break
       }
@@ -544,15 +601,17 @@ export default {
       switch (opt) {
         case 1:
           data = [row].map(item => {
-            return { id: item.id, isRecovery: '1' }
+            return { id: item.id, isRecovery: '1', checkNo: item.checkNo, operateName: '删除任务' }
           })
           break
         case 2:
           data = [row].map(item => {
-            return { id: item.id, checkStatus: '3' }
+            return { id: item.id, checkStatus: '3', operateName: '接收任务', checkNo: item.checkNo }
           })
           break
       }
+      // console.log(data, row)
+      // return ''
       this.tofetchtaskOpt(data)
     },
     tofetchtaskOpt(data) {
@@ -678,9 +737,9 @@ export default {
         checkNo,
         deviceCertNo,
         deviceAreaName4: cont,
-        updateTime: dateChecked[0],
-        commandAddDate: dateChecked[1],
-        orderType: '2'
+        updateTime: dateChecked[0] ? dateChecked[0] : '',
+        commandAddDate: dateChecked[1] ? dateChecked[1] : '',
+        orderType: '1'
       }
       // console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
@@ -828,6 +887,17 @@ export default {
     justify-content: flex-end;
     padding-top: 16px;
   }
-
+  .imgLists {
+    padding-top: 15px;
+    display: flex;
+    .imglist {
+      display: flex;
+      .imgitem {
+        width: 200px;
+        height: 200px;
+        margin-right: 15px;
+      }
+    }
+  }
 }
 </style>

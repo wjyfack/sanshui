@@ -21,13 +21,13 @@
         <span class="name">整改措施：</span> <div class="info">{{ transfe.commandChangedNames }}</div>
       </div>
       <div class="item">
-        <span class="name">监察指令书：</span> <div>
+        <span class="name">监察指令书：</span>
+        <span v-for="item in urlImgs" :key="item">
           <el-image
-            v-for="url in urlImgs"
-            :key="url"
-            :src="baseUrl+url"
+            :src="baseUrl+item"
+            name="监察指令书"
             style="width: 100px; height: 100px"/>
-        </div>
+        </span>
       </div>
     </div>
   </div>

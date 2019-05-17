@@ -21,19 +21,11 @@ export function fetchBeforeRectify(sourceCommandId) {
   })
 }
 /** 整改查看（审核整改） */
-export function fetchRectify({ sourceCommandId,
-  rectifyStatus,
-  rectifyAuditInfo
-}) {
+export function fetchRectify(data) {
   return request({
     url: '/taskCommand/command/audit',
     method: 'post',
-    data: {
-      sourceSySign,
-      sourceCommandId,
-      rectifyStatus,
-      rectifyAuditInfo
-    }
+    data: data
   })
 }
 /** 移交前查数据 */
@@ -59,6 +51,14 @@ export function fetchTransferSave(data) {
 export function fetchClosedLoop(data) {
   return request({
     url: '/taskCommand/closeCommand',
+    method: 'post',
+    data: data
+  })
+}
+/** 复查前查数据 */
+export function fetchBeforeReview(data) {
+  return request({
+    url: '/taskCheck/getTaskForReview',
     method: 'post',
     data: data
   })

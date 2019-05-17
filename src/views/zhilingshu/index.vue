@@ -43,7 +43,7 @@
           </el-col>
           <el-col :span="8">
             <el-button type="primary" @click="toSearch">查询</el-button>
-            <el-button @click="$message('重置成功')">重置</el-button>
+            <el-button @click="resetSearch">重置</el-button>
             <el-button @click="$message('更多查询')">更多查询</el-button>
           </el-col>
         </el-row>
@@ -64,8 +64,9 @@
           :data="instructionList"
           style="width: 100%">
           <el-table-column
+            v-if="activeName != 'eight'"
+            key="options"
             fixed
-            width="400"
             label="操作">
             <template slot-scope="scope">
               <div v-if="activeName == 'first'">
@@ -113,11 +114,11 @@
               <el-button
                 v-else-if="activeName == 'sixth'"
                 size="mini"
-                @click="zSure">确认</el-button>
+                @click="yijiaoDialog(scope.row,7)">确认</el-button>
               <div v-else-if="activeName == 'seventh'">
                 <el-button
                   size="mini"
-                  @click="dialogYiJiaoVisible = true">下载</el-button>
+                  @click="$message('下载')">下载</el-button>
                 <el-button
                   size="mini"
                   @click="yijiaoDialog(scope.row,5)">查看</el-button>
@@ -138,14 +139,16 @@
             prop="commandDeviceProblem"
             label="问题描述"/>
           <el-table-column
+            v-if="activeName != 'first' && activeName != 'second'"
+            key="commandTransferNo"
             prop="commandTransferNo"
             label="移交书编号"/>
-          <el-table-column
+          <!-- <el-table-column
+            key="commandReplyNo"
             prop="commandReplyNo"
-            label="回复书编号"/>
+            label="回复书编号"/> -->
           <el-table-column
             prop="commandDate"
-            width="120"
             label="指令书日期"/>
         </el-table>
       </div>
@@ -165,25 +168,52 @@
       width="50%"
       title="整改信息查看">
       <el-form label-width="120px" class="dialog">
-        <el-row class="row">
-          <el-form-item label="整改图片：">
-            <img v-for="(item, index) in recitfy.rectifyImg" :key="index" :src="baseUrl+item" alt="" srcset="" style="margin-right:10px;">
+        <el-row>
+          <el-form-item label="整改图片：" >
+            <div class="" style="display:flex;">
+              <ul class="el-upload-list el-upload-list--picture-card">
+                <li v-for="(item, index) in recitfy.rectifyImg" :key="index" class="el-upload-list__item is-success">
+                  <img :src="baseUrl+item" alt="" class="el-upload-list__item-thumbnail">
+                  <i class="el-icon-close"/>
+                  <span class="el-upload-list__item-actions">
+                    <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseUrl+item)">
+                      <i class="el-icon-zoom-in"/>
+                    </span>
+                    <span class="el-upload-list__item-delete" @click="hasHandelDelete(index)">
+                      <i class="el-icon-delete"/>
+                    </span>
+                  </span>
+                </li>
+              </ul>
+              <el-upload
+                :on-preview="handlePictureCardPreview"
+                :on-remove="handleRemove"
+                :on-success="handleSuccess"
+                :action="imgUrl"
+                :headers="imgToken"
+                list-type="picture-card">
+                <i class="el-icon-plus"/>
+              </el-upload>
+            </div>
+            <el-dialog :visible.sync="dialogPreviewVisible" width="30%" append-to-body>
+              <img :src="dialogImageUrl" width="100%" alt="">
+            </el-dialog>
           </el-form-item>
         </el-row>
-        <el-row class="row">
-          <el-form-item label="整改文字：">
+        <el-row>
+          <el-form-item label="整改备注：">
             <el-input v-model="recitfy.rectifyRemark" placeholder="企业编写文字说明（非必填）" class="textarea"/>
           </el-form-item>
         </el-row>
-        <el-row class="row">
+        <el-row>
           <el-form-item label="审核动作：" required>
             <el-radio-group v-model="recitfy.rectifyStatus">
-              <el-radio :label="'2'">通过</el-radio>
-              <el-radio :label="'3'">不通过</el-radio>
+              <el-radio :label="'3'">通过</el-radio>
+              <el-radio :label="'2'">不通过</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-row>
-        <el-row class="row">
+        <el-row>
           <el-form-item label="审核描述：" required>
             <el-input v-model="recitfy.rectifyAuditInfo" type="textarea" placeholder="审核描述" class="textarea"/>
           </el-form-item>
@@ -218,6 +248,7 @@
       title="审核移交">
       <taskDetail :transfe="transfe"/>
       <comInfo :transfe="transfe"/>
+      <yijiaoInfo :transfe="transfe"/>
       <instrucInfo :transfe="transfe" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 处理 -->
@@ -257,7 +288,7 @@
       <comInfo :transfe="transfe"/>
       <yijiaoInfo :transfe="transfe"/>
       <replyLetterInfo :transfe="transfe"/>
-      <examineSub :transfe="transfe" :status="5" @closed="dialogSureVisible = false"/>
+      <examineSub :transfe="transfe" :status="5" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 查看 -->
     <el-dialog
@@ -285,8 +316,9 @@ import yijiaoInfo from './component/yijiaoInfo'
 import replyLetterSub from './component/replyLetterSub'
 import examineSub from './component/examineSub'
 import zhilingshuInfo from './component/zhilingshuInfo'
-import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop } from '@/api/instruction'
-import { baseUrl } from '@/utils/config'
+import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop, fetchBeforeReview } from '@/api/instruction'
+import { fetchIdRefiy } from '@/api/common'
+import { refiyUrl } from '@/utils/config'
 export default {
   components: {
     transferInfo,
@@ -301,7 +333,9 @@ export default {
   },
   data() {
     return {
-      baseUrl: `${baseUrl}/file/show/rectify/`,
+      baseUrl: `${refiyUrl}/file/show/img/rectify/`,
+      imgUrl: `${refiyUrl}/open/api/file/upload/rectify`,
+      imgToken: '',
       loading: false,
       search: {
         checkNo: '', // 任务编号
@@ -315,10 +349,12 @@ export default {
       },
       pageSize: 10,
       pageNum: 1,
+      dialogImageUrl: '',
       recitfy: { // 整改信息查看
         rectifyImg: [], // 图片
+        rectifyAddImgs: [],
         rectifyAuditInfo: '', // 整改文字
-        rectifyStatus: '', // 审核动作
+        rectifyStatus: '3', // 审核动作
         rectifyRemark: '' // 审核描述
       },
       // yuanshi
@@ -330,6 +366,7 @@ export default {
       dialogSureVisible: false,
       dialogLookVisible: false,
       dialogVisible: false,
+      dialogPreviewVisible: false,
       activeName: 'first',
       transfe: {}, // 移交前查的数据
       radio2: '',
@@ -389,38 +426,84 @@ export default {
     this.fecthData()
   },
   methods: {
+    resetSearch() {
+      const commandExecTaskStatus = this.search.commandExecTaskStatus
+      this.search = {
+        checkNo: '', // 任务编号
+        companyUseNewName: '', // 使用单位
+        deviceCertNo: '', // 使用登记证
+        commandNo: '', // 指令书编号
+        deviceAreaName4: '', // 镇街
+        instructionNo: '', // 移交书编号 (没)
+        commandReplyNo: '', // 回复书编号
+        commandExecTaskStatus: commandExecTaskStatus // 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理 8回复审核 4 待确认  5:完成
+      }
+      this.$message.success('重置成功')
+      this.fecthData()
+    },
+    /** 整改start */
+    hasHandelDelete(index) {
+      const rectifyImg = this.recitfy.rectifyImg
+      rectifyImg.splice(index, 1)
+      this.recitfy.rectifyImg = rectifyImg
+    },
+    hasHandlePreview(url) {
+      this.handlePictureCardPreview({ url })
+    },
+    handleSuccess(response, file, fileList) {
+      this.recitfy.rectifyAddImgs = fileList
+    },
+    handleRemove(file, fileList) {
+      // console.log(file, fileList)
+      this.recitfy.rectifyAddImgs = fileList
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url
+      this.dialogPreviewVisible = true
+    },
+    /** 整改end */
     zSure() {
       this.dialogSureVisible = true
     },
     /** 复查 */
     reviewDialog(row) {
-      console.log(row)
+      // console.log(row)
+      // 复查之前
       const {
-        checkTypeId,
-        checkIntro,
-        checkResultEndDate,
-        checkDeptId,
-        checkDeptName,
-        list
+        id
       } = row
-      const info = {
-        checkTypeId,
-        checkIntro,
-        checkResultEndDate,
-        checkDeptId,
-        checkDeptName
-      }
-      this.$router.push({
-        path: '/paifa',
-        query: {
-          info,
-          arr: list
+      fetchBeforeReview({ commandId: id }).then(res => {
+        if (res.resultCode === '0000000') {
+          const {
+            checkTypeId,
+            checkIntro,
+            checkResultEndDate,
+            checkDeptId,
+            checkDeptName,
+            list,
+            checkNo
+          } = res.returnData
+          const info = {
+            checkTypeId,
+            checkIntro,
+            checkResultEndDate,
+            checkDeptId,
+            checkDeptName,
+            checkNo
+          }
+          this.$router.push({
+            path: '/paifa',
+            query: {
+              info,
+              arr: list
+            }
+          })
         }
       })
     },
     /** 闭环 */
     closedLoopDialog(row) {
-      // console.log(row)
+      console.log(row)
       this.$confirm('此操作将闭环指令书, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -428,7 +511,9 @@ export default {
       }).then(() => {
         const info = {
           id: row.id,
-          commandExecTaskStatus: '51'
+          commandExecTaskStatus: '51',
+          checkNo: row.checkNo,
+          operateName: '任务闭环'
         }
         fetchClosedLoop(info).then(res => {
           if (res.resultCode === '0000000') {
@@ -447,40 +532,50 @@ export default {
       this.dialogLookVisible = true
     },
     /** 移交 */
-    yijiaoDialog(row, opt = 1) { // opt 1移交， 2审核移交 3 处理
+    yijiaoDialog(row, opt = 1) { // opt 1移交， 2审核移交 3 处理 7 确认
       const data = {
-        id: row.id
+        id: row.id,
+        taskCheckId: row.taskCheckId
       }
       switch (opt) {
         case 1:
           data.isTrans = '1'
           break
+        case 3:
         case 2:
           data.isReply = '1'
           break
       }
       fetchBeforeTransfe(data).then(res => {
-        const data = res.returnData
-        this.transfe = data
-        switch (opt) {
-          case 1:
-            this.dialogYiJiaoVisible = true
-            break
-          case 2:
-            this.dialogShenHeYiJiaoVisible = true
-            break
-          case 3:
-            this.dialogChuLiVisible = true
-            break
-          case 4:
-            this.dialogShenHeVisible = true
-            break
-          case 5:
-            this.dialogLookVisible = true
-            break
-          case 6: // 镇街移交
-            this.dialogYiJiaoVisible = true
-            break
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          this.transfe = data
+          this.$store.dispatch('actionsExecTaskAddTime', data.commandExecTaskAddTime)
+          switch (opt) {
+            case 1:
+              this.dialogYiJiaoVisible = true
+              break
+            case 2:
+              this.dialogShenHeYiJiaoVisible = true
+              break
+            case 3:
+              this.dialogChuLiVisible = true
+              break
+            case 4:
+              this.dialogShenHeVisible = true
+              break
+            case 5:
+              this.dialogLookVisible = true
+              break
+            case 6: // 镇街移交
+              this.dialogYiJiaoVisible = true
+              break
+            case 7:
+              this.dialogSureVisible = true
+              break
+          }
+        } else {
+          this.$message.error(res.resultDesc)
         }
       })
     },
@@ -490,6 +585,8 @@ export default {
       this.dialogShenHeYiJiaoVisible = false
       this.dialogChuLiVisible = false
       this.dialogShenHeVisible = false
+      this.dialogSureVisible = false
+      this.dialogVisible = false
       this.fecthData()
     },
     /** 整改查看 */
@@ -506,30 +603,58 @@ export default {
         }
         data.id = row.id
         this.recitfy = data
-        this.dialogVisible = true
+      }).then(() => {
+        fetchIdRefiy().then(res => {
+          if (res.resultCode === '0000000') {
+            this.imgToken = { 'Access-Token': res.returnData }
+            this.dialogVisible = true
+          }
+        })
       })
     },
     /** 整改信息 */
     recitfyInfo() {
       const {
+        rectifyImg, // 图片
+        rectifyAddImgs,
         id,
+        rectifyRemark,
         rectifyStatus,
-        rectifyAuditInfo } = this.recitfy
+        rectifyAuditInfo
+      } = this.recitfy
       if (!rectifyAuditInfo) {
         this.$message({ message: '请输入审核描述', type: 'error' })
         return ''
       }
+      let imgs = ''
+      // let imgUrl = ''
+      let addImgUrl = []
+      // if (rectifyImg.length !== 0) {
+      //   imgUrl = rectifyImg.join(',')
+      //   imgs = imgUrl
+      // }
+      // console.log(rectifyAddImgs)
+      if (rectifyAddImgs && rectifyAddImgs.length !== 0) {
+        addImgUrl = rectifyAddImgs.map(item => {
+          return item.response.returnData
+        })
+      }
+      imgs = [...rectifyImg, ...addImgUrl].join(',')
       const data = {
         sourceCommandId: id,
         rectifyStatus,
-        rectifyAuditInfo }
+        rectifyRemark,
+        rectifyImg: imgs,
+        rectifyAuditInfo,
+        sourceSySign: 'sanshuiSafetyServer'
+      }
       fetchRectify(data).then(res => {
-        if (res.returnCode === '000000') {
+        if (res.resultCode === '0000000') {
           this.$message({
             message: res.resultDesc,
             type: 'success'
           })
-          this.dialogVisible = false
+          this.closedYiJiao()
         } else {
           this.$message({
             message: res.resultDesc,

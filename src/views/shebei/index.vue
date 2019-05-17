@@ -799,7 +799,7 @@ export default {
         deviceNextYearTestDate2: inspecDate[1], // 年检范围2
         isOverdue: `${isOverdue}`, // 是否超期  0否1是
         orderType: '1', // 排序类型 1降序 2升序
-        deviceArea3: '' // 设备区域
+        deviceArea3: '7' // 设备区域
       }
       this.$store.dispatch('getDeviceList', data).then(() => {
         this.loading = false

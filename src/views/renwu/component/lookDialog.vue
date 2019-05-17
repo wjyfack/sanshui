@@ -107,10 +107,8 @@
           <el-form-item label="检查日期" >
             <el-date-picker
               v-model="record.checkDate"
-              type="daterange"
-              range-separator="~"
-              start-placeholder="年/月/日"
-              end-placeholder="年/月/日"
+              type="date"
+              placeholder="选择日期"
               value-format="yyyy-MM-dd"/>
           </el-form-item>
         </el-col>
@@ -146,12 +144,12 @@
         </el-row>
         <el-row class="row">
           <el-form-item label="指令书模板">
-            <el-select v-model="command.commandModelId" placeholder="请选择指令书模板">
+            <el-select :value="command.commandModel" placeholder="请选择指令书模板" @change="changeCommandMode">
               <el-option
                 v-for="item in instructionModels"
                 :key="item.id"
                 :label="item.name"
-                :value="item.id"/>
+                :value="item"/>
             </el-select>
           </el-form-item>
         </el-row>
@@ -235,7 +233,7 @@
           </el-form-item>
         </el-row>
         <el-row class="row">
-          <el-form-item label="监察指令书" >
+          <el-form-item label="现场图片" >
             <el-upload
               :on-preview="handlePictureCardPreview"
               :on-remove="handleRemove"
@@ -258,7 +256,7 @@
         <div class="title">任务操作信息</div>
         <el-row class="row">
           <el-form-item label="任务状态" required>
-            <el-radio-group v-model="auditStatus">
+            <el-radio-group v-model="auditStatus" @change="changeStatus">
               <el-radio :label="'1'">通过</el-radio>
               <el-radio :label="'0'">不通过</el-radio>
             </el-radio-group>
@@ -402,6 +400,7 @@ import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fecthExamineTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { status, addrCasc, danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
+import { getFormatDate } from '@/utils/common'
 export default {
   components: {
     taskCheck
@@ -439,7 +438,7 @@ export default {
       illegalCount: [],
       record: {},
       auditStatus: '1',
-      confirmDesc: '',
+      confirmDesc: '审核通过',
       value5: '',
       value: '',
       options: [],
@@ -489,6 +488,14 @@ export default {
     this.tackCheck()
   },
   methods: {
+    changeStatus(event) {
+      console.log(event)
+      if (!~~event) {
+        this.confirmDesc = '审核不通过'
+      } else {
+        this.confirmDesc = '审核通过'
+      }
+    },
     tackCheck() {
       // this.info = this.task
       const task = this.task
@@ -527,11 +534,11 @@ export default {
       // checkType2有值
       if (record.checkType2) this.insprcType = inspectionType
       if (record.checkDateStart || record.checkDateEnd) {
-        const tt = record.checkDateStart ? record.checkDateStart : ''
-        const tts = record.checkDateEnd ? record.checkDateEnd : ''
-        record.checkDate = [tt, tts]
+        // const tt = record.checkDateStart ? record.checkDateStart : ''
+        const tts = record.checkDateEnd ? record.checkDateEnd : getFormatDate()
+        record.checkDate = tts
       } else {
-        record.checkDate = []
+        record.checkDate = getFormatDate()
       }
       // console.log(record.checkType2)
       // if (record.checkResulTreatmentId === '1') { this.isShow = true } del
@@ -671,6 +678,46 @@ export default {
         })
       }
     },
+    changeCommandMode(event) {
+      console.log(event)
+      const {
+        id,
+        name,
+        templateRulesTitel,
+        templateProblemTitel,
+        templatePenaltyTitel,
+        templateMeasureTitel,
+        // problem_dspt,
+        rules_dspt,
+        penalty_dspt,
+        measure_dspt,
+        // problem,
+        rules,
+        penalty,
+        measure
+      } = event
+      this.command.commandAgainstRulesIds = rules
+      this.command.commandCcordingRulesIds = penalty
+      this.command.commandChangedIds = measure
+      this.command.commandCcordingRulesInfo = penalty_dspt
+      this.command.commandAgainstRulesInfo = rules_dspt
+      this.command.commandChangedInfo = measure_dspt
+      this.command.commandModelId = id
+      this.command.commandModel = name
+      this.command.dangerDescription = templateProblemTitel
+      const commandAgainstRulesNames = templateRulesTitel.split(',').filter(item => { return item !== '' }) // 违反条例名称
+      this.command.commandAgainstRulesNames = commandAgainstRulesNames
+      const commandChangedNames = templateMeasureTitel.split(',').filter(item => { return item !== '' }) // 整改措施名称
+      this.command.commandChangedNames = commandChangedNames
+      const commandCcordingRulesNames = templatePenaltyTitel.split(',').filter(item => { return item !== '' }) // 处罚依据条例名称
+      this.command.commandCcordingRulesNames = commandCcordingRulesNames
+      /** 设备描述 */
+      console.log(this.deviceList)
+      const deviceNoString = this.deviceList.map(item => {
+        return item.deviceCertNo
+      }).join('、')
+      this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${templateProblemTitel}`
+    },
     handleSuccess(response, file, fileList) {
       this.nowFileList = fileList
     },
@@ -767,7 +814,7 @@ export default {
       // 违反模板ids
       const illegalCountIds = this.illegalCount.join(',')
       // checkDate 检查日期
-      const [checkDateStart, checkDateEnd] = checkDate
+      // const [checkDateStart, checkDateEnd] = checkDate
       // 处理措施
       const checkResulTreatmentName = this.getCheckResulTreatment(checkResulTreatmentId)
       const checkRecordId = this.record.id
@@ -793,8 +840,8 @@ export default {
         checkType2,
         checkUseTypes,
         checkUseTypeNames,
-        checkDateStart,
-        checkDateEnd,
+        checkDateStart: checkDate,
+        checkDateEnd: checkDate,
         checkProblem,
         checkResulTreatmentId,
         checkResulTreatmentName,
@@ -820,9 +867,11 @@ export default {
         remark, // 注明情况
         commandProblemPhotoList,
         auditStatus,
-        confirmDesc
+        confirmDesc,
         // companyUseConfirmMan,
         // companyUseConfirmManPhone
+        operateName: '审核任务', // operate
+        checkNo: checkNo
       }
       console.log(data, 11)
       // return ''

@@ -1,5 +1,8 @@
 
-export const baseUrl = 'http://192.168.0.116:8607' // 'http://192.168.0.142:8607'
+export const baseUrl = 'http://192.168.0.142:8607' // 'http://192.168.0.142:8607'
+export const refiyUrl = 'http://192.168.0.142:8507'
+export const systemKey = 'dgrl44212haoakkewicenwwhnsja443'
+export const systemSign = 'sanshuiSafetyServer'
 export const equipmentType = [ // 设备种类 一级分类
   {
     value: 1,

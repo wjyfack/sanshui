@@ -166,12 +166,9 @@
           <el-form-item label="检查日期" >
             <el-date-picker
               v-model="record.checkDate"
-              type="daterange"
-              range-separator="~"
-              start-placeholder="年/月/日"
-              end-placeholder="年/月/日"
-              value-format="yyyy-MM-dd"
-              @change="selectDatePick"/>
+              type="date"
+              placeholder="选择日期"
+              value-format="yyyy-MM-dd"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -374,7 +371,7 @@ import taskCheck from '@/components/taskCheck/index'
 import { fetchBeforeTask } from '@/api/shebei'
 import { fectEditTask } from '@/api/task'
 import { mapGetters } from 'vuex'
-
+import { getFormatDate, getFormatDate30 } from '@/utils/common'
 import { danWeiType, taskType, inspectionType } from '@/utils/config'
 export default {
   components: {
@@ -418,8 +415,8 @@ export default {
         commandChangedIds: [],
         commandChangedNames: '', // 暂无
         commandChangedInfo: '',
-        commandChangedEndDate: '',
-        commandDate: '',
+        commandChangedEndDate: getFormatDate30(),
+        commandDate: getFormatDate(),
         remark: '', // 注明情况
         companyUseConfirmMan: '',
         companyUseConfirmManPhone: ''
@@ -508,9 +505,6 @@ export default {
     this.tackCheck()
   },
   methods: {
-    selectDatePick(event) {
-      console.log(event)
-    },
     tackCheck() {
       // this.info = this.task
       const task = this.task
@@ -529,24 +523,34 @@ export default {
         command.commandAgainstRulesNames = command.commandAgainstRulesNames && typeof command.commandAgainstRulesNames !== 'object' ? command.commandAgainstRulesNames.split(',') : []
         command.commandCcordingRulesNames = command.commandCcordingRulesNames && typeof command.commandCcordingRulesNames !== 'object' ? command.commandCcordingRulesNames.split(',') : []
         command.commandChangedNames = command.commandChangedNames && typeof command.commandChangedNames !== 'object' ? command.commandChangedNames.split(',') : []
+        command.commandDate = command.commandDate !== null ? command.commandDate : getFormatDate()
+        command.commandChangedEndDate = command.commandChangedEndDate !== null ? command.commandChangedEndDate : getFormatDate30()
+        command.companyUseConfirmMan = company.useContactMan // 联系人
+        command.companyUseConfirmManPhone = company.useContactManTel // 联系方式
         this.command = command
       }
-
+      console.log(this.command)
       this.company = company
       if (!this.company.checkUseContactPosition) {
         this.company.checkUseContactPosition = '主管负责人'
       }
 
-      // checkType2有值
-      if (record.checkType2) this.insprcType = inspectionType
-      if (record.checkDateStart || record.checkDateEnd) {
-        const tt = record.checkDateStart ? record.checkDateStart : ''
-        const tts = record.checkDateEnd ? record.checkDateEnd : ''
-        record.checkDate = [tt, tts]
-      } else {
-        record.checkDate = []
+      // 编辑前 检查类别
+      if (task.taskStatusName) {
+        this.insprcType = inspectionType
+        record.checkType2 = task.taskStatusName
       }
-      console.log(record.checkDate)
+      if (task.taskStatus) {
+        record.checkType = task.taskStatus
+      }
+      if (record.checkDateStart || record.checkDateEnd) {
+        // const tt = record.checkDateStart ? record.checkDateStart : ''
+        const tts = record.checkDateEnd ? record.checkDateEnd : getFormatDate()
+        record.checkDate = tts
+      } else {
+        record.checkDate = getFormatDate()
+      }
+      // console.log(record)
       if (record.checkResulTreatmentId === '1') { this.isShow = true }
       this.record = record
       // console.log(record)
@@ -554,7 +558,7 @@ export default {
       this.illegalCount = this.deviceList.map(item => item.illegalCountId)
     },
     changeCommandMode(event) {
-      console.log(event)
+      // console.log(event)
       const {
         id,
         name,
@@ -586,6 +590,12 @@ export default {
       this.command.commandChangedNames = commandChangedNames
       const commandCcordingRulesNames = templatePenaltyTitel.split(',').filter(item => { return item !== '' }) // 处罚依据条例名称
       this.command.commandCcordingRulesNames = commandCcordingRulesNames
+      /** 设备描述 */
+      console.log(this.deviceList)
+      const deviceNoString = this.deviceList.map(item => {
+        return item.deviceCertNo
+      }).join('、')
+      this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${templateProblemTitel}`
     },
     taskSelect(event) { // 检查类别
       console.log(event)
@@ -704,7 +714,7 @@ export default {
       // 违反模板ids
       const illegalCountIds = this.illegalCount.join(',')
       // checkDate 检查日期
-      const [checkDateStart, checkDateEnd] = checkDate
+      // const [checkDateStart, checkDateEnd] = checkDate
       // 处理措施
       const checkResulTreatmentName = this.getCheckResulTreatment(checkResulTreatmentId)
       const checkRecordId = this.record.id
@@ -735,8 +745,8 @@ export default {
         checkType2,
         checkUseTypes,
         checkUseTypeNames,
-        checkDateStart,
-        checkDateEnd,
+        checkDateStart: checkDate,
+        checkDateEnd: checkDate,
         checkProblem,
         checkResulTreatmentId,
         checkResulTreatmentName,
@@ -762,7 +772,9 @@ export default {
         commandDate,
         remark, // 注明情况
         companyUseConfirmMan,
-        companyUseConfirmManPhone
+        companyUseConfirmManPhone,
+        operateName: '编辑任务', // operate
+        checkNo: checkNo
       }
       console.log(data, 11)
       fectEditTask(data).then(res => {

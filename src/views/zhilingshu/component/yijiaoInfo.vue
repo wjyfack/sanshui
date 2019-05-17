@@ -21,9 +21,10 @@
       <span class="label">移交书日期</span>
       <el-date-picker
         v-model="transfe.commandExecTaskAddTime"
-        disabled
         type="date"
-        placeholder="选择日期"/>
+        value-format="yyyy-MM-dd"
+        placeholder="选择日期"
+        @change="changePicke"/>
     </el-row>
     <el-row class="row" type="flex">
       <span class="label">任务移交描述</span>
@@ -43,6 +44,12 @@ export default {
   data() {
     return {
       yijiaoDate: ''
+    }
+  },
+  methods: {
+    changePicke(event) {
+      // console.log(event)
+      this.$store.dispatch('actionsExecTaskAddTime', event)
     }
   }
 }
