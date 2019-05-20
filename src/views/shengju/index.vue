@@ -2,7 +2,7 @@
   <div class="shebei">
     <div class="shebeiSearch">
       <el-row :gutter="20">
-        <div v-if="deviceShow" class="search">
+        <div v-if="deviceShow == 1" class="search">
           <label for="" class="label">单位名称：</label>
           <el-input v-model="device.use_org_name" class="input" placeholder="" />
           <label for="" class="label">设备种类：</label>
@@ -13,7 +13,7 @@
           <el-button @click="searchReset">重置</el-button>
           <el-button @click="dialogVisible = true">更多查询</el-button>
         </div>
-        <div v-if="!deviceShow" class="searchs">
+        <div v-if="deviceShow == 2" class="searchs">
           <label for="" class="label">单位名称：</label>
           <el-input v-model="biange.use_org_name" class="input" placeholder="" />
           <label for="" class="label">申请类别：</label>
@@ -40,8 +40,8 @@
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ total }} <el-button type="text" @click="clearing">清空</el-button></span></div>
       <el-table
         v-loading="loading"
-        v-show="deviceShow"
-        ref="multipleTable"
+        v-show="deviceShow == 1"
+        ref="multipleDevice"
         :data="list"
         tooltip-effect="dark"
         style="width: 100%"
@@ -77,8 +77,8 @@
       </el-table>
       <el-table
         v-loading="loading"
-        v-show="!deviceShow"
-        ref="multipleTable"
+        v-show="deviceShow == 2"
+        ref="multipleChange"
         :data="bianlist"
         tooltip-effect="dark"
         style="width: 100%"
@@ -111,6 +111,36 @@
           prop="in_corp"
           label="转入法定代表人"/>
       </el-table>
+      <el-table
+        v-loading="loading"
+        v-show="deviceShow == 3"
+        ref="multipledanwu"
+        :data="bianlist"
+        tooltip-effect="dark"
+        style="width: 100%"
+        @selection-change="handleSelectionChange">
+        <el-table-column
+          prop="out_org_name"
+          label="使用单位"/>
+        <el-table-column
+          prop="out_org_addr"
+          label="使用单位地址"/>
+        <el-table-column
+          prop="out_corp"
+          label="法定代表人"/>
+        <el-table-column
+          prop="in_org_name"
+          label="单位联系人"/>
+        <el-table-column
+          prop="out_tel"
+          label="联系电话"/>
+        <el-table-column
+          prop="in_org_addr"
+          label="行政区域"/>
+        <el-table-column
+          prop="in_corp"
+          label="社会信用代码"/>
+      </el-table>
       <div class="page">
         <el-pagination
           :total="total"
@@ -135,7 +165,7 @@ export default {
   data() {
     return {
       loading: false,
-      deviceShow: true, // 显示内容
+      deviceShow: '1', // 显示内容 1,2,3
       selectBtns: ['primary', 'info', 'info'],
       // 单个信息
       status,
@@ -191,20 +221,18 @@ export default {
       switch (~~opt) {
         case 1:
           this.selectBtns = ['primary', 'info', 'info']
-          this.deviceShow = true
           this.opt = 1
           break
         case 2:
           this.selectBtns = ['info', 'primary', 'info']
-          this.deviceShow = false
           this.opt = 2
           break
         case 3:
           this.selectBtns = ['info', 'info', 'primary']
-          this.deviceShow = false
           this.opt = 2
           break
       }
+      this.deviceShow = `${opt}`
       this.fecthData()
     },
     onUseEqueChange(event) { // 设备种类

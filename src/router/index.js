@@ -115,6 +115,17 @@ export const asyncRouterMap = [
       meta: { title: '后台管理', icon: 'houtai' },
       component: () => import('@/views/houtai/index')
     }]
+  },
+  {
+    path: '/units',
+    component: Layout,
+    redirect: '/units',
+    name: 'sys_bg_manage',
+    children: [{
+      path: 'units',
+      meta: { title: '单位管理', icon: 'houtai' },
+      component: () => import('@/views/units_manager/index')
+    }]
   }
 ]
 
