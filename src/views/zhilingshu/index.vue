@@ -237,6 +237,7 @@
       :before-close="handleClose"
       title="移交">
       <taskDetail :transfe="transfe"/>
+      <statusRecord :status="transfe.taskCheckLogList"/>
       <comInfo :transfe="transfe"/>
       <transferInfo :transfe="transfe" @closed="closedYiJiao"/>
     </el-dialog>
@@ -247,6 +248,7 @@
       width="50%"
       title="审核移交">
       <taskDetail :transfe="transfe"/>
+      <statusRecord :status="transfe.taskCheckLogList"/>
       <comInfo :transfe="transfe"/>
       <yijiaoInfo :transfe="transfe"/>
       <instrucInfo :transfe="transfe" @closed="closedYiJiao"/>
@@ -258,6 +260,7 @@
       width="50%"
       title="处理">
       <taskDetail :transfe="transfe"/>
+      <statusRecord :status="transfe.taskCheckLogList"/>
       <comInfo :transfe="transfe"/>
       <yijiaoInfo :transfe="transfe"/>
       <replyLetterSub :transfe="transfe" @closed="closedYiJiao"/>
@@ -270,6 +273,7 @@
       title="处理">
       <!-- 任务信息 -->
       <taskDetail :transfe="transfe"/>
+      <statusRecord :status="transfe.taskCheckLogList"/>
       <!-- 企业信息 -->
       <comInfo :transfe="transfe"/>
       <!-- 移交信息 -->
@@ -285,6 +289,7 @@
       width="50%"
       title="处理">
       <taskDetail :transfe="transfe"/>
+      <statusRecord :status="transfe.taskCheckLogList"/>
       <comInfo :transfe="transfe"/>
       <yijiaoInfo :transfe="transfe"/>
       <replyLetterInfo :transfe="transfe"/>
@@ -297,6 +302,7 @@
       width="50%"
       title="处理">
       <taskDetail :transfe="transfe"/>
+      <statusRecord :status="transfe.taskCheckLogList"/>
       <comInfo :transfe="transfe"/>
       <zhilingshuInfo :transfe="transfe"/>
       <yijiaoInfo :transfe="transfe"/>
@@ -316,6 +322,7 @@ import yijiaoInfo from './component/yijiaoInfo'
 import replyLetterSub from './component/replyLetterSub'
 import examineSub from './component/examineSub'
 import zhilingshuInfo from './component/zhilingshuInfo'
+import statusRecord from '@/components/statusRecord/index'
 import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop, fetchBeforeReview } from '@/api/instruction'
 import { fetchIdRefiy } from '@/api/common'
 import { refiyUrl } from '@/utils/config'
@@ -329,6 +336,7 @@ export default {
     yijiaoInfo,
     replyLetterSub,
     zhilingshuInfo,
+    statusRecord,
     examineSub
   },
   data() {
@@ -480,7 +488,7 @@ export default {
             checkResultEndDate,
             checkDeptId,
             checkDeptName,
-            list,
+            // list,
             checkNo
           } = res.returnData
           const info = {
@@ -495,7 +503,7 @@ export default {
             path: '/paifa',
             query: {
               info,
-              arr: list
+              arr: [res.returnData]
             }
           })
         }
@@ -513,7 +521,7 @@ export default {
           id: row.id,
           commandExecTaskStatus: '51',
           checkNo: row.checkNo,
-          operateName: '任务闭环'
+          operateName: '指令书闭环'
         }
         fetchClosedLoop(info).then(res => {
           if (res.resultCode === '0000000') {

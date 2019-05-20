@@ -34,7 +34,8 @@
       <div class="table">
         <el-table
           :data="deviceList"
-          style="width: 100%">
+          style="width: 100%"
+          @cell-click="cellClick">
           <el-table-column
             prop="deviceCertNo"
             label="使用登记证"/>
@@ -56,7 +57,7 @@
           <el-table-column
             label="接收部门">
             <template slot-scope="scope">
-              <el-select v-model="deviceList[scope.$index].checkDeptId" placeholder="请选择" @change="deptChange">
+              <el-select v-model="deviceList[scope.$index].checkDeptId" :disabled="!isShow" placeholder="请选择" @change="deptChange">
                 <el-option
                   v-for="(item) in deptNames"
                   :key="item.id"
@@ -121,16 +122,29 @@ export default {
       this.$store.dispatch('actionsDeptNames')
     }
     const { arr, taskTotal, info } = this.$route.query
-    this.deviceList = arr
-    console.log(arr)
-    if (info) { // 重新派发
+
+    console.log(info !== undefined)
+    if (info !== undefined) { // 重新派发
       console.log(info)
       this.checkIntro = info.checkIntro // 任务要求
-      this.checkResultEndDate = info.checkResultEndDate // 反馈时间
+      // this.checkResultEndDate = info.checkResultEndDate // 反馈时间
       this.checkTypeId = info.checkTypeId // 检验类型
       this.checkDeptId = info.checkDeptId // 接收部门id
       this.checkDeptName = info.checkDeptName // 接收部门
       this.checkNo = info.checkNo
+      this.deviceList = arr
+    } else {
+      // let list = []
+      // arr.map(item => {
+      //   const devList = item.list === null ? [] : item.list.map(val => {
+      //     val.companyUseName = item.companyUseName
+      //     val.deviceLastTestResult = item.deviceLastTestResult
+      //     val.checkDeptId = item.checkDeptId
+      //     return val
+      //   })
+      //   list = [...list, ...devList]
+      // })
+      this.deviceList = arr
     }
     if (!taskTotal) {
       this.isShow = false
@@ -140,6 +154,11 @@ export default {
     }
   },
   methods: {
+    cellClick(row, column, cell, event) {
+      console.log(row)
+      const { deviceIds } = row
+      console.log(deviceIds)
+    },
     deptChange(event) {
       console.log(event)
       console.log(this.deviceList)
@@ -157,18 +176,20 @@ export default {
         this.$message('请输入检验类型')
         return ''
       } // 检验类型
-      if (this.isShow) {
+      if (this.isShow) { // 派发任务
         const deviceList = this.deviceList
         const arr = deviceList.map(item => {
+          const data = {}
           const [{ deptName }] = this.deptNames.filter(val => {
             return val.id === item.checkDeptId
           })
-          item.checkDeptName = deptName
-          item.checkIntro = this.checkIntro
-          item.checkResultEndDate = this.checkResultEndDate
-          item.checkTypeId = this.checkTypeId
-          item.operateName = '派发任务' // 操作记录
-          return item
+          data.id = item.id
+          data.checkDeptName = deptName
+          data.checkIntro = this.checkIntro
+          data.checkResultEndDate = this.checkResultEndDate
+          data.checkTypeId = this.checkTypeId
+          data.operateName = '派发任务' // 操作记录
+          return data
         })
         fetchDistributeTask(arr).then(data => {
           if (data.resultCode === '0000000') {

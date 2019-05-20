@@ -103,129 +103,14 @@
       <el-button type="primary" @click="handleAddTask">确 定</el-button>
     </span>
     <!-- 添加设备 -->
-    <!-- <el-dialog
-      :visible.sync="DialogAddDevice"
-      width="45%"
-      title=""
-      append-to-body>
-      <add-device :device="device"/>
-    </el-dialog> -->
     <el-dialog
       :visible.sync="DialogAddDevice"
       width="45%"
       title=""
       append-to-body>
-      <el-form ref="forms" :model="info" :rules="rules" label-width="130px">
-        <div class="device-info">
-          <div class="info">
-            <span>系统导入关联设备</span>
-          </div>
-          <el-table
-            v-loading="loading"
-            ref="multipleTable"
-            :data="noDeviceList"
-            height="250"
-            border
-            style=""
-            @selection-change="handleSelectionChange">
-            <el-table-column
-              type="selection"
-              width="55"/>
-            <el-table-column
-              prop="deviceName"
-              label="设备名称"/>
-            <el-table-column
-              prop="deviceSystemCode"
-              label="设备索引码"/>
-            <el-table-column
-              prop="deviceCertNo"
-              label="使用登记证号"/>
-            <el-table-column
-              prop="deviceStatusName"
-              label="设备状态"/>
-          </el-table>
-        </div>
-        <div class="title">手动新增关联设备</div>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="设备类型" prop="useEque">
-              <el-cascader
-                ref="useEques"
-                v-model="info.useEque"
-                :options="equipmentAllType"
-                class="select"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="设备状态" prop="status">
-              <el-select v-model="info.status" placeholder="请选择">
-                <el-option
-                  v-for="item in status"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="设备编号" prop="deviceNo">
-              <el-input v-model="info.deviceNo" placeholder="请输入设备编号"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="设备名称" prop="deviceName">
-              <el-input v-model="info.deviceName" placeholder="请输入设备名称" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="设备型号" prop="deviceModel">
-              <el-input v-model="info.deviceModel" placeholder="请输入设备型号" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="设备注册号" prop="deviceRegNo">
-              <el-input v-model="info.deviceRegNo" placeholder="请输入设备注册号" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="使用证编号" prop="deviceCertNo">
-              <el-input v-model="info.deviceCertNo" placeholder="请输入使用证编号" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="设备出厂编号" prop="deviceProduceNo">
-              <el-input v-model="info.deviceProduceNo" placeholder="请输入设备出厂编号" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-form-item label="设备安装地址" prop="installAddr">
-            <el-cascader
-              ref="deviceInstallAreas"
-              v-model="info.installAddr"
-              :options="addrCasc"/>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="详细地址" prop="detailAddr">
-            <el-input v-model="info.detailAddr" class="input" placeholder="请输入详细地址"/>
-          </el-form-item>
-        </el-row>
-        <el-row type="flex" justify="end">
-          <el-button type="primary" @click="submitDevice('forms')">添加</el-button>
-        </el-row>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="DialogAddDevice = false">取 消</el-button>
-        <el-button type="primary" @click="selectDeviceQu">确 定</el-button>
-      </span>
+      <add-device :device="device" @closed="changeDevice"/>
     </el-dialog>
+
     <el-dialog
       :visible.sync="DialogAgain"
       width="45%"
@@ -250,10 +135,12 @@ import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fetchAddTask, fecthHandleTask } from '@/api/task'
 import { getFormatDate } from '@/utils/common'
 import addDevice from '@/components/addDevice/index'
+import moHuSearch from '@/mixins/moHuSearch'
 export default {
   components: {
     addDevice
   },
+  mixins: [moHuSearch],
   props: {
     infos: {
       type: Object,
@@ -321,7 +208,6 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'companyList',
       'equipmentAllType'
     ])
   },
@@ -338,6 +224,13 @@ export default {
     this.dataCheck()
   },
   methods: {
+    changeDevice(event) {
+      if (event.length !== 0) {
+        this.deviceList = event
+      }
+
+      this.DialogAddDevice = false
+    },
     dataCheck() {
       console.log(this.infos)
       if (this.infos) {
@@ -398,11 +291,11 @@ export default {
         return ''
       }
       const device = {
-        id: this.com.id,
+        company: this.com,
         list: this.deviceList
       }
       this.device = device
-      this.getDeviceList(this.com.id, 2)
+      // this.getDeviceList(this.com.id, 2)
       this.DialogAddDevice = true
     },
     submitDevice(formName) {
@@ -596,20 +489,6 @@ export default {
       // done()
       this.DialogAgain = false
       this.$emit('closed', false)
-    },
-    querySearchAsync(queryString, cb) { // 模糊搜索公司名
-      var restaurants = this.companyList
-      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)).splice(0, 10) : restaurants.splice(0, 10)
-      console.log(results)
-      clearTimeout(this.timeout)
-      this.timeout = setTimeout(() => {
-        cb(results)
-      }, 300)
-    },
-    createStateFilter(queryString) {
-      return (state) => {
-        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
-      }
     },
     handleSelect(item) { // 获取id
       console.log(item)

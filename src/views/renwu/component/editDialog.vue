@@ -328,40 +328,7 @@
       width="45%"
       title=""
       append-to-body>
-      <el-form ref="forms" label-width="130px">
-        <div class="device-info">
-          <div class="info">
-            <span>系统导入关联设备</span>
-          </div>
-          <el-table
-            v-loading="loading"
-            ref="multipleTable"
-            :data="noDeviceList"
-            height="250"
-            style="width: 100%"
-            @selection-change="handleSelectionChange">
-            <el-table-column
-              type="selection"
-              width="55"/>
-            <el-table-column
-              prop="deviceName"
-              label="设备名称"/>
-            <el-table-column
-              prop="deviceSystemCode"
-              label="设备索引码"/>
-            <el-table-column
-              prop="deviceCertNo"
-              label="使用登记证号"/>
-            <el-table-column
-              prop="deviceStatusName"
-              label="设备状态"/>
-          </el-table>
-        </div>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="DialogAddDevice = false">取 消</el-button>
-        <el-button type="primary" @click="selectDeviceQu">确 定</el-button>
-      </span>
+      <add-device :device="device" @closed="changeDevice"/>
     </el-dialog>
   </div>
 </template>
@@ -373,9 +340,11 @@ import { fectEditTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { getFormatDate, getFormatDate30 } from '@/utils/common'
 import { danWeiType, taskType, inspectionType } from '@/utils/config'
+import addDevice from '@/components/addDevice/index'
 export default {
   components: {
-    taskCheck
+    taskCheck,
+    addDevice
   },
   props: {
     task: {
@@ -393,6 +362,7 @@ export default {
       noDeviceList: [],
       multipleSelection: [],
       insprcType: [],
+      device: {},
       company: { // 公司
         useName: '',
         useLegalPerson: '',
@@ -505,6 +475,13 @@ export default {
     this.tackCheck()
   },
   methods: {
+    changeDevice(event) {
+      if (event.length !== 0) {
+        this.deviceList = event
+      }
+
+      this.DialogAddDevice = false
+    },
     tackCheck() {
       // this.info = this.task
       const task = this.task
@@ -617,6 +594,11 @@ export default {
           if (data.resultCode === '0000000') {
             const returnData = data.returnData
             this.noDeviceList = returnData
+            const device = {
+              company: this.company,
+              list: this.deviceList
+            }
+            this.device = device
           } else {
             this.$message({
               message: data.resultDesc,

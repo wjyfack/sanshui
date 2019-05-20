@@ -64,6 +64,6 @@ export function fetchBeforeTask(deviceUseID) { // 生成任务钱设备查询
   return request({
     url: '/device/ss/getDeviceForTask',
     method: 'post',
-    data: { deviceUseID }
+    data: { deviceUseID, deviceArea3: '7' } // 只查三水的设备
   })
 }

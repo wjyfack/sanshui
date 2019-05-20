@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="task">
     <el-form ref="forms" :model="info" :rules="rules" label-width="130px">
       <div class="device-info">
         <div class="info">
@@ -12,8 +12,7 @@
           height="250"
           border
           style=""
-          @selection-change="handleSelectionChange"
-          @select.once="handelSameArea">
+          @selection-change="handleSelectionChange">
           <el-table-column
             type="selection"
             width="55"/>
@@ -115,9 +114,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
+import { addrCasc, status } from '@/utils/config'
+import { mapGetters } from 'vuex'
 export default {
+
   props: {
     device: {
       type: Object,
@@ -126,10 +127,13 @@ export default {
   },
   data() {
     return {
+      addrCasc,
+      status,
       loading: false,
       multipleSelection: [],
       noDeviceList: [],
       devList: [],
+      company: {},
       info: {
         useEque: [],
         status: '',
@@ -172,9 +176,10 @@ export default {
   methods: {
     chageData() {
       const device = this.device
-      console.log(this.device)
-      if (device.id) {
-        this.getDeviceList(device.id)
+      // console.log(this.device)
+      if (device.company && device.company.id) {
+        this.company = device.company
+        this.getDeviceList(device.company.id)
       }
       if (device.list.length !== 0) {
         this.devList = device.list
@@ -195,20 +200,28 @@ export default {
         }
       }).finally(() => {
         this.loading = false
-        this.toggleSelection(this.devList)
+        const list = this.noDeviceList.filter(item => {
+          const isHas = this.devList.some(val => {
+            return val.id === item.id
+          })
+          return isHas
+        })
+        this.toggleSelection(list)
       })
     },
     selectDeviceQu() {
       console.log(this.multipleSelection)
       if (this.multipleSelection.length !== 0) {
-        this.DialogAddDevice = false
-        this.deviceList = this.multipleSelection
+        this.closed(this.multipleSelection)
       } else {
         this.$message({
           message: '请勾选关联设备',
           type: 'warning'
         })
       }
+    },
+    closed(data = []) {
+      this.$emit('closed', data)
     },
     submitDevice(formName) {
       this.$refs[formName].validate((valid) => {
@@ -233,7 +246,7 @@ export default {
             useContactMan,
             useContactManTel,
             useAddress
-          } = this.com
+          } = this.company
           const [{ label }] = this.status.filter(item => { return item.value === status })
           const data = {
             deviceType1: `${useEque[0]}`, // 设备类型1
@@ -305,17 +318,54 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
-    },
-    closed() {
-      this.$emit('closed')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.task {
+  font-size: 14px;
+  .title {
+    padding: 16px;
+    color:#333;
+    background: #DBDBDB;
+    margin-bottom: 10px;
+  }
+  .device-info {
+    border-radius: 4px;
+    margin: 10px 0;
+    .info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #DBDBDB;
+    }
+  }
+}
+.title,.info {
+  padding: 16px 0;
+}
 .dialog-footer {
+  margin-top: 15px;
   display:flex;
   justify-content: flex-end;
 }
+.again {
+  .titlea {
+    font-size: 16px;
+    color:#333;
+    margin-bottom: 10px;
+  }
+  .group {
+    display: flex;
+    flex-wrap: wrap;
+    .item {
+      font-size: 14px;
+      width: 33%;
+    }
+  }
+}
+
 </style>

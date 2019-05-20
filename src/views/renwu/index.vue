@@ -687,6 +687,8 @@ export default {
               arr
             }
           })
+        } else {
+          this.$message.error(data.resultDesc)
         }
       })
     },

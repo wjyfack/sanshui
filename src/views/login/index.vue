@@ -34,7 +34,7 @@
 
 <script>
 // import { isvalidUsername } from '@/utils/validate'
-
+// import { mapGetters } from 'vuex'
 export default {
   name: 'Login',
   data() {
@@ -66,6 +66,11 @@ export default {
       redirect: undefined
     }
   },
+  // computed: {
+  //   ...mapGetters([
+  //     'companyList'
+  //   ])
+  // },
   watch: {
     $route: {
       handler: function(route) {
@@ -74,6 +79,12 @@ export default {
       immediate: true
     }
   },
+
+  // mounted() {
+  //   if (this.companyList.length === 0) {
+  //     this.$store.dispatch('actionsMohuCom')
+  //   }
+  // },
   methods: {
     showPwd() {
       if (this.pwdType === 'password') {
@@ -88,8 +99,9 @@ export default {
           this.loading = true
           this.$store.dispatch('Login', this.loginForm).then(() => {
             this.loading = false
-            console.log(1111, this.$router)
-            this.$router.push({ path: this.redirect || '/' })
+            // console.log(1111, this.$router)
+            // 不要 重定向跳转 this.redirect ||
+            this.$router.push({ path: '/' })
           }).catch(() => {
             this.loading = false
           })
