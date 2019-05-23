@@ -73,6 +73,24 @@
         <el-button type="primary" @click="back">取消</el-button>
       </div>
     </div>
+    <!-- 详情 -->
+    <el-dialog
+      :visible.sync="dialogInfoVisible"
+      title="">
+      <div class="more-shebei">
+        <el-button
+          v-for="(item, index) in deviceDetailArr"
+          :key="index"
+          type="primary"
+          class="button"
+          @click="getdeviceDetail(item)">设备{{ index+1 }}</el-button>
+      </div>
+      <deviceDetail :loading="dialogInfoLoading" :info="taskdeviceDetail" />
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogInfoVisible = false">确认</el-button>
+        <el-button @click="dialogInfoVisible = false">关闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -81,7 +99,12 @@ import { fetchDistributeTask } from '@/api/task'
 import { fetchReview } from '@/api/instruction'
 import { mapGetters } from 'vuex'
 import { getFormatDate } from '@/utils/common'
+import { fetchDeviceDetail } from '@/api/shebei'
+import deviceDetail from '@/components/deviceDetail'
 export default {
+  components: {
+    deviceDetail
+  },
   data() {
     return {
       isShow: true,
@@ -94,6 +117,10 @@ export default {
       checkDeptId: '', // 接收部门id
       checkDeptName: '', // 接收部门
       checkNo: '',
+      dialogInfoLoading: false,
+      dialogInfoVisible: false,
+      deviceDetailArr: [],
+      taskdeviceDetail: {},
       options: [{
         value: '2',
         label: '检验不合格'
@@ -157,11 +184,24 @@ export default {
     cellClick(row, column, cell, event) {
       console.log(row)
       const { deviceIds } = row
-      console.log(deviceIds)
+      this.deviceDetailArr = deviceIds.split(',')
+      this.getdeviceDetail(this.deviceDetailArr[0])
     },
     deptChange(event) {
       console.log(event)
       console.log(this.deviceList)
+    },
+    /** 任务详情 */
+    getdeviceDetail(id) {
+      this.dialogInfoVisible = true
+      fetchDeviceDetail(id).then(response => {
+        const data = response
+        if (data.resultCode === '0000000') {
+          this.taskdeviceDetail = data.returnData
+        }
+      }).finally(() => {
+        this.dialogInfoLoading = false
+      })
     },
     submit() {
       if (!this.checkIntro) {
@@ -188,6 +228,7 @@ export default {
           data.checkIntro = this.checkIntro
           data.checkResultEndDate = this.checkResultEndDate
           data.checkTypeId = this.checkTypeId
+          data.checkNo = item.checkNo
           data.operateName = '派发任务' // 操作记录
           return data
         })

@@ -118,6 +118,7 @@ import { status, addrCasc } from '@/utils/config'
 import { fetchMakeTakes } from '@/api/shebei'
 import moHuSearch from '@/mixins/moHuSearch'
 import addDevice from '@/components/addDevice/index'
+import { getFormatDate } from '@/utils/common'
 export default {
   components: {
     addDevice
@@ -161,6 +162,9 @@ export default {
   //     'equipmentAllType'
   //   ])
   // },
+  mounted() {
+    this.com.checkDate = getFormatDate()
+  },
   methods: {
     changeDevice(event) {
       if (event.length !== 0) {

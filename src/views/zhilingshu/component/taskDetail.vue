@@ -15,22 +15,41 @@
         <span class="name">备注：</span> <div class="info">{{ transfe.dangerDescription }}</div>
       </div>
       <div class="item">
-        <el-button type="text">详情</el-button>
+        <el-button type="text" @click="look">详情</el-button>
       </div>
     </div>
     <div class="btn-group">
       <el-button type="warning" size="small">检查记录预览</el-button>
       <el-button type="warning" size="small">指令书预览</el-button>
     </div>
+    <el-dialog
+      :visible.sync="dialogVisible"
+      append-to-body>
+      <taskXiangxi :transfe="transfe"/>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import taskXiangxi from '@/components/taskXiangxi/index'
 export default {
+  components: {
+    taskXiangxi
+  },
   props: {
     transfe: {
       type: Object,
       default: () => {}
+    }
+  },
+  data() {
+    return {
+      dialogVisible: false
+    }
+  },
+  methods: {
+    look() {
+      this.dialogVisible = true
     }
   }
 }

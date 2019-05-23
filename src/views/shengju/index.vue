@@ -15,7 +15,7 @@
         </div>
         <div v-if="deviceShow == 2" class="searchs">
           <label for="" class="label">单位名称：</label>
-          <el-input v-model="biange.use_org_name" class="input" placeholder="" />
+          <el-input v-model="biange.out_org_name" class="input" placeholder="" />
           <label for="" class="label">申请类别：</label>
           <el-select v-model="biange.apply_type" clearable placeholder="请选择申请类别">
             <el-option
@@ -24,6 +24,13 @@
               :label="item.label"
               :value="item.value"/>
           </el-select>
+          <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
+          <el-button @click="searchReset">重置</el-button>
+          <el-button @click="dialogVisible = true">更多查询</el-button>
+        </div>
+        <div v-if="deviceShow == 3" class="searchs">
+          <label for="" class="label">单位名称：</label>
+          <el-input v-model="units.org_name" class="input" placeholder="" />
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
           <el-button @click="dialogVisible = true">更多查询</el-button>
@@ -84,6 +91,9 @@
         style="width: 100%"
         @selection-change="handleSelectionChange">
         <el-table-column
+          type="selection"
+          width="55"/>
+        <el-table-column
           prop="apply_type"
           label="申请类别"/>
         <el-table-column
@@ -115,30 +125,33 @@
         v-loading="loading"
         v-show="deviceShow == 3"
         ref="multipledanwu"
-        :data="bianlist"
+        :data="danlist"
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
         <el-table-column
-          prop="out_org_name"
+          type="selection"
+          width="55"/>
+        <el-table-column
+          prop="org_name"
           label="使用单位"/>
         <el-table-column
-          prop="out_org_addr"
+          prop="org_addr"
           label="使用单位地址"/>
         <el-table-column
-          prop="out_corp"
+          prop="legalrepre"
           label="法定代表人"/>
+        <!-- <el-table-column
+          prop="legalrepre_cert_type"
+          label="单位联系人"/> -->
         <el-table-column
-          prop="in_org_name"
-          label="单位联系人"/>
-        <el-table-column
-          prop="out_tel"
+          prop="tel"
           label="联系电话"/>
         <el-table-column
-          prop="in_org_addr"
+          prop="area_code"
           label="行政区域"/>
         <el-table-column
-          prop="in_corp"
+          prop="legalrepre_cert_code"
           label="社会信用代码"/>
       </el-table>
       <div class="page">
@@ -156,7 +169,7 @@
 <script>
 import equementCascader from './../shebei/component/equementCascader'
 import { status } from '@/utils/config'
-import { fetchDeviceList, fetchChangeList } from '@/api/shengju'
+import { fetchDeviceList, fetchChangeList, fetchCompanyBase } from '@/api/shengju'
 import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -187,10 +200,14 @@ export default {
       biange: {
         out_area_code: '440607',
         apply_type: '',
-        use_org_name: ''
+        out_org_name: ''
+      },
+      units: {
+        org_name: ''
       },
       list: [],
       bianlist: [],
+      danlist: [],
       total: 0,
       opt: 1,
       options: [],
@@ -229,7 +246,7 @@ export default {
           break
         case 3:
           this.selectBtns = ['info', 'info', 'primary']
-          this.opt = 2
+          this.opt = 3
           break
       }
       this.deviceShow = `${opt}`
@@ -244,30 +261,45 @@ export default {
     fecthData() { // get device
       this.loading = true
       let data = {}
-      if (this.opt === 1) {
-        data = this.device
-        data.pageNum = `${this.pageNum}`
-        data.pageSize = `${this.pageSize}`
-        fetchDeviceList(data).then((res) => {
-          console.log(res)
-          if (res.resultCode === '0000000') {
-            this.loading = false
-            this.total = res.returnData.total
-            const list = res.returnData.list
-            this.list = list
-          }
-        })
-      } else {
-        data = this.biange
-        data.pageNum = `${this.pageNum}`
-        data.pageSize = `${this.pageSize}`
-        fetchChangeList(data).then((res) => {
-          if (res.resultCode === '0000000') {
-            this.loading = false
-            this.total = res.returnData.total
-            this.bianlist = res.returnData.list
-          }
-        })
+      switch (this.opt) {
+        case 1:
+          data = this.device
+          data.pageNum = `${this.pageNum}`
+          data.pageSize = `${this.pageSize}`
+          fetchDeviceList(data).then((res) => {
+            console.log(res)
+            if (res.resultCode === '0000000') {
+              this.loading = false
+              this.total = res.returnData.total
+              const list = res.returnData.list
+              this.list = list
+            }
+          })
+          break
+        case 2:
+          data = this.biange
+          data.pageNum = `${this.pageNum}`
+          data.pageSize = `${this.pageSize}`
+          fetchChangeList(data).then((res) => {
+            if (res.resultCode === '0000000') {
+              this.loading = false
+              this.total = res.returnData.total
+              this.bianlist = res.returnData.list
+            }
+          })
+          break
+        case 3:
+          data = this.units
+          data.pageNum = `${this.pageNum}`
+          data.pageSize = `${this.pageSize}`
+          fetchCompanyBase(data).then((res) => {
+            if (res.resultCode === '0000000') {
+              this.loading = false
+              this.total = res.returnData.total
+              this.danlist = res.returnData.list
+            }
+          })
+          break
       }
     },
     pageSizeChange(event) {
@@ -278,7 +310,9 @@ export default {
       this.pageNum = event
       this.fecthData()
     },
-    clearing() {},
+    clearing() {
+      this.toggleSelection()
+    },
     searchQuery() {
       this.fecthData()
     },
@@ -288,10 +322,14 @@ export default {
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row)
+          this.$refs.multipleDevice.toggleRowSelection(row)
+          this.$refs.multipleChange.toggleRowSelection(row)
+          this.$refs.multipledanwu.toggleRowSelection(row)
         })
       } else {
-        this.$refs.multipleTable.clearSelection()
+        this.$refs.multipleDevice.clearSelection()
+        this.$refs.multipleChange.clearSelection()
+        this.$refs.multipledanwu.clearSelection()
       }
     },
     handleSelectionChange(val) {

@@ -170,6 +170,7 @@ export default {
             commandTransferDate, // 移交书日期
             commandTransferDesc, // 任务移交描述
             checkNo: this.checkNo,
+            companyUseNewName: this.transfe.companyUseNewName,
             operateName: '区局移交'
           }
           data.commandExecTaskStatus = '7'

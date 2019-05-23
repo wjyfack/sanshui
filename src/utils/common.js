@@ -47,9 +47,65 @@ export function getFormatDate30() {
 }
 /**
  * @desc 自动关联设备数量
- * @param list Array
+ * @param list {Array}
  * @return
  */
 export function autoDeviceCountConcat(list) {
-
+  // 锅炉数量	deviceType1Count
+  // 压力容器数量	deviceType2Count
+  // 电梯数量	deviceType3Count
+  // 大型游乐设施数量	deviceType4Count
+  // 压力管道数量	deviceType5Count
+  // 客运索道数量	deviceType6Count
+  // 起重机械数量	deviceType7Count
+  // 场（厂）内专用机动车辆数量	deviceType8Count
+  // 管道元件数量	deviceType9Count
+  // 安全附件及安全保护装置数量	deviceType10Count
+  const data = {
+    deviceType1Count: 0,
+    deviceType2Count: 0,
+    deviceType3Count: 0,
+    deviceType4Count: 0,
+    deviceType5Count: 0,
+    deviceType6Count: 0,
+    deviceType7Count: 0,
+    deviceType8Count: 0,
+    deviceType9Count: 0,
+    deviceType10Count: 0
+  }
+  list.forEach(item => {
+    switch (item.deviceType1) {
+      case '1000': // 锅炉
+        data.deviceType1Count += 1
+        break
+      case '2000': // 压力容器
+        data.deviceType2Count += 1
+        break
+      case '3000': // 大型游乐设施
+        data.deviceType3Count += 1
+        break
+      case '6000': // 压力管道
+        data.deviceType4Count += 1
+        break
+      case '8000': // 锅炉
+        data.deviceType5Count += 1
+        break
+      case '9000': // 客运索道
+        data.deviceType6Count += 1
+        break
+      case '4000': // 起重机械
+        data.deviceType7Count += 1
+        break
+      case '5000': // 场（厂）内专用机动车辆
+        data.deviceType8Count += 1
+        break
+      case '7000': // 管道元件
+        data.deviceType9Count += 1
+        break
+      case 'F000': // 安全附件及安全保护装置
+        data.deviceType10Count += 1
+        break
+    }
+  })
+  return data
 }

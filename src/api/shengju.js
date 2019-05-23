@@ -8,10 +8,18 @@ export function fetchDeviceList(data) {
     data: { ...data }
   })
 }
-/** */
+/** 分页查变更信息 */
 export function fetchChangeList(data) {
   return request({
     url: '/provincial/getDeviceChangeList',
+    method: 'post',
+    data: data
+  })
+}
+/** 分页查单位信息 */
+export function fetchCompanyBase(data) {
+  return request({
+    url: '/provincial/getCompanyBase',
     method: 'post',
     data: data
   })

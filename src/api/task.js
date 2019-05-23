@@ -131,4 +131,11 @@ export function fecthHandleTask(data) {
     data: data
   })
 }
-
+/** 更新现场图片 */
+export function fecthResultPhotoList(data) {
+  return request({
+    url: '/taskCheck/updateCheckResultPhotoList',
+    method: 'post',
+    data: data
+  })
+}

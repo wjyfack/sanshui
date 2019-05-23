@@ -36,7 +36,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <div class="title"><span>关联设备</span> <el-button icon="el-icon-plus" size="mini" type="primary" @click="addDvice">添加设备</el-button></div>
+      <div class="title"><span>关联设备</span></div>
       <el-table
         :data="deviceList"
         :show-header="false"
@@ -315,39 +315,21 @@
         </el-row>
       </el-form>
     </div>
-    <span slot="footer" class="dialog-footer">
-      <!-- <el-button >检查记录预览</el-button>
-      <el-button v-if="!isShow" type="warning">检查记录打印</el-button>
-      <el-button v-if="isShow" >指令书预览</el-button> -->
-      <el-button type="primary" @click="sure">确定</el-button>
-      <el-button @click="closed">取消</el-button>
-    </span>
-    <!-- 添加设备 -->
-    <el-dialog
-      :visible.sync="DialogAddDevice"
-      width="45%"
-      title=""
-      append-to-body>
-      <add-device :device="device" @closed="changeDevice"/>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import taskCheck from '@/components/taskCheck/index'
-// import { fetchBeforeTask } from '@/api/shebei'
-import { fectEditTask } from '@/api/task'
+import { fecthBeforeEdit } from '@/api/task'
 import { mapGetters } from 'vuex'
-import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/common'
+import { getFormatDate, getFormatDate30 } from '@/utils/common'
 import { danWeiType, taskType, inspectionType } from '@/utils/config'
-import addDevice from '@/components/addDevice/index'
 export default {
   components: {
-    taskCheck,
-    addDevice
+    taskCheck
   },
   props: {
-    task: {
+    transfe: {
       type: Object,
       default: () => {}
     }
@@ -396,65 +378,12 @@ export default {
       }, // 指令书
       deviceList: [],
       illegalCount: [], // 违反模板ids
-      info: {
-        taskCheckId: '', // 任务id
-        taskCheckCheckNo: '', // 任务编号
-        checkUseId: '', // 使用单位id
-        checkUseName: '', // 单位名称
-        checkUseFullAddress: '', // 使用单位地址
-        checkUseLegalPerson: '', // 单位法人
-        checkUseContactMan: '', // 单位联系人
-        checkUseContactManTel: '', // 单位联系方式
-        checkUseContactPosition: '主管负责人', // 联系人职位
-        IllegalCountIds: '', // 违法模板
-        deviceIds: '', // 设备ids
-        deviceType1Count: '', // 锅炉数量
-        deviceType2Count: '', // 压力容器数量
-        deviceType3Count: '', // 电梯数量
-        deviceType4Count: '', // 大型游乐设施数量
-        deviceType5Count: '', // 压力管道数量
-        deviceType6Count: '', // 客运索道数量
-        deviceType7Count: '', // 起重机械数量
-        deviceType8Count: '', // 场（厂）内专用机动车辆数量
-        deviceType9Count: '', // 管道元件数量
-        deviceType10Count: '', // 安全附件及安全保护装置数量
-        checkType: '', // 检查类别1
-        checkType2: '', // 检查类别2
-        checkUseTypes: '', // 单位类别id
-        checkUseTypeNames: '', // 单位类别名称
-        checkProblem: '', // 检查问题
-        checkResulTreatmentId: '', // 处理措施id
-        checkResulTreatmentName: '', // 处理措施名称
-        checkOpinion: '', // 检查意见
-        checkDateStart: '', // 检查开始日期
-        checkDateEnd: '', // 检查结束日期
-        commandNo: '', // 指令书编号
-        commandModelId: '', // 指令书模板id
-        commandModel: '', // 指令书模板名称
-        commandDeviceProblem: '', // 设备描述
-        dangerDescription: '', // 隐患描述
-        commandAgainstRulesIds: '', // 违反条例
-        commandAgainstRulesNames: [], // 违反条例名称
-        commandAgainstRulesInfo: '', // 违反条例描述
-        commandCcordingRulesIds: '', // 处罚依据条例id
-        commandCcordingRulesNames: [], // 处罚依据条例名称
-        commandCcordingRulesInfo: '', // 处罚依据条例描述
-        commandChangedIds: '', // 整改截止日期id
-        commandChangedNames: [], // 整改截止日期名称
-        commandChangedInfo: '', // 整改措施描述
-        commandChangedEndDate: '', // 整改截止日期
-        commandDate: '', // 指令书日期
-        companyUseConfirmMan: '', // 单位确认人
-        companyUseConfirmManPhone: '', // 联系方式
-        checkStatus: '5', // 任务状态 5
-        checkRecordId: '', // 检查记录表编号
-        commandId: '' // 检查记录表编号
-      },
+      info: {},
+      task: {},
       isShow: false,
       value5: '',
       value: '',
-      options: [
-      ],
+      options: [],
       radio2: ''
     }
   },
@@ -464,44 +393,33 @@ export default {
     ])
   },
   watch: {
-    task: function(val) {
-      this.tackCheck()
+    transfe: function(val) {
+      console.log(val)
+      this.fecthData()
     }
   },
   mounted() {
     if (this.instructionModels.length === 0) {
       this.$store.dispatch('actionsInstructionModels')
     }
-    this.tackCheck()
+    this.fecthData()
   },
   methods: {
-    changeDevice(event) {
-      if (event.length !== 0) {
-        this.deviceList = event
+    fecthData() {
+      let id = this.transfe.id
+      // let taskCheckId = ''
+      if (this.transfe.check) {
+        id = this.transfe.check.id
       }
-      const {
-        deviceType1Count,
-        deviceType2Count,
-        deviceType3Count,
-        deviceType4Count,
-        deviceType5Count,
-        deviceType6Count,
-        deviceType7Count,
-        deviceType8Count,
-        deviceType9Count,
-        deviceType10Count
-      } = autoDeviceCountConcat(this.deviceList)
-      this.record.deviceType1Count = deviceType1Count
-      this.record.deviceType2Count = deviceType2Count
-      this.record.deviceType3Count = deviceType3Count
-      this.record.deviceType4Count = deviceType4Count
-      this.record.deviceType5Count = deviceType5Count
-      this.record.deviceType6Count = deviceType6Count
-      this.record.deviceType7Count = deviceType7Count
-      this.record.deviceType8Count = deviceType8Count
-      this.record.deviceType9Count = deviceType9Count
-      this.record.deviceType10Count = deviceType10Count
-      this.DialogAddDevice = false
+      // const info = {
+      //   // taskCheckId,
+      //   id
+      // }
+      fecthBeforeEdit(id).then(res => {
+        if (res.resultCode === '0000000') {
+          this.task = res.returnData
+        }
+      }).then(() => { this.tackCheck() })
     },
     tackCheck() {
       // this.info = this.task
@@ -510,7 +428,7 @@ export default {
       const company = task.companyUse
       const record = task.checkRecord
       if (record && record.id) {
-        company.useLegalPerson = record.checkUseLegalPerson ? record.checkUseLegalPerson : ''
+        company.useLegalPerson = record.checkUseLegalPerson // ? record.checkUseLegalPerson : ''
         company.useContactMan = record.checkUseContactMan
         company.useContactManTel = record.checkUseContactManTel
         company.checkUseContactPosition = record.checkUseContactPosition
@@ -541,40 +459,15 @@ export default {
       if (task.taskStatus) {
         record.checkType = task.taskStatus
       }
-      // if (record.checkDateStart || record.checkDateEnd) {
-      //   // const tt = record.checkDateStart ? record.checkDateStart : ''
-      //   const tts = record.checkDateEnd ? record.checkDateEnd : getFormatDate()
-      //   record.checkDate = tts
-      // } else {
-      //   record.checkDate = getFormatDate()
-      // }
-      if (!record.checkDate) {
+      if (record.checkDateStart || record.checkDateEnd) {
+        // const tt = record.checkDateStart ? record.checkDateStart : ''
+        const tts = record.checkDateEnd ? record.checkDateEnd : getFormatDate()
+        record.checkDate = tts
+      } else {
         record.checkDate = getFormatDate()
       }
       // console.log(record)
       if (record.checkResulTreatmentId === '1') { this.isShow = true }
-      const {
-        deviceType1Count,
-        deviceType2Count,
-        deviceType3Count,
-        deviceType4Count,
-        deviceType5Count,
-        deviceType6Count,
-        deviceType7Count,
-        deviceType8Count,
-        deviceType9Count,
-        deviceType10Count
-      } = autoDeviceCountConcat(this.deviceList)
-      record.deviceType1Count = deviceType1Count
-      record.deviceType2Count = deviceType2Count
-      record.deviceType3Count = deviceType3Count
-      record.deviceType4Count = deviceType4Count
-      record.deviceType5Count = deviceType5Count
-      record.deviceType6Count = deviceType6Count
-      record.deviceType7Count = deviceType7Count
-      record.deviceType8Count = deviceType8Count
-      record.deviceType9Count = deviceType9Count
-      record.deviceType10Count = deviceType10Count
       this.record = record
       // console.log(record)
       this.deviceList = task.list
@@ -631,40 +524,6 @@ export default {
       }
       this.record.checkType2 = ''
     },
-    // 前判断添加设备
-    addDvice() {
-      const device = {
-        company: this.company,
-        list: this.deviceList
-      }
-      this.device = device
-      this.DialogAddDevice = true
-      // if (this.company.id) {
-      //   this.loading = true
-      //   fetchBeforeTask(this.company.id).then(response => {
-      //     const data = response
-      //     if (data.resultCode === '0000000') {
-      //       const returnData = data.returnData
-      //       this.noDeviceList = returnData
-      //       const device = {
-      //         company: this.company,
-      //         list: this.deviceList
-      //       }
-      //       this.device = device
-      //     } else {
-      //       this.$message({
-      //         message: data.resultDesc,
-      //         type: 'warning'
-      //       })
-      //     }
-      //   }).finally(() => {
-      //     this.loading = false
-      //     this.DialogAddDevice = true
-      //   })
-      // } else {
-      //   this.$message('请输入单位名称')
-      // }
-    },
     selectDeviceQu() {
       if (this.multipleSelection.length !== 0) {
         this.DialogAddDevice = false
@@ -690,143 +549,7 @@ export default {
       this.info.checkType = taskStatus // 检查类别1
       this.info.checkType2 = instructionStatus // 检查类别2
     },
-    sure() { // 确定
-      const { id, checkNo } = this.task
-      const checkUseId = this.company.id // 使用单位id
-      const {
-        useName, // 单位名称
-        useAddress, // 单位地址
-        useLegalPerson, // 法人
-        useContactMan, // 联系人
-        useContactManTel, // 联系方式
-        checkUseContactPosition // 联系人职务
-      } = this.company
-      const {
-        deviceType1Count,
-        deviceType2Count,
-        deviceType3Count,
-        deviceType4Count,
-        deviceType5Count,
-        deviceType6Count,
-        deviceType7Count,
-        deviceType8Count,
-        deviceType9Count,
-        deviceType10Count,
-        checkType,
-        checkType2,
-        checkUseTypes,
-        checkUseTypeNames,
-        checkDate,
-        checkProblem,
-        checkResulTreatmentId,
-        checkOpinion
-      } = this.record
-      const {
-        commandNo,
-        // commandModel, // 暂无
-        commandModelId,
-        commandDeviceProblem,
-        dangerDescription,
-        commandAgainstRulesIds,
-        commandAgainstRulesNames, // 暂无
-        commandAgainstRulesInfo,
-        commandCcordingRulesIds,
-        commandCcordingRulesNames, // 暂无
-        commandCcordingRulesInfo,
-        commandChangedIds,
-        commandChangedNames, // 暂无
-        commandChangedInfo,
-        commandChangedEndDate,
-        commandDate,
-        commandModel,
-        remark, // 注明情况
-        companyUseConfirmMan,
-        companyUseConfirmManPhone
-      } = this.command
-      // 设备ids
-      const deviceIds = this.deviceList.map(item => item.id).join(',')
-      // 违反模板ids
-      const illegalCountIds = this.illegalCount.join(',')
-      // checkDate 检查日期
-      // const [checkDateStart, checkDateEnd] = checkDate
-      // 处理措施
-      const checkResulTreatmentName = this.getCheckResulTreatment(checkResulTreatmentId)
-      const checkRecordId = this.record.id
-      const commandId = this.command.id
-      const data = {
-        taskCheckId: id, // 任务id
-        taskCheckCheckNo: checkNo, // 任务编号
-        checkUseId, // 使用单位id
-        checkUseName: useName, // 单位名称
-        checkUseFullAddress: useAddress, // 单位地址
-        checkUseLegalPerson: useLegalPerson, // 法人
-        checkUseContactMan: useContactMan, // 联系人
-        checkUseContactManTel: useContactManTel, // 联系方式
-        checkUseContactPosition, // 联系人职务
-        deviceIds,
-        illegalCountIds,
-        deviceType1Count,
-        deviceType2Count,
-        deviceType3Count,
-        deviceType4Count,
-        deviceType5Count,
-        deviceType6Count,
-        deviceType7Count,
-        deviceType8Count,
-        deviceType9Count,
-        deviceType10Count,
-        checkType,
-        checkType2,
-        checkUseTypes,
-        checkUseTypeNames,
-        // checkDateStart: checkDate,
-        checkDate,
-        checkProblem,
-        checkResulTreatmentId,
-        checkResulTreatmentName,
-        checkOpinion,
-        checkRecordId,
-        checkStatus: '5',
-        commandId,
-        commandNo,
-        commandModel,
-        commandModelId,
-        commandDeviceProblem,
-        dangerDescription,
-        commandAgainstRulesIds: commandAgainstRulesIds,
-        commandAgainstRulesNames: commandAgainstRulesNames.join(','),
-        commandAgainstRulesInfo,
-        commandCcordingRulesIds: commandCcordingRulesIds,
-        commandCcordingRulesNames: commandCcordingRulesNames.join(','),
-        commandCcordingRulesInfo,
-        commandChangedIds: commandChangedIds,
-        commandChangedNames: commandChangedNames.join(','),
-        commandChangedInfo,
-        commandChangedEndDate,
-        commandDate,
-        remark, // 注明情况
-        companyUseConfirmMan,
-        companyUseConfirmManPhone,
-        operateName: '编辑任务', // operate
-        checkNo: checkNo
-      }
-      console.log(data, 11)
-      fectEditTask(data).then(res => {
-        // console.log(res)
-        if (res.resultCode === '0000000') {
-          this.$message({
-            message: res.resultDesc,
-            type: 'success'
-          })
-          this.closed()
-        } else {
-          this.$message({
-            message: res.resultDesc,
-            type: 'fail'
-          })
-        }
-      })
-    },
+
     getCheckResulTreatment(id) {
       let name = ''
       switch (~~id) {

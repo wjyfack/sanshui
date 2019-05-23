@@ -179,7 +179,7 @@
               v-for="item in townType"
               :key="item.value"
               :label="item.label"
-              :value="item.label"/>
+              :value="item.value"/>
           </el-select>
         </el-row>
       </div>
@@ -362,7 +362,7 @@
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogExcelVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogExcelVisible = false">确 定</el-button>
+        <el-button type="primary" @click="toMakeExcel">确 定</el-button>
       </span>
     </el-dialog>
     <!-- 生成任务 -->
@@ -383,6 +383,7 @@ import deviceDetail from '@/components/deviceDetail'
 import { equipmentType, status, checkStatus, overdue, addrCasc, townType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchAddDevice, fetchMohuCom, fetchDeviceDetail, fetchGetDevice, fetchUpdateDevice } from '@/api/shebei'
+import { fetchExcelDevice } from '@/api/common'
 //  fetchMakeTakes,
 export default {
   components: {
@@ -507,6 +508,65 @@ export default {
     }
   },
   methods: {
+
+    toMakeExcel() {
+      let data = {}
+      if (this.isExcel === 1) { // 导出勾选的
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message('请勾选要导出的设备')
+          return ''
+        } else {
+          const id = multipleSelection.map(item => {
+            return item.id
+          }).join(',')
+          data.id = id
+        }
+      } else { // 全部
+        const {
+          useUnit, // 使用单位
+          useEque, // 设备种类
+          userReg, // 登记证
+          status, // 状态
+          facNum, // 出厂编号
+          maintUnit, // 维保单位
+          // equiStatus, // 设备检查状态
+          isOverdue, // 是否超期
+          inspecDate, // 年检日期
+          addrCasc // 地区联级
+        } = this.search
+        const deviceType1 = useEque[0] ? `${useEque[0]}` : ''
+        const deviceType2 = useEque[1] ? `${useEque[1]}` : ''
+        data = {
+          deviceUseName: useUnit, // 使用单位名称
+          deviceType1, // 种类1
+          deviceType2, // 种类2
+          deviceProduceNo: facNum, // 出厂编号
+          deviceStatusCode: status, // 状态
+          deviceTenanceName: maintUnit, // 维保单位
+          deviceCertNo: userReg, // 使用登记证
+          deviceArea4: addrCasc,
+          deviceNextYearTestDate1: inspecDate[0], // 年检范围1
+          deviceNextYearTestDate2: inspecDate[1], // 年检范围2
+          isOverdue: `${isOverdue}` // 是否超期  0否1是
+        }
+      }
+
+      fetchExcelDevice(data).then(res => {
+        const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = objectUrl
+        link.download = `${new Date().getTime()}设备导出.xlsx`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(objectUrl)
+      }).then(() => {
+        this.dialogExcelVisible = false
+      })
+    },
     sureMap() {
       const { Longitude, latitude } = this.point
       this.info.Longitude = Longitude
@@ -794,7 +854,7 @@ export default {
         deviceTenanceName: maintUnit, // 维保单位
         deviceCertNo: userReg, // 使用登记证
         // deviceAreaName4: addrCascArr.length !== 0 ? addrCascArr[addrCascArr.length - 1] : '', // 设备地址选择
-        deviceAreaName4: addrCasc,
+        deviceArea4: addrCasc,
         deviceNextYearTestDate1: inspecDate[0], // 年检范围1
         deviceNextYearTestDate2: inspecDate[1], // 年检范围2
         isOverdue: `${isOverdue}`, // 是否超期  0否1是
@@ -837,7 +897,7 @@ export default {
     },
     querySearchAsync(queryString, cb) { // 模糊搜索公司名
       var restaurants = this.companyList
-      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)).splice(0, 50) : restaurants.splice(0, 50)
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         cb(results)

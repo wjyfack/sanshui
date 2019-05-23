@@ -232,7 +232,7 @@
             <el-input v-model="command.remark" type="textarea" placeholder="" style="width:100%"/>
           </el-form-item>
         </el-row>
-        <el-row class="row">
+        <!-- <el-row class="row">
           <el-form-item label="现场图片" >
             <el-upload
               :on-preview="handlePictureCardPreview"
@@ -242,16 +242,16 @@
               list-type="picture-card">
               <i class="el-icon-plus"/>
             </el-upload>
-            <el-dialog :visible.sync="dialogVisible" append-to-body>
-              <img :src="dialogImageUrl" width="100%" alt="">
-            </el-dialog>
           </el-form-item>
-        </el-row>
+        </el-row> -->
+        <el-dialog :visible.sync="dialogVisible" append-to-body>
+          <img :src="dialogImageUrl" width="100%" alt="">
+        </el-dialog>
         <el-row class="row" style="margin-bottom: 10px;">
-          <el-button type="warning">检查记录预览</el-button>
-          <el-button type="primary">检查记录打印</el-button>
-          <el-button type="warning">指令书预览</el-button>
-          <el-button type="primary">指令书打印</el-button>
+          <el-button type="warning" @click="preview(1)">检查记录预览</el-button>
+          <el-button type="primary" @click="daying(1)">检查记录打印</el-button>
+          <el-button type="warning" @click="preview(2)">指令书预览</el-button>
+          <el-button type="primary" @click="daying(2)">指令书打印</el-button>
         </el-row>
         <div class="title">任务操作信息</div>
         <el-row class="row">
@@ -281,12 +281,20 @@
       append-to-body>
       <add-device :device="device" @closed="changeDevice"/>
     </el-dialog>
+    <!-- 添加设备 -->
+    <el-dialog
+      :visible.sync="lookPic"
+      width="40%"
+      title=""
+      append-to-body>
+      <img :src="imgDialog" alt="" style="width:100%">
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import taskCheck from '@/components/taskCheck/index'
-import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
+import { /** fetchBeforeTask, */ fetchAddDevice } from '@/api/shebei'
 import { fecthExamineTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { status, addrCasc, danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
@@ -308,6 +316,8 @@ export default {
       status,
       addrCasc,
       baseUrl,
+      printUrl: `${baseUrl}/file/show/img/create/`,
+      downloadUrl: `${baseUrl}/file/download/create/`,
       danWeiType,
       taskType,
       inspectionType,
@@ -315,6 +325,8 @@ export default {
       dialogVisible: false,
       nowFileList: [], // 现场图片
       DialogAddDevice: false,
+      lookPic: false,
+      imgDialog: '',
       loading: false,
       noDeviceList: [],
       multipleSelection: [],
@@ -356,6 +368,51 @@ export default {
     this.tackCheck()
   },
   methods: {
+    daying(opt) {
+      const {
+        checkNo
+      } = this.task
+      const {
+        commandNo
+      } = this.task.command
+      let url = ''
+      let name = ''
+      switch (opt) { // 打印图片
+        case 1:
+          url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.jpg`)
+          name = `（三水）检查记录表${checkNo}.jpg`
+          break
+        case 2:
+          url = encodeURI(`${this.downloadUrl}（三水）质监特令${commandNo}.jpg`)
+          name = `（三水）质监特令${commandNo}.jpg`
+          break
+      }
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.download = name
+      // document.body.appendChild(link)
+      link.click()
+    },
+    preview(opt) { // 预览图片
+      const {
+        checkNo
+      } = this.task
+      const {
+        commandNo
+      } = this.task.command
+      let url = ''
+      switch (opt) {
+        case 1:
+          url = encodeURI(`${this.printUrl}（三水）检查记录表${checkNo}.jpg`)
+          break
+        case 2:
+          url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
+          break
+      }
+      this.lookPic = true
+      this.imgDialog = url
+    },
     changeDevice(event) {
       if (event.length !== 0) {
         this.deviceList = event
@@ -435,26 +492,32 @@ export default {
     },
     // 前判断添加设备
     addDvice() {
-      if (this.company.id) {
-        this.loading = true
-        fetchBeforeTask(this.company.id).then(response => {
-          const data = response
-          if (data.resultCode === '0000000') {
-            const returnData = data.returnData
-            this.noDeviceList = returnData
-          } else {
-            this.$message({
-              message: data.resultDesc,
-              type: 'warning'
-            })
-          }
-        }).finally(() => {
-          this.loading = false
-          this.DialogAddDevice = true
-        })
-      } else {
-        this.$message('请输入单位名称')
+      // if (this.company.id) {
+      //   this.loading = true
+      // fetchBeforeTask(this.company.id).then(response => {
+      //   const data = response
+      //   if (data.resultCode === '0000000') {
+      //     const returnData = data.returnData
+      //     this.noDeviceList = returnData
+      const device = {
+        company: this.company,
+        list: this.deviceList
       }
+      this.device = device
+      this.DialogAddDevice = true
+      //     } else {
+      //       this.$message({
+      //         message: data.resultDesc,
+      //         type: 'warning'
+      //       })
+      //     }
+      //   }).finally(() => {
+      //     this.loading = false
+      //     this.DialogAddDevice = true
+      //   })
+      // } else {
+      //   this.$message('请输入单位名称')
+      // }
     },
     submitDevice(formName) {
       this.$refs[formName].validate((valid) => {
@@ -696,9 +759,10 @@ export default {
       const commandId = this.command.id
       // 监察指令书
       // console.log(this.nowFileList)
-      const commandProblemPhotoList = this.nowFileList.map(item => {
-        return item.response.returnData
-      }).join(',')
+      // 图片不要
+      // const commandProblemPhotoList = this.nowFileList.map(item => {
+      //   return item.response.returnData
+      // }).join(',')
       const data = {
         taskCheckId: id, // 任务id
         taskCheckCheckNo: checkNo, // 任务编号
@@ -740,7 +804,7 @@ export default {
         commandChangedEndDate,
         commandDate,
         remark, // 注明情况
-        commandProblemPhotoList,
+        // commandProblemPhotoList,
         auditStatus,
         confirmDesc,
         // companyUseConfirmMan,

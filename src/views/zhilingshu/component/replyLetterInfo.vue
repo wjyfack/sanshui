@@ -28,11 +28,17 @@
     <el-row type="flex" class="row">
       <span class="label">任务回复相册</span>
       <span>
-        <el-image
-          v-for="url in urlImgs"
-          :key="url"
-          :src="baseUrl+url"
-          style="width: 100px; height: 100px"/>
+        <ul class="el-upload-list el-upload-list--picture-card">
+          <li v-for="(item, index) in urlImgs" :key="index" class="el-upload-list__item is-success">
+            <img :src="baseUrl+item" alt="" class="el-upload-list__item-thumbnail">
+            <i class="el-icon-close"/>
+            <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseUrl+item)">
+                <i class="el-icon-zoom-in"/>
+              </span>
+            </span>
+          </li>
+        </ul>
       </span>
     </el-row>
     <el-row class="row" type="flex">
@@ -41,6 +47,9 @@
         <span class="mes">{{ transfe.commandExecTaskReplyConfirmDesc }}</span>
       </el-col>
     </el-row>
+    <el-dialog :visible.sync="dialogPreviewVisible" width="30%" append-to-body>
+      <img :src="dialogImageUrl" width="100%" alt="">
+    </el-dialog>
   </div>
 </template>
 
@@ -56,13 +65,30 @@ export default {
   data() {
     return {
       baseUrl: `${baseUrl}/file/show/reply/`,
-      urlImgs: []
+      urlImgs: [],
+      dialogPreviewVisible: false,
+      dialogImageUrl: ''
+    }
+  },
+  watch: {
+    transfe: function(val) {
+      this.dataChange()
     }
   },
   mounted() {
-    const urlImgs = this.transfe.commandExecTaskReplyIntroPhotoList
-    if (urlImgs) {
-      this.urlImgs = urlImgs.split(',')
+    this.dataChange()
+  },
+  methods: {
+    dataChange() {
+      const urlImgs = this.transfe.commandExecTaskReplyIntroPhotoList
+      if (urlImgs) {
+        this.urlImgs = urlImgs.split(',')
+      }
+      console.log(this.urlImgs)
+    },
+    hasHandlePreview(url) {
+      this.dialogPreviewVisible = true
+      this.dialogImageUrl = url
     }
   }
 }

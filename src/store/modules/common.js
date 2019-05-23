@@ -56,7 +56,7 @@ const common = { // 通用滴
               id: item.id,
               useContactMan: item.useContactMan,
               useAddress: item.useAddress,
-              useContactManTel: item.useContactManTel
+              useContactManTel: item.useTel
             }
           })
           commit('SET_COMPANYLIST', data)

@@ -50,3 +50,12 @@ export function fetchIdRefiy() {
     data: { systemKey, systemSign }
   })
 }
+/** excel导出设备 */
+export function fetchExcelDevice(data) {
+  return request({
+    url: '/file/excel/export/device',
+    responseType: 'blob',
+    method: 'post',
+    data: data
+  })
+}

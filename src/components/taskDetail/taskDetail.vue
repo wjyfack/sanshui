@@ -15,12 +15,12 @@
         <span class="name">备注：</span> <div class="info">{{ command.dangerDescription }}</div>
       </div>
       <div class="btn-item">
-        <el-button size="mini" type="text">详情</el-button>
+        <el-button size="mini" type="text" @click="look">详情</el-button>
         <div>
-          <el-button size="mini" type="warning">检查记录预览</el-button>
-          <el-button size="mini" type="primary">检查记录打印</el-button>
-          <el-button size="mini" type="warning">指令书预览</el-button>
-          <el-button size="mini" type="primary">指令书打印</el-button>
+          <el-button size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
+          <el-button size="mini" type="primary" @click="daying(1)">检查记录下载</el-button>
+          <el-button v-if="command.id" size="mini" type="warning" @click="preview(2)">指令书预览</el-button>
+          <el-button v-if="command.id" size="mini" type="primary" @click="daying(2)">指令书下载</el-button>
         </div>
       </div>
     </div>
@@ -33,11 +33,28 @@
       <div v-else-if="transfe.checkStatus == '5'" class="statusNmae">待审核</div>
       <div v-else class="statusNmae">已完成</div>
     </div>
+    <el-dialog
+      :visible.sync="dialogVisible"
+      append-to-body>
+      <taskXiangxi :transfe="transfe"/>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="lookPic"
+      width="40%"
+      title=""
+      append-to-body>
+      <img :src="imgDialog" alt="" style="width:100%">
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import taskXiangxi from '@/components/taskXiangxi/index'
+import { baseUrl } from '@/utils/config'
 export default {
+  components: {
+    taskXiangxi
+  },
   props: {
     transfe: {
       type: Object,
@@ -46,7 +63,12 @@ export default {
   },
   data() {
     return {
-      command: {}
+      dialogVisible: false,
+      command: {},
+      lookPic: false,
+      imgDialog: '',
+      downloadUrl: `${baseUrl}/file/download/create/`,
+      printUrl: `${baseUrl}/file/show/img/create/`
     }
   },
   watch: {
@@ -58,6 +80,9 @@ export default {
     this.changeData()
   },
   methods: {
+    look() {
+      this.dialogVisible = true
+    },
     changeData() {
       const transfe = this.transfe
       const checkRecord = transfe.checkRecord
@@ -65,9 +90,55 @@ export default {
       if (command.id) {
         this.command = command
       } else {
+        this.command = {}
         this.command.commandAddManName = checkRecord.checkAddDate
         this.command.commandAddDate = checkRecord.checkAddManName
       }
+    },
+    daying(opt) {
+      const {
+        checkNo
+      } = this.transfe
+      const {
+        commandNo
+      } = this.transfe.command
+      let url = ''
+      let name = ''
+      switch (opt) { // 打印图片
+        case 1:
+          url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.jpg`)
+          name = `（三水）检查记录表${checkNo}.jpg`
+          break
+        case 2:
+          url = encodeURI(`${this.downloadUrl}（三水）质监特令${commandNo}.jpg`)
+          name = `（三水）质监特令${commandNo}.jpg`
+          break
+      }
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.download = name
+      // document.body.appendChild(link)
+      link.click()
+    },
+    preview(opt) { // 预览图片
+      const {
+        checkNo
+      } = this.transfe
+      const {
+        commandNo
+      } = this.transfe.command
+      let url = ''
+      switch (opt) {
+        case 1:
+          url = encodeURI(`${this.printUrl}（三水）检查记录表${checkNo}.jpg`)
+          break
+        case 2:
+          url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
+          break
+      }
+      this.lookPic = true
+      this.imgDialog = url
     }
   }
 }

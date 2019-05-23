@@ -25,7 +25,7 @@
             <label for="" class="label">所属镇街：</label>
             <el-select v-model="search.deviceAreaName4" placeholder="请选择" clearable>
               <el-option
-                v-for="item in deptArea"
+                v-for="item in townType"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
@@ -50,7 +50,7 @@
       </div>
       <div class="table">
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane label="镇街移交" name="first"/>
+          <el-tab-pane v-if="auths.sys_command_town_remove" label="镇街移交" name="first"/>
           <el-tab-pane label="待移交" name="second"/>
           <el-tab-pane label="批准移交" name="third"/>
           <el-tab-pane label="待处理" name="fourth"/>
@@ -325,7 +325,8 @@ import zhilingshuInfo from './component/zhilingshuInfo'
 import statusRecord from '@/components/statusRecord/index'
 import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop, fetchBeforeReview } from '@/api/instruction'
 import { fetchIdRefiy } from '@/api/common'
-import { refiyUrl } from '@/utils/config'
+import { refiyUrl, townType } from '@/utils/config'
+import authorization from '@/mixins/authorization'
 export default {
   components: {
     transferInfo,
@@ -339,10 +340,12 @@ export default {
     statusRecord,
     examineSub
   },
+  mixins: [authorization],
   data() {
     return {
       baseUrl: `${refiyUrl}/file/show/img/rectify/`,
       imgUrl: `${refiyUrl}/open/api/file/upload/rectify`,
+      townType,
       imgToken: '',
       loading: false,
       search: {
@@ -388,8 +391,7 @@ export default {
   computed: {
     ...mapGetters([
       'instructionTotal',
-      'instructionList',
-      'deptArea'
+      'instructionList'
     ])
   },
   watch: {

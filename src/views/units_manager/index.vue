@@ -4,28 +4,31 @@
       <el-row :gutter="20">
         <div class="searchs">
           <label for="" class="label">使用单位：</label>
-          <el-input v-model="units.danwei" class="input" placeholder="" />
+          <el-input v-model="units.useName" class="input" placeholder="" />
           <label for="" class="label">添加时间：</label>
           <el-date-picker
             v-model="units.addTime"
-            type="date"
-            placeholder="选择日期"
+            clearable
+            type="daterange"
+            range-separator="~"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
             value-format="yyyy-MM-dd"/>
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
         </div>
         <div class="searchs">
           <label for="" class="label">单位法人：</label>
-          <el-input v-model="units.faren" class="input" placeholder="" />
+          <el-input v-model="units.useLegalPerson" class="input" placeholder="" />
           <label for="" class="label">信用代码：</label>
-          <el-input v-model="units.xinyong" class="input" placeholder="" />
+          <el-input v-model="units.useCreditCode" class="input" placeholder="" />
         </div>
       </el-row>
     </div>
     <div class="shebeiTable">
       <div class="btn-group">
-        <el-button icon="el-icon-plus" type="primary">编辑</el-button>
-        <el-button>新增企业</el-button>
+        <el-button icon="el-icon-plus" type="primary" @click="editCom">编辑</el-button>
+        <el-button @click="addCom">新增企业</el-button>
         <el-button>导出Excel</el-button>
       </div>
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ total }} <el-button type="text" @click="clearing">清空</el-button></span></div>
@@ -40,25 +43,25 @@
           type="selection"
           width="55"/>
         <el-table-column
-          prop="use_org_name"
+          prop="useName"
           label="使用单位"/>
         <el-table-column
-          prop="use_org_addr"
+          prop="useAddress"
           label="使用单位地址"/>
         <el-table-column
-          prop="cert_code"
+          prop="useAreaName4"
           label="所在镇街"/>
         <el-table-column
-          prop="product_code"
+          prop="useCreditCode"
           label="统一社会信用代码"/>
         <el-table-column
-          prop="reg_code"
+          prop="useLegalPerson"
           label="单位法人"/>
         <el-table-column
-          prop="mai_org_cert_code"
+          prop="useAddManName"
           label="添加人"/>
         <el-table-column
-          prop="mai_org_cert_code"
+          prop="useAddDate"
           label="添加时间"/>
           <!-- x-_-x -->
       </el-table>
@@ -72,26 +75,32 @@
           @size-change="pageSizeChange"/>
       </div>
     </div>
+    <el-dialog
+      :visible.sync="addDialog">
+      <addUnit :infomation="infomation" @closed="closed"/>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import equementCascader from './../shebei/component/equementCascader'
+import addUnit from './component/edit'
 // import { status } from '@/utils/config'
-// import { fetchDeviceList } from '@/api/shengju'
-import { mapGetters } from 'vuex'
+import { fetchCompanyBase, fetchCompanyForEdit } from '@/api/units'
+// import { mapGetters } from 'vuex'
 export default {
   components: {
-    equementCascader
+    addUnit
   },
   data() {
     return {
       loading: false,
+      addDialog: false,
+      infomation: {},
       units: {
-        danwei: '', // 使用单位
+        useName: '', // 使用单位
         addTime: [], // 添加时间
-        faren: '', // 单位法人
-        xinyong: '' // 信用代码
+        useLegalPerson: '', // 单位法人
+        useCreditCode: '' // 信用代码
       },
       multipleSelection: [],
       list: [],
@@ -101,33 +110,56 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'equipmentAllType'
-    ])
   },
   mounted() {
-    if (this.equipmentAllType.length === 0) {
-      this.$store.dispatch('actionsDeviceType')
-    }
     this.fecthData()
   },
   methods: {
+    addCom() {
+      this.addDialog = true
+      this.infomation = null
+    },
+    editCom() {
+      const multipleSelection = this.multipleSelection
+      if (multipleSelection.length === 0) {
+        this.$message.error('请选择单位信息')
+        return ''
+      }
+      const id = multipleSelection[0].id
+      fetchCompanyForEdit({ id: id }).then(res => {
+        if (res.resultCode === '0000000') {
+          this.infomation = res.returnData
+          this.addDialog = true
+        }
+      })
+    },
     fecthData() { // get device
       this.loading = true
-      setTimeout(() => { this.loading = false }, 1000)
-      // let data = {}
-      // // data = this.device
-      // data.pageNum = `${this.pageNum}`
-      // data.pageSize = `${this.pageSize}`
-      // fetchDeviceList(data).then((res) => {
-      //   console.log(res)
-      //   if (res.resultCode === '0000000') {
-      //     this.loading = false
-      //     this.total = res.returnData.total
-      //     const list = res.returnData.list
-      //     this.list = list
-      //   }
-      // })
+      const {
+        useName, // 使用单位
+        addTime, // 添加时间
+        useLegalPerson, // 单位法人
+        useCreditCode // 信用代码
+      } = this.units
+
+      const data = {
+        useName,
+        useAddDate1: addTime[0],
+        useAddDate2: addTime[1],
+        useLegalPerson,
+        useCreditCode
+      }
+      data.pageNum = `${this.pageNum}`
+      data.pageSize = `${this.pageSize}`
+      fetchCompanyBase(data).then((res) => {
+        console.log(res)
+        if (res.resultCode === '0000000') {
+          this.loading = false
+          this.total = res.returnData.total
+          const list = res.returnData.list
+          this.list = list
+        }
+      })
     },
     pageSizeChange(event) {
       this.pageSize = event
@@ -137,7 +169,14 @@ export default {
       this.pageNum = event
       this.fecthData()
     },
-    clearing() {},
+    closed() {
+      this.addDialog = false
+      this.fecthData()
+    },
+    clearing() {
+      this.multipleSelection = []
+      this.toggleSelection()
+    },
     searchQuery() {
       this.fecthData()
     },
@@ -147,10 +186,10 @@ export default {
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row)
+          this.$refs.multipleDevice.toggleRowSelection(row)
         })
       } else {
-        this.$refs.multipleTable.clearSelection()
+        this.$refs.multipleDevice.clearSelection()
       }
     },
     handleSelectionChange(val) {

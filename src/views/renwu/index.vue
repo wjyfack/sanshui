@@ -145,7 +145,7 @@
             </template>
           </el-table-column> -->
           <el-table-column
-            v-if="activeName < 6"
+            v-if="activeName != 6"
             key="optionss"
             label="操作"
             width="280">
@@ -186,7 +186,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="activeName == '6' || activeName == '7'"
+            v-if="activeName == '6'"
             key="optionS"
             label="操作"
             width="280">
@@ -298,18 +298,45 @@
       <taskDetail :transfe="editTask" />
       <comInfo :transfe="editTask"/>
       <statusRecord :status="editTask.taskCheckLogList"/>
-      <div class="imgLists">
+      <!-- <div class="imgLists">
         <span>现场图片：</span>
         <div class="imglist">
           <img v-for="item in commandPhotoList" :key="item.src" :src="item.src" class="imgitem" alt="" srcset="" @click="seeCommandList(item.src)">
         </div>
-        <el-dialog :visible.sync="dialogShowVisible" append-to-body>
+        <el-dialog :visible.sync="dialogPreviewVisible" append-to-body>
           <img :src="dialogImageUrl" width="100%" alt="">
         </el-dialog>
-        <!-- <vue-preview :slides="commandPhotoList" class="img-preview" @close="handleClose"/> -->
+      </div> -->
+      <div v-if="activeName == 6" class="imgLists" >
+        <span>现场图片：</span>
+        <ul class="el-upload-list el-upload-list--picture-card">
+          <li v-for="(item, index) in commandPhotoList" :key="index" class="el-upload-list__item is-success">
+            <img :src="baseImgUrl+item" alt="" class="el-upload-list__item-thumbnail">
+            <i class="el-icon-close"/>
+            <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseImgUrl+item)">
+                <i class="el-icon-zoom-in"/>
+              </span>
+              <span class="el-upload-list__item-delete" @click="hasHandelDelete(index)">
+                <i class="el-icon-delete"/>
+              </span>
+            </span>
+          </li>
+        </ul>
+        <el-upload
+          :on-preview="handlePictureCardPreview"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :action="imgUrl"
+          list-type="picture-card">
+          <i class="el-icon-plus"/>
+        </el-upload>
+        <el-dialog :visible.sync="dialogPreviewVisible" append-to-body width="30%">
+          <img :src="dialogImageUrl" width="100%" alt="">
+        </el-dialog>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogEndVisible = false">确认</el-button>
+        <el-button type="primary" @click="sure">确认</el-button>
         <el-button @click="dialogEndVisible = false">关闭</el-button>
       </span>
     </el-dialog>
@@ -327,9 +354,11 @@ import taskDetail from '@/components/taskDetail/taskDetail'
 import comInfo from '@/components/comInfo/comInfo'
 import { taskType, status, townType, handleType, baseUrl } from '@/utils/config'
 import { mapGetters } from 'vuex'
-import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask } from '@/api/task'
+import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask, fecthResultPhotoList } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
 import { opLoading } from '@/mixins/loading'
+import authorization from '@/mixins/authorization'
+
 export default {
   components: {
     deviceDetail,
@@ -341,16 +370,20 @@ export default {
     taskDetail,
     comInfo
   },
-  mixins: [opLoading],
+  mixins: [opLoading, authorization],
   data() {
     return {
       baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
+      imgUrl: `${baseUrl}/file/upload/ScenePictures`,
+      rectifyAddImgs: [], // 上传的图片
       townType,
       taskType,
       handleType,
       status,
+      isCompent: false,
       // 设备详情
       taskdeviceDetail: {},
+      dialogPreviewVisible: false,
       loading: false,
       dialogVisible: false,
       dialogInfoLoading: false,
@@ -420,6 +453,58 @@ export default {
     }
   },
   methods: {
+    sure() {
+      if (~~this.activeName === 6) {
+        // 上传图片
+        const {
+          id,
+          checkNo
+        } = this.editTask
+        console.log(this.commandPhotoList, this.rectifyAddImgs)
+        const rectifyAddImgs = this.rectifyAddImgs.map(item => {
+          return item.response.returnData
+        })
+        const checkResultPhotoList = [...this.commandPhotoList, ...rectifyAddImgs].join(',')
+        const data = {
+          id,
+          checkNo,
+          checkResultPhotoList,
+          operateName: '上传现场图片'
+        }
+
+        // console.log(data)
+        // return ''
+        fecthResultPhotoList(data).then(res => {
+          if (res.resultCode === '0000000') {
+            this.$message.success(res.resultDesc)
+            this.dialogEndVisible = false
+            this.rectifyAddImgs = []
+          } else {
+            this.$message.error(res.resultDesc)
+          }
+        })
+      } else {
+        this.dialogEndVisible = false
+      }
+    },
+    hasHandelDelete(index) {
+      this.commandPhotoList.splice(index, 1)
+      console.log(this.commandPhotoList, index)
+    },
+    hasHandlePreview(url) {
+      this.handlePictureCardPreview({ url })
+    },
+    handleSuccess(response, file, fileList) {
+      this.rectifyAddImgs = fileList
+    },
+    handleRemove(file, fileList) {
+      // console.log(file, fileList)
+      this.rectifyAddImgs = fileList
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url
+      this.dialogPreviewVisible = true
+    },
     /** 多选的编辑 */
     mutilEditDailog() {
       const multipleSelection = this.multipleSelection
@@ -446,23 +531,27 @@ export default {
           this.editTask = data
           this.dialogEndVisible = true
           let commandPhotoList = []
-          if (data.command && data.command.commandProblemPhotoList) {
-            const list = data.command.commandProblemPhotoList.split(',')
-            commandPhotoList = list.map(item => {
-              return {
-                src: `${this.baseImgUrl}${item}`,
-                msrc: `${this.baseImgUrl}${item}`,
-                w: 500,
-                h: 1000
-              }
-            })
+          if (data.checkResultPhotoList !== null) {
+            commandPhotoList = data.checkResultPhotoList.split(',')
           }
-          console.log(commandPhotoList)
+          // if (data.command && data.command.commandProblemPhotoList) {
+          //   commandPhotoList = data.command.commandProblemPhotoList.split(',')
+          // commandPhotoList = list.map(item => {
+          //   return {
+          //     src: `${this.baseImgUrl}${item}`,
+          //     msrc: `${this.baseImgUrl}${item}`,
+          //     w: 500,
+          //     h: 1000
+          //   }
+          // })
+          // }
+          // console.log(commandPhotoList)
           this.commandPhotoList = commandPhotoList // 现场图片
         } else {
           this.$message.error(res.resultDesc)
         }
       }).then(() => {
+        this.isCompent = true
         this.onCloseLoading()
       })
     },
@@ -490,6 +579,7 @@ export default {
       let { commandId } = row
       if (!commandId) { commandId = '' }
       const data = { id, commandId }
+      this.opShowLoading()
       fectLookTask(data).then(res => {
         if (res.resultCode === '0000000') {
           const data = res.returnData
@@ -498,6 +588,7 @@ export default {
         } else {
           this.$message.error(res.resultDesc)
         }
+        this.onCloseLoading()
       })
     },
     /** 处理  */
