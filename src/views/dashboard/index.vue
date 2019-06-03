@@ -76,7 +76,7 @@
               <div ref="anquan" class="anquan"/>
               <div class="tongbi add">
                 <div class="tongbi-item">
-                  <span>周同比</span>
+                  <span>上周安全率</span>
                   <i class="el-icon-caret-bottom green" />
                   <span class="bi">{{ command.taskThanCommandpercentWeek }}</span>
                 </div>
@@ -151,7 +151,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import echarts from 'echarts'
-import { townType } from '@/utils/config'
+import { townSearchType } from '@/utils/config'
 import u290 from '@/assets/u290.png'
 import u319 from '@/assets/u319.png'
 import { fetchDeviceTotal,
@@ -164,7 +164,7 @@ export default {
   mixins: [opLoading],
   data() {
     return {
-      townType: [{ value: '', label: '全部' }, ...townType],
+      townType: [{ value: '', label: '全部' }, ...townSearchType],
       town: '',
       u290,
       u319,
@@ -202,20 +202,31 @@ export default {
     ])
   },
   mounted() {
+    if (this.$store.getters.deptNames.length === 0) {
+      this.$store.dispatch('actionsDeptNames')
+    }
     this.fectData()
   },
   methods: {
     townChange(event) {
-      this.town = event
+      // this.town = event
       this.fectData()
     },
     fectData() {
+      let town = this.town
+      if (town) {
+        const [selectTown] = this.townType.filter(item => {
+          return item.value === town
+        })
+        town = selectTown.name
+      }
+      console.log(town)
       this.opShowLoading()
       const promises = [
-        fetchDeviceTotal(this.town),
-        fetchTaskCommandTotal(this.town),
-        fetchDeviceTypeTotal(this.town),
-        fetchTotalByMonth(this.town)
+        fetchDeviceTotal(town),
+        fetchTaskCommandTotal(town),
+        fetchDeviceTypeTotal(town),
+        fetchTotalByMonth(town)
       ]
       Promise.all(promises)
         .then(resAll => {
@@ -475,7 +486,7 @@ export default {
   padding:30px;
   .chart-item {
     width: 90%;
-    height: 365px;
+    height: 335px;
     padding: 16px;
     border: 1px solid rgba(233, 233, 233, 1);
     margin-bottom: 16px;
@@ -483,6 +494,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-shadow: 0 0 10px 1px rgba(0,0,0,.25);
     .title {
       display: flex;
       justify-content: space-between;

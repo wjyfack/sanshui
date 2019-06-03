@@ -139,3 +139,22 @@ export function fecthResultPhotoList(data) {
     data: data
   })
 }
+/** 导出excel */
+export function fetchExcelTask(data) {
+  return request({
+    url: '/file/excel/export/taskcheck',
+    method: 'post',
+    responseType: 'blob',
+    data: data
+  })
+}
+/** excel 导入 */
+export function fetchImportExcel(data, fn) {
+  return request({
+    url: '/file/excel/importTaskCheckData',
+    method: 'post',
+    headers: { 'Content-Type': 'multipart/form-data' },
+    data,
+    onUploadProgress: fn
+  })
+}

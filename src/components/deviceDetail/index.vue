@@ -3,23 +3,23 @@
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="first">
         <el-row type="flex" align="middle" class="row pd-top">
-          <el-col :span="16"><span class="name">设备类型</span><span class="info">{{ info.deviceTypeName1 }}</span> </el-col>
+          <el-col :span="8"><span class="name">设备类型</span><span class="info">{{ info.deviceTypeName1 }}</span> </el-col>
           <el-col :span="8"><span class="name">设备状态</span><span class="info">{{ info.deviceStatusName }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">设备编号</span><span class="info">{{ info.deviceNo }}</span> </el-col>
           <el-col :span="8"><span class="name">设备名称</span><span class="info">{{ info.deviceName }}</span> </el-col>
-          <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastTestdate }}</span> </el-col>
+          <el-col :span="8"><span class="name">上次检验日期</span><span class="info">{{ info.deviceLastTestDate }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">设备型号</span><span class="info">{{ info.deviceModel }}</span> </el-col>
           <el-col :span="8"><span class="name">设备注册号</span><span class="info">{{ info.deviceRegNo }}</span> </el-col>
-          <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextTestdate }}</span> </el-col>
+          <el-col :span="8"><span class="name">下次检验日期</span><span class="info">{{ info.deviceNextTestDate }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">使用证编号</span><span class="info">{{ info.deviceCertNo }}</span> </el-col>
           <el-col :span="8"><span class="name">设备出厂编号</span><span class="info">{{ info.deviceProduceNo }}</span> </el-col>
-          <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ info.deviceIndexesId }}</span> </el-col>
+          <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ info.deviceIndexesID }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <span class="name">使用单位部门地址</span><span class="info">{{ info.deviceCertNo }}</span>
@@ -133,26 +133,33 @@
           ref="singleTable"
           :data="info.taskCheckList"
           highlight-current-row
-          style="width: 100%"
+          border
+          style="width: 100%;margin-top: 1px;"
           @current-change="handleCurrentChange">
           <el-table-column
             type="index"
             width="50"/>
           <el-table-column
-            property="checkNo"
+            prop="checkNo"
             label="任务编号"/>
           <el-table-column
-            property="checkTypeId"
-            label="任务类型"/>
+            label="任务类型">
+            <template slot-scope="scope">
+              <span>{{ checkTypeIdchange(scope.row.checkTypeId) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column
-            property="checkdeptName"
+            prop="checkDeptName"
             label="接收部门"/>
           <el-table-column
-            property="checkExecManName"
+            prop="checkExecManName"
             label="接收人"/>
           <el-table-column
-            property="checkStatus"
-            label="检查状态"/>
+            label="检查状态">
+            <template slot-scope="scope">
+              <span>{{ checkStatusChange(scope.row.checkStatus) }}</span>
+            </template>
+          </el-table-column>
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="参数信息" name="fifth">
@@ -164,7 +171,7 @@
           <div v-else-if="info.deviceType1 == 5" class="titles">场（厂）内专用机动车辆</div>
           <div v-else class="titles">压力管道</div>
           <div class="row pd-top row-flex">
-            <div v-for="(item, index) in info.deviceParam" :key="item" class="row-flex-item">
+            <div v-for="(item, index) in info.deviceParam" :key="index" class="row-flex-item">
               <span class="name">{{ index }}</span><span class="info">{{ item }}</span>
             </div>
           </div>
@@ -192,6 +199,50 @@ export default {
     }
   },
   methods: {
+    checkTypeIdchange(checkType) {
+      let name = ''
+      switch (~~checkType) {
+        case 0:
+          name = '其他'
+          break
+        case 1:
+          name = '超期未检'
+          break
+        case 2:
+          name = '检验不合格'
+          break
+        case 3:
+          name = '主动上报'
+          break
+        case 4:
+          name = '投诉任务'
+      }
+      return name
+    },
+    checkStatusChange(type) {
+      let name = ''
+      switch (~~type) {
+        case 1:
+          name = '待派发'
+          break
+        case 2:
+          name = '待接收'
+          break
+        case 3:
+          name = '待处理'
+          break
+        case 4:
+          name = '处理中'
+          break
+        case 5:
+          name = '待审核'
+          break
+        case 6:
+          name = '已完成'
+          break
+      }
+      return name
+    },
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {

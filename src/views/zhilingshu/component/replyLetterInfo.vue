@@ -5,8 +5,8 @@
       <el-col :span="24">
         <span class="label"><span class="red">*</span> 回复书编号</span>
         <span class="mes">{{ transfe.commandReplyNo }}</span>
-        <el-button type="primary" size="small">预览回复书</el-button>
-        <el-button type="primary" size="small">下载回复书</el-button>
+        <el-button v-if="transfe.commandReplyNo" type="primary" size="small" @click="preview">预览回复书</el-button>
+        <el-button v-if="transfe.commandReplyNo" type="primary" size="small" @click="download">下载回复书</el-button>
       </el-col>
     </el-row>
     <el-row class="row" type="flex">
@@ -47,7 +47,7 @@
         <span class="mes">{{ transfe.commandExecTaskReplyConfirmDesc }}</span>
       </el-col>
     </el-row>
-    <el-dialog :visible.sync="dialogPreviewVisible" width="30%" append-to-body>
+    <el-dialog :visible.sync="dialogPreviewVisible" width="40%" append-to-body>
       <img :src="dialogImageUrl" width="100%" alt="">
     </el-dialog>
   </div>
@@ -65,6 +65,8 @@ export default {
   data() {
     return {
       baseUrl: `${baseUrl}/file/show/reply/`,
+      printUrl: `${baseUrl}/file/show/img/create/`,
+      downloadUrl: `${baseUrl}/file/download/create/`,
       urlImgs: [],
       dialogPreviewVisible: false,
       dialogImageUrl: ''
@@ -79,6 +81,22 @@ export default {
     this.dataChange()
   },
   methods: {
+    preview() {
+      const { commandReplyNo } = this.transfe
+      this.dialogPreviewVisible = true
+      this.dialogImageUrl = encodeURI(`${this.printUrl}${commandReplyNo}.jpg`)
+    },
+    download() {
+      const { commandReplyNo } = this.transfe
+      const url = encodeURI(`${this.downloadUrl}${commandReplyNo}.pdf`)
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.download = `${commandReplyNo}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
     dataChange() {
       const urlImgs = this.transfe.commandExecTaskReplyIntroPhotoList
       if (urlImgs) {
@@ -105,7 +123,7 @@ export default {
 .row {
   padding: 10px 0;
   .red {color: red;}
-  .label {display: inline-block; width: 110px;text-align: right;margin-right: 5px;}
+  .label {display: inline-block; width: 110px;text-align: left;margin-right: 5px;}
   .input {width: 220px;}
   .textarea {flex: 1;}
   .mes {

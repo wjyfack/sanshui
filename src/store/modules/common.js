@@ -14,11 +14,12 @@ const common = { // 通用滴
     penaltys: [], // 处罚依据条例
     measures: [], // 整改措施
     deptNames: [], // 接收任务部门
-    taskAddTime: '' // 移交书日期
+    taskAddTime: '', // 移交书日期
+    localAddr: {} // 设备地址
   },
   mutations: {
-    SET_COMPANYLIST: (state, companyList) => {
-      state.comlist = companyList
+    SET_COMPANYLIST: (state, comlist) => {
+      state.comlist = comlist // sessionStorage.getItem('companyList')
     },
     SET_DEVICETYPE: (state, deviceType) => {
       state.deviceType = deviceType
@@ -43,25 +44,36 @@ const common = { // 通用滴
     },
     SET_TASKADDTIME: (state, taskAddTime) => {
       state.taskAddTime = taskAddTime
+    },
+    SET_LOCALADDR: (state, localAddr) => {
+      state.localAddr = localAddr
     }
   },
   actions: {
     actionsMohuCom({ commit }) {
       return new Promise((resolve, reject) => {
-        fetchMohuCom().then(response => {
-          let data = response.returnData
-          data = data.map(item => {
-            return {
-              value: item.useName,
-              id: item.id,
-              useContactMan: item.useContactMan,
-              useAddress: item.useAddress,
-              useContactManTel: item.useTel
-            }
-          })
-          commit('SET_COMPANYLIST', data)
+        const comlist = sessionStorage.getItem('companyList') ? JSON.parse(sessionStorage.getItem('companyList')) : []
+        console.log(comlist.length)
+        if (comlist.length !== 0) {
+          commit('SET_COMPANYLIST', comlist)
           resolve()
-        }).catch(error => reject(error))
+        } else {
+          fetchMohuCom().then(response => {
+            let data = response.returnData
+            data = data.map(item => {
+              return {
+                value: item.useName,
+                id: item.id,
+                useContactMan: item.useContactMan,
+                useAddress: item.useAddress,
+                useContactManTel: item.useTel
+              }
+            })
+            sessionStorage.setItem('companyList', JSON.stringify(data))
+            commit('SET_COMPANYLIST', data)
+            resolve()
+          }).catch(error => reject(error))
+        }
       })
     },
     actionsDeviceType({ commit }) {
@@ -86,13 +98,16 @@ const common = { // 通用滴
       return new Promise((resolve, reject) => {
         fetchDtName().then(response => {
           const data = response.returnData
-          commit('SET_DEPTNAMES', data) // 指令书模板
+          commit('SET_DEPTNAMES', data) // 接收任务部门
           resolve()
         }).catch(error => reject(error))
       })
     },
     actionsExecTaskAddTime({ commit }, data) {
       commit('SET_TASKADDTIME', data)
+    },
+    actionsLocalAddr({ commit }, data) {
+      commit('SET_LOCALADDR', data)
     }
   }
 }

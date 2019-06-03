@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <div class="search">
           <label for="" class="label">使用单位：</label>
-          <el-input v-model="search.useUnit" class="input" placeholder="系统自动导入" />
+          <el-input v-model="search.useUnit" class="input" placeholder="" />
           <label for="" class="label">设备种类：</label>
           <equement-cascader
             :equipment="equipmentAllType"
@@ -22,7 +22,7 @@
         </div>
         <div class="searchs">
           <label for="" class="label">使用登记证：</label>
-          <el-input v-model="search.userReg" class="input" placeholder="系统自动导入" />
+          <el-input v-model="search.userReg" class="input" placeholder="" />
         </div>
       </el-row>
     </div>
@@ -37,6 +37,7 @@
         v-loading="loading"
         ref="multipleTable"
         :data="deviceList"
+        border
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
@@ -99,7 +100,7 @@
     <el-dialog
       :visible.sync="dialogVisible"
       :before-close="handleClose"
-      width="60%"
+      width="50%"
       title="">
       <div class="dialogForm">
         <el-row class="row">
@@ -176,7 +177,7 @@
           <label for="" class="label">设备地址选择：</label>
           <el-select v-model="search.addrCasc" placeholder="请选择">
             <el-option
-              v-for="item in townType"
+              v-for="item in townSearchType"
               :key="item.value"
               :label="item.label"
               :value="item.value"/>
@@ -206,7 +207,7 @@
       :visible.sync="dialogAddVisible"
       :before-close="handleClose"
       :title="infoTitle"
-      width="60%">
+      width="50%">
       <div class="addDialog dialogForm">
         <el-form ref="addForm" :model="info" :rules="infoRules" label-position="right" label-width="130px">
           <el-row>
@@ -298,14 +299,23 @@
           </el-row>
           <el-row >
             <el-form-item label="使用单位名称" prop="useUnitName">
-              <el-autocomplete
+              <el-input v-model="info.useUnitName" placeholder="请输入使用单位名称" style="width:100%">
+                <el-button slot="append" icon="el-icon-search" @click="chageSearch"/>
+              </el-input>
+              <!-- <el-autocomplete
                 v-model="info.useUnitName"
                 :fetch-suggestions="querySearchAsync"
                 placeholder="请输入使用单位名称"
                 style="width:100%"
                 @select="handleMoHuSelect"
-              />
+              /> -->
             </el-form-item>
+            <el-dialog
+              :visible.sync="dialogUnitVisible"
+              append-to-body
+              width="50%">
+              <addUnit @closed="unitClose"/>
+            </el-dialog>
           </el-row>
           <el-row>
             <el-col :span="12">
@@ -339,7 +349,7 @@
         :visible.sync="dialogMapVisible"
         :before-close="handleClose"
         append-to-body
-        width="60%">
+        width="50%">
         <baidu-map :center="center" :zoom="zoom" class="bm-view" ak="BrPsqk0be2TYcuqZkvmVBuAh2MO5SG52" @click="clickMap" @ready="handlerMap"/>
         <span slot="footer" class="dialog-footer">
           <span>当前经度: {{ point.Longitude }}</span>
@@ -380,7 +390,8 @@ import BaiduMap from 'vue-baidu-map/components/map/Map.vue'
 import equementCascader from './component/equementCascader'
 import addTaskDialog from './component/addTaskDialog'
 import deviceDetail from '@/components/deviceDetail'
-import { equipmentType, status, checkStatus, overdue, addrCasc, townType } from '@/utils/config'
+import addUnit from '@/components/unitInfo/unit'
+import { equipmentType, status, checkStatus, overdue, addrCasc, townSearchType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchAddDevice, fetchMohuCom, fetchDeviceDetail, fetchGetDevice, fetchUpdateDevice } from '@/api/shebei'
 import { fetchExcelDevice } from '@/api/common'
@@ -390,11 +401,12 @@ export default {
     BaiduMap,
     equementCascader,
     addTaskDialog,
-    deviceDetail
+    deviceDetail,
+    addUnit
   },
   data() {
     return {
-      townType,
+      townSearchType,
       center: { lng: 0, lat: 0 },
       zoom: 3,
       point: {
@@ -438,6 +450,7 @@ export default {
       dialogInfoLoading: false,
       dialogVisible: false,
       dialogAddTask: false,
+      dialogUnitVisible: false,
       // 单个信息
       infoTitle: '新增',
       info: {
@@ -508,7 +521,21 @@ export default {
     }
   },
   methods: {
-
+    unitClose(event) {
+      console.log(event)
+      if (event.id) {
+        const { id, useAddress, useContactMan, useContactManTel, useName } = event
+        this.info.deviceUseID = id
+        this.info.unitAddr = useAddress
+        this.info.telephone = useContactManTel
+        this.info.concat = useContactMan
+        this.info.useUnitName = useName
+      }
+      this.dialogUnitVisible = false
+    },
+    chageSearch() {
+      this.dialogUnitVisible = true
+    },
     toMakeExcel() {
       let data = {}
       if (this.isExcel === 1) { // 导出勾选的

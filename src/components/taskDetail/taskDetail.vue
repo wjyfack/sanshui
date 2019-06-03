@@ -106,12 +106,12 @@ export default {
       let name = ''
       switch (opt) { // 打印图片
         case 1:
-          url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.jpg`)
-          name = `（三水）检查记录表${checkNo}.jpg`
+          url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.pdf`)
+          name = `（三水）检查记录表${checkNo}.pdf`
           break
         case 2:
-          url = encodeURI(`${this.downloadUrl}（三水）质监特令${commandNo}.jpg`)
-          name = `（三水）质监特令${commandNo}.jpg`
+          url = encodeURI(`${this.downloadUrl}（三水）质监特令${commandNo}.pdf`)
+          name = `（三水）质监特令${commandNo}.pdf`
           break
       }
       const link = document.createElement('a')

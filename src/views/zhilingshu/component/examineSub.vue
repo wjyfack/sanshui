@@ -4,7 +4,7 @@
     <el-row class="row" type="flex">
       <el-col :span="12">
         <span class="label"><span class="red">*</span> 任务状态</span>
-        <el-radio-group v-model="taskStatus">
+        <el-radio-group v-model="taskStatus" @change="taskChange">
           <el-radio :label="'1'">通过</el-radio>
           <el-radio :label="'0'">不通过</el-radio>
         </el-radio-group>
@@ -37,10 +37,17 @@ export default {
   data() {
     return {
       taskStatus: '1',
-      taskDesc: ''
+      taskDesc: '通过'
     }
   },
   methods: {
+    taskChange(event) {
+      if (~~event === 1) {
+        this.taskDesc = '通过'
+      } else {
+        this.taskDesc = '不通过'
+      }
+    },
     isOk() {
       if (!this.taskDesc) {
         this.$message({ message: '请输入任务描述', type: 'error' })

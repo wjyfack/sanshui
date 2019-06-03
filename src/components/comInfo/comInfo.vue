@@ -118,7 +118,7 @@ export default {
     font-size: 14px;
     .table {
       width: 100%;
-      // padding: 5px 0;
+      padding: 1px 0;
     }
     .red {
       color:#f56c6c;

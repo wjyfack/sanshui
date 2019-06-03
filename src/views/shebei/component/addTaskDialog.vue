@@ -2,7 +2,8 @@
 
   <div class="task">
     <el-form ref="form" label-width="150px">
-      <div class="title">单位信息</div>
+      <unitInfo :com="{}" @closed="unitClose"/>
+      <!-- <div class="title">单位信息</div>
       <el-row>
         <el-form-item label="使用单位名称" required>
           <el-autocomplete
@@ -30,7 +31,7 @@
         <el-form-item label="使用单位地址">
           <el-input v-model="com.useAddress" placeholder="使用单位地址" />
         </el-form-item>
-      </el-row>
+      </el-row> -->
       <div class="device-info">
         <div class="info">
           <span>设备信息</span>
@@ -118,10 +119,12 @@ import { status, addrCasc } from '@/utils/config'
 import { fetchMakeTakes } from '@/api/shebei'
 import moHuSearch from '@/mixins/moHuSearch'
 import addDevice from '@/components/addDevice/index'
+import unitInfo from '@/components/unitInfo/index'
 import { getFormatDate } from '@/utils/common'
 export default {
   components: {
-    addDevice
+    addDevice,
+    unitInfo
   },
   mixins: [moHuSearch],
   props: {
@@ -166,6 +169,21 @@ export default {
     this.com.checkDate = getFormatDate()
   },
   methods: {
+    unitClose(event) {
+      console.log(event)
+      const {
+        id,
+        useName,
+        useContactMan,
+        useTel,
+        useAddress
+      } = event
+      this.com.id = id
+      this.com.useName = useName
+      this.com.useContactMan = useContactMan
+      this.com.useContactManTel = useTel
+      this.com.useAddress = useAddress
+    },
     changeDevice(event) {
       if (event.length !== 0) {
         this.deviceList = event
@@ -188,12 +206,17 @@ export default {
       })
     },
     showAddDevice() {
-      if (!this.com.useName) {
+      if (!this.com.id) {
         this.$message({
           message: '请输入使用单位名称',
           type: 'warning'
         })
         return ''
+      }
+      console.log(this.com.id)
+      this.device = {
+        company: this.com,
+        list: this.deviceList
       }
       // this.getDeviceList(this.com.id, 2)
       this.DialogAddDevice = true

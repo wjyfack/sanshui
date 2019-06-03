@@ -4,8 +4,8 @@
     <el-row class="row">
       <span class="label">移交书编号</span>
       <span class="mes">{{ transfe.commandTransferNo }}</span>
-      <el-button type="primary" size="small">预览移交书</el-button>
-      <el-button type="primary" size="small">下载移交书</el-button>
+      <el-button v-if="transfe.commandTransferNo" type="primary" size="small" @click="preview">预览移交书</el-button>
+      <el-button v-if="transfe.commandTransferNo" type="primary" size="small" @click="download">下载移交书</el-button>
     </el-row>
     <el-row class="row">
       <el-col :span="12" type="flex">
@@ -20,7 +20,7 @@
     <el-row class="row">
       <span class="label">移交书日期</span>
       <el-date-picker
-        v-model="transfe.commandExecTaskAddTime"
+        v-model="transfe.commandTransferDate"
         type="date"
         value-format="yyyy-MM-dd"
         placeholder="选择日期"
@@ -30,10 +30,18 @@
       <span class="label">任务移交描述</span>
       <span class="mes">{{ transfe.commandTransferDesc }}</span>
     </el-row>
+    <el-dialog
+      :visible.sync="lookPic"
+      width="40%"
+      title=""
+      append-to-body>
+      <img :src="imgDialog" alt="" style="width:100%">
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { baseUrl } from '@/utils/config'
 export default {
   props: {
     transfe: {
@@ -43,10 +51,49 @@ export default {
   },
   data() {
     return {
+      printUrl: `${baseUrl}/file/show/img/create/`,
+      downloadUrl: `${baseUrl}/file/download/create/`,
+      lookPic: false,
+      imgDialog: '',
       yijiaoDate: ''
     }
   },
+  watch: {
+    transfe: function() {
+      this.dataChange()
+    }
+  },
+  mounted() {
+    this.dataChange()
+  },
   methods: {
+    dataChange() {
+      this.$store.dispatch('actionsExecTaskAddTime', this.transfe.commandTransferDate)
+    },
+    preview() {
+      const { commandTransferNo } = this.transfe
+      if (!commandTransferNo) {
+        this.$message.error('无移交书编号')
+        return ''
+      }
+      this.lookPic = true
+      this.imgDialog = encodeURI(`${this.printUrl}${commandTransferNo}.jpg`)
+    },
+    download() {
+      const { commandTransferNo } = this.transfe
+      if (!commandTransferNo) {
+        this.$message.error('无移交书编号')
+        return ''
+      }
+      const url = encodeURI(`${this.downloadUrl}${commandTransferNo}.pdf`)
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.download = `${commandTransferNo}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
     changePicke(event) {
       // console.log(event)
       this.$store.dispatch('actionsExecTaskAddTime', event)
@@ -72,7 +119,7 @@ export default {
   .row {
       padding: 10px 0;
       .red {color: red;}
-      .label {display: inline-block; width: 110px;text-align: right;margin-right: 5px;}
+      .label {display: inline-block; width: 110px;text-align: left;margin-right: 5px;}
       .input {width: 220px;}
       .textarea {flex: 1;}
       .mes {

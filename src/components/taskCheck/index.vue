@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex">
     <el-select v-model="taskStatus" placeholder="请选择" @change="taskSelect">
       <el-option
         v-for="(item,index) in taskType"
@@ -40,9 +40,9 @@ export default {
     if (this.arr[0]) { this.taskStatus = ~~this.arr[0] }
     if (this.arr[1]) {
       this.insprcType = inspectionType
-      this.instructionStatus = ~~this.arr[1]
+      this.instructionStatus = this.arr[1]
     }
-    console.log(this.taskStatus, this.instructionStatus, 123)
+    // console.log(this.taskStatus, this.instructionStatus, 123)
   },
   methods: {
     taskSelect(event) {
@@ -66,6 +66,10 @@ export default {
     },
     change() {
       const { value } = taskType[this.taskStatus]
+      console.log({
+        taskStatus: value,
+        instructionStatus: this.instructionStatus
+      })
       this.$emit('send', {
         taskStatus: value,
         instructionStatus: this.instructionStatus
@@ -76,5 +80,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.flex {
+  display: flex
+}
 </style>

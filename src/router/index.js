@@ -120,10 +120,10 @@ export const asyncRouterMap = [
     path: '/units',
     component: Layout,
     redirect: '/units',
-    name: 'sys_bg_manage',
+    name: 'sys_comany',
     children: [{
       path: 'units',
-      meta: { title: '单位管理', icon: 'houtai' },
+      meta: { title: '单位管理', icon: 'units' },
       component: () => import('@/views/units_manager/index')
     }]
   }

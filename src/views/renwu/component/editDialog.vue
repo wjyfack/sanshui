@@ -132,25 +132,27 @@
       <div class="title">检查记录表信息</div>
       <el-row class="row">
         <el-col :span="12">
-          <el-form-item label="检查类别" >
-            <el-select v-model="record.checkType" placeholder="请选择" @change="taskSelect">
-              <el-option
-                v-for="item in taskType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
-            <el-select v-model="record.checkType2" placeholder="请选择">
-              <el-option
-                v-for="item in insprcType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
+          <el-form-item label="检查类别" required>
+            <div style="display:flex;">
+              <el-select v-model="record.checkType" placeholder="请选择" @change="taskSelect">
+                <el-option
+                  v-for="item in taskType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+              <el-select v-model="record.checkType2" placeholder="请选择">
+                <el-option
+                  v-for="item in insprcType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="单位类别" >
+          <el-form-item label="单位类别" required>
             <el-select :value="record.checkUseTypeNames" placeholder="请选择单位类别" @change="checkUseType">
               <el-option
                 v-for="(item, index) in danWeiType"
@@ -163,7 +165,7 @@
       </el-row>
       <el-row class="row">
         <el-col>
-          <el-form-item label="检查日期" >
+          <el-form-item label="检查日期" required>
             <el-date-picker
               v-model="record.checkDate"
               type="date"
@@ -173,12 +175,12 @@
         </el-col>
       </el-row>
       <el-row class="row">
-        <el-form-item label="检查问题" >
+        <el-form-item label="检查问题" required>
           <el-input v-model="record.checkProblem" type="textarea" placeholder="请输入检查问题"/>
         </el-form-item>
       </el-row>
       <el-row class="row">
-        <el-form-item label="处理措施" >
+        <el-form-item label="处理措施" required>
           <el-radio-group v-model="record.checkResulTreatmentId" @change="onCheckbox">
             <el-radio :label="'1'">下达指令书</el-radio>
             <el-radio :label="'2'">直接封查</el-radio>
@@ -188,7 +190,7 @@
         </el-form-item>
       </el-row>
       <el-row class="row">
-        <el-form-item label="检查意见" >
+        <el-form-item label="检查意见" required>
           <el-input v-model="record.checkOpinion" type="textarea" placeholder="请输入检查意见"/>
         </el-form-item>
       </el-row>
@@ -212,7 +214,7 @@
           </el-form-item>
         </el-row> -->
         <el-row class="row">
-          <el-form-item label="指令书模板">
+          <el-form-item label="指令书模板" required>
             <el-select :value="command.commandModel" placeholder="请选择指令书模板" @change="changeCommandMode">
               <el-option
                 v-for="item in instructionModels"
@@ -316,19 +318,28 @@
       </el-form>
     </div>
     <span slot="footer" class="dialog-footer">
-      <!-- <el-button >检查记录预览</el-button>
-      <el-button v-if="!isShow" type="warning">检查记录打印</el-button>
-      <el-button v-if="isShow" >指令书预览</el-button> -->
+      <!-- <el-button v-if="!isShow" type="warning">检查记录打印</el-button>-->
+      <el-button @click="recordPreview">检查记录预览</el-button>
+      <el-button v-if="isShow" >指令书预览</el-button>
       <el-button type="primary" @click="sure">确定</el-button>
       <el-button @click="closed">取消</el-button>
     </span>
     <!-- 添加设备 -->
     <el-dialog
       :visible.sync="DialogAddDevice"
-      width="45%"
+      width="%"
       title=""
       append-to-body>
       <add-device :device="device" @closed="changeDevice"/>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="previewRecordDialog"
+      width="850px"
+      title=""
+      top= "0"
+      center
+      append-to-body>
+      <previewRecord :record="recordpv"/>
     </el-dialog>
   </div>
 </template>
@@ -341,10 +352,12 @@ import { mapGetters } from 'vuex'
 import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/common'
 import { danWeiType, taskType, inspectionType } from '@/utils/config'
 import addDevice from '@/components/addDevice/index'
+import previewRecord from '@/components/previewRecord/index'
 export default {
   components: {
     taskCheck,
-    addDevice
+    addDevice,
+    previewRecord
   },
   props: {
     task: {
@@ -358,6 +371,7 @@ export default {
       danWeiType,
       inspectionType,
       DialogAddDevice: false,
+      previewRecordDialog: false,
       loading: false,
       noDeviceList: [],
       multipleSelection: [],
@@ -394,6 +408,7 @@ export default {
       record: {
         checkDate: [] // 日期
       }, // 指令书
+      recordpv: {},
       deviceList: [],
       illegalCount: [], // 违反模板ids
       info: {
@@ -475,32 +490,77 @@ export default {
     this.tackCheck()
   },
   methods: {
+    recordPreview() {
+      const { checkNo } = this.task
+      const {
+        useName, // 单位名称
+        useAddress, // 单位地址
+        useLegalPerson, // 法人
+        useContactMan, // 联系人
+        useContactManTel, // 联系方式
+        checkUseContactPosition // 联系人职务
+      } = this.company
+      const {
+        checkType, // 任务
+        checkType2,
+        checkUseTypes,
+        checkUseTypeNames, // 单位类型
+        checkDate,
+        checkProblem,
+        checkResulTreatmentId,
+        checkOpinion
+      } = this.record
+      this.recordpv = {
+        useName, // 单位名称
+        useAddress, // 单位地址
+        useLegalPerson, // 法人
+        useContactMan, // 联系人
+        useContactManTel, // 联系方式
+        checkUseContactPosition,
+        checkType, // 任务
+        checkType2,
+        checkUseTypes,
+        checkUseTypeNames, // 单位类型
+        checkDate,
+        checkProblem,
+        checkResulTreatmentId,
+        checkOpinion,
+        checkNo
+      }
+      console.log(this.recordpv)
+      this.previewRecordDialog = true
+    },
     changeDevice(event) {
       if (event.length !== 0) {
         this.deviceList = event
+        console.log(this.deviceList)
+        const {
+          deviceType1Count,
+          deviceType2Count,
+          deviceType3Count,
+          deviceType4Count,
+          deviceType5Count,
+          deviceType6Count,
+          deviceType7Count,
+          deviceType8Count,
+          deviceType9Count,
+          deviceType10Count
+        } = autoDeviceCountConcat(this.deviceList)
+        this.record.deviceType1Count = deviceType1Count
+        this.record.deviceType2Count = deviceType2Count
+        this.record.deviceType3Count = deviceType3Count
+        this.record.deviceType4Count = deviceType4Count
+        this.record.deviceType5Count = deviceType5Count
+        this.record.deviceType6Count = deviceType6Count
+        this.record.deviceType7Count = deviceType7Count
+        this.record.deviceType8Count = deviceType8Count
+        this.record.deviceType9Count = deviceType9Count
+        this.record.deviceType10Count = deviceType10Count
+        const deviceNoString = this.deviceList.map(item => {
+          return item.deviceCertNo
+        }).join('、')
+        this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${this.command.dangerDescription}`
       }
-      const {
-        deviceType1Count,
-        deviceType2Count,
-        deviceType3Count,
-        deviceType4Count,
-        deviceType5Count,
-        deviceType6Count,
-        deviceType7Count,
-        deviceType8Count,
-        deviceType9Count,
-        deviceType10Count
-      } = autoDeviceCountConcat(this.deviceList)
-      this.record.deviceType1Count = deviceType1Count
-      this.record.deviceType2Count = deviceType2Count
-      this.record.deviceType3Count = deviceType3Count
-      this.record.deviceType4Count = deviceType4Count
-      this.record.deviceType5Count = deviceType5Count
-      this.record.deviceType6Count = deviceType6Count
-      this.record.deviceType7Count = deviceType7Count
-      this.record.deviceType8Count = deviceType8Count
-      this.record.deviceType9Count = deviceType9Count
-      this.record.deviceType10Count = deviceType10Count
       this.DialogAddDevice = false
     },
     tackCheck() {
@@ -514,6 +574,9 @@ export default {
         company.useContactMan = record.checkUseContactMan
         company.useContactManTel = record.checkUseContactManTel
         company.checkUseContactPosition = record.checkUseContactPosition
+      } else {
+        record.checkUseTypes = 6
+        record.checkUseTypeNames = '使用'
       }
       const command = task.command
       if (command && command.commandNo) {
@@ -743,6 +806,19 @@ export default {
         companyUseConfirmMan,
         companyUseConfirmManPhone
       } = this.command
+      if (!checkUseTypeNames) {
+        this.$message.error('请选择单位类别')
+        return ''
+      } else if (!checkProblem) {
+        this.$message.error('请输入检查意见')
+        return ''
+      }
+      if (checkResulTreatmentId === '1') {
+        if (!commandModel) {
+          this.$message.error('请选择指令书模板')
+          return ''
+        }
+      }
       // 设备ids
       const deviceIds = this.deviceList.map(item => item.id).join(',')
       // 违反模板ids
@@ -777,7 +853,7 @@ export default {
         deviceType10Count,
         checkType,
         checkType2,
-        checkUseTypes,
+        checkUseTypes: '' + checkUseTypes,
         checkUseTypeNames,
         // checkDateStart: checkDate,
         checkDate,

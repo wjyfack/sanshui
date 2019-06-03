@@ -532,6 +532,38 @@ export const unitType = [
     label: '气瓶充装'
   }
 ]
+export const townSearchType = [
+  {
+    value: '52,42,47,48',
+    label: '西南',
+    name: '河口,金本,青岐,西南'
+  },
+  {
+    value: '44,43,53,45',
+    label: '乐平',
+    name: '范湖,南边,云东海,乐平'
+  },
+  {
+    value: '46,59,60',
+    label: '南山',
+    name: '六和,迳口,南山'
+  },
+  {
+    value: '54',
+    label: '大塘',
+    name: '大塘'
+  },
+  {
+    value: '55',
+    label: '白坭',
+    name: '白坭'
+  },
+  {
+    value: '50',
+    label: '芦苞',
+    name: '芦苞'
+  }
+]
 export const townType = [ // 镇街
   {
     value: '42',
@@ -561,26 +593,26 @@ export const townType = [ // 镇街
     value: '48',
     label: '西南'
   },
-  {
-    value: '49',
-    label: '省南丰劳教所'
-  },
+  // {
+  //   value: '49',
+  //   label: '省南丰劳教所'
+  // },
   {
     value: '50',
     label: '芦苞'
   },
-  {
-    value: '51',
-    label: '广州军区三水农场'
-  },
+  // {
+  //   value: '51',
+  //   label: '广州军区三水农场'
+  // },
   {
     value: '52',
     label: '河口'
   },
-  {
-    value: '53',
-    label: '云东海'
-  },
+  // {
+  //   value: '53',
+  //   label: '云东海'
+  // },
   {
     value: '54',
     label: '大塘'
@@ -589,18 +621,18 @@ export const townType = [ // 镇街
     value: '55',
     label: '白坭'
   },
-  {
-    value: '56',
-    label: '省第二戒毒劳教所'
-  },
-  {
-    value: '57',
-    label: '省女子劳教所'
-  },
-  {
-    value: '58',
-    label: '省三水劳教所'
-  },
+  // {
+  //   value: '56',
+  //   label: '省第二戒毒劳教所'
+  // },
+  // {
+  //   value: '57',
+  //   label: '省女子劳教所'
+  // },
+  // {
+  //   value: '58',
+  //   label: '省三水劳教所'
+  // },
   {
     value: '59',
     label: '迳口'
@@ -648,18 +680,18 @@ export const addrCasc = [
             value: '48',
             label: '西南'
           },
-          {
-            value: '49',
-            label: '省南丰劳教所'
-          },
+          // {
+          //   value: '49',
+          //   label: '省南丰劳教所'
+          // },
           {
             value: '50',
             label: '芦苞'
           },
-          {
-            value: '51',
-            label: '广州军区三水农场'
-          },
+          // {
+          //   value: '51',
+          //   label: '广州军区三水农场'
+          // },
           {
             value: '52',
             label: '河口'
@@ -676,18 +708,18 @@ export const addrCasc = [
             value: '55',
             label: '白坭'
           },
-          {
-            value: '56',
-            label: '省第二戒毒劳教所'
-          },
-          {
-            value: '57',
-            label: '省女子劳教所'
-          },
-          {
-            value: '58',
-            label: '省三水劳教所'
-          },
+          // {
+          //   value: '56',
+          //   label: '省第二戒毒劳教所'
+          // },
+          // {
+          //   value: '57',
+          //   label: '省女子劳教所'
+          // },
+          // {
+          //   value: '58',
+          //   label: '省三水劳教所'
+          // },
           {
             value: '59',
             label: '迳口'

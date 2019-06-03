@@ -51,17 +51,18 @@
       <div class="table">
         <el-tabs v-model="activeName" type="card">
           <el-tab-pane v-if="auths.sys_command_town_remove" label="镇街移交" name="first"/>
-          <el-tab-pane label="待移交" name="second"/>
-          <el-tab-pane label="批准移交" name="third"/>
-          <el-tab-pane label="待处理" name="fourth"/>
-          <el-tab-pane label="回复审核" name="fifth"/>
-          <el-tab-pane label="待确认" name="sixth"/>
-          <el-tab-pane label="已完成" name="seventh"/>
-          <el-tab-pane label="全部" name="eight"/>
+          <el-tab-pane v-if="auths.sys_command_stay_remove" label="待移交" name="second"/>
+          <el-tab-pane v-if="auths.sys_command_approval_remove" label="批准移交" name="third"/>
+          <el-tab-pane v-if="auths.sys_command_stay_deal" label="待处理" name="fourth"/>
+          <el-tab-pane v-if="auths.sys_command_reply_audit" label="回复审核" name="fifth"/>
+          <el-tab-pane v-if="auths.sys_command_stay_ok" label="待确认" name="sixth"/>
+          <el-tab-pane v-if="auths.sys_command_finish" label="已完成" name="seventh"/>
+          <el-tab-pane v-if="auths.sys_command_all" label="全部" name="eight"/>
         </el-tabs>
         <el-table
           v-loading="loading"
           :data="instructionList"
+          border
           style="width: 100%">
           <el-table-column
             v-if="activeName != 'eight'"
@@ -118,7 +119,7 @@
               <div v-else-if="activeName == 'seventh'">
                 <el-button
                   size="mini"
-                  @click="$message('下载')">下载</el-button>
+                  @click="yijiaoDownload(scope.row)">下载</el-button>
                 <el-button
                   size="mini"
                   @click="yijiaoDialog(scope.row,5)">查看</el-button>
@@ -325,8 +326,9 @@ import zhilingshuInfo from './component/zhilingshuInfo'
 import statusRecord from '@/components/statusRecord/index'
 import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop, fetchBeforeReview } from '@/api/instruction'
 import { fetchIdRefiy } from '@/api/common'
-import { refiyUrl, townType } from '@/utils/config'
+import { refiyUrl, townType, baseUrl } from '@/utils/config'
 import authorization from '@/mixins/authorization'
+import { fetchTaskDownload } from '@/api/common'
 export default {
   components: {
     transferInfo,
@@ -345,6 +347,7 @@ export default {
     return {
       baseUrl: `${refiyUrl}/file/show/img/rectify/`,
       imgUrl: `${refiyUrl}/open/api/file/upload/rectify`,
+      downloadUrl: `${baseUrl}/file/download/create/`,
       townType,
       imgToken: '',
       loading: false,
@@ -436,6 +439,39 @@ export default {
     this.fecthData()
   },
   methods: {
+    yijiaoDownload(row) {
+      // this.$message('模拟下载')
+      const { commandTransferNo, commandNo, commandReplyNo } = row
+      // console.log(row)
+      // return ''
+      const url = '/file/downloadPDFs/create/3'
+      console.log(commandTransferNo, commandNo, commandReplyNo)
+      this.$message.success('正在为你下载..')
+      /**  指令书：  （三水）质监特令+指令书编号
+       *   移交书：移交书编号
+       *   回复书：回复书编号  三个用；隔开 不用加.pdf
+      */
+      const commandName = commandNo ? `（三水）质监特令${commandNo}` : null
+      const no = [commandName, commandTransferNo, commandReplyNo].filter(item => {
+        return item != null
+      }).join(';')
+      const data = {
+        no
+      }
+      fetchTaskDownload({ url, data }).then(res => {
+        const blob = new Blob([res], { type: 'application/pdf' })
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        const name = `${new Date().getTime()}指令+移交+回复.pdf`
+        link.style.display = 'none'
+        link.href = objectUrl
+        link.download = name
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(objectUrl)
+      })
+    },
     resetSearch() {
       const commandExecTaskStatus = this.search.commandExecTaskStatus
       this.search = {
@@ -700,7 +736,8 @@ export default {
         commandReplyNo, // 回复书编号
         commandExecTaskStatus,
         pageSize: `${this.pageSize}`,
-        pageNum: `${this.pageNum}`
+        pageNum: `${this.pageNum}`,
+        orderType: '1'
       }
       // console.log(data)
       this.$store.dispatch('fetchInstructionList', data).then(() => {
@@ -839,6 +876,10 @@ export default {
       line-height: 150px;
       text-align: center;
     }
+  }
+  .table {
+    width: 100%;
+    padding-left: 1px;
   }
 }
 </style>

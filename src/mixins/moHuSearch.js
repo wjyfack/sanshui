@@ -11,6 +11,7 @@ const moHuSearch = {
   methods: {
     querySearchAsync(queryString, cb) { // 模糊搜索公司名
       var restaurants = this.companyList
+      // console.log(restaurants)
       var results = queryString ? restaurants.filter(this.createStateFilter(queryString)).splice(0, 50) : restaurants.splice(0, 50)
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {

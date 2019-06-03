@@ -36,6 +36,7 @@
         v-loading="loading"
         ref="multipleDevice"
         :data="list"
+        border
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">

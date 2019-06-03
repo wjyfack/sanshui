@@ -59,3 +59,11 @@ export function fetchExcelDevice(data) {
     data: data
   })
 }
+export function fetchTaskDownload({ url, data }) {
+  return request({
+    url,
+    responseType: 'blob',
+    method: 'post',
+    data: data
+  })
+}

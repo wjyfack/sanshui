@@ -15,7 +15,7 @@
       :data="deviceList"
       border
       height="230"
-      style="width: 100%;margin-bottom: 15px;">
+      style="width: 100%;padding-top: 5px;padding-left: 1px;">
       <el-table-column
         prop="deviceTypeName1"
         label="设备种类"

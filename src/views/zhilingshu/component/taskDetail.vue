@@ -3,8 +3,8 @@
     <el-row><div class="bianhao"><label for="">任务编号：{{ transfe.check.checkNo }}</label></div></el-row>
     <div class="detail">
       <div class="item">
-        <span class="name">处理人：</span> <div class="info">{{ transfe.commandAddManName }}</div>
-        <span class="name">处理方式：</span> <div class="info">{{ transfe.check.checkResulTreatmentId }}</div>
+        <span class="name">处理人：</span> <div class="info">{{ transfe.check.checkExecManName }}</div>
+        <span class="name">处理方式：</span> <div class="info">{{ transfe.check.checkResulTreatmentName }}</div>
       </div>
       <div class="item">
         <span class="name">执行时间：</span> <div class="info">{{ transfe.commandAddDate }}</div>
@@ -14,24 +14,33 @@
         <span class="name">指令书日期：</span> <div class="info">{{ transfe.commandDate }}</div>
         <span class="name">备注：</span> <div class="info">{{ transfe.dangerDescription }}</div>
       </div>
-      <div class="item">
+      <div class="">
         <el-button type="text" @click="look">详情</el-button>
       </div>
     </div>
     <div class="btn-group">
-      <el-button type="warning" size="small">检查记录预览</el-button>
-      <el-button type="warning" size="small">指令书预览</el-button>
+      <el-button type="warning" size="small" @click="preview(1)">检查记录预览</el-button>
+      <el-button type="warning" size="small" @click="preview(2)">指令书预览</el-button>
     </div>
     <el-dialog
       :visible.sync="dialogVisible"
       append-to-body>
       <taskXiangxi :transfe="transfe"/>
     </el-dialog>
+    <!-- 图片预览 -->
+    <el-dialog
+      :visible.sync="lookPic"
+      width="40%"
+      title=""
+      append-to-body>
+      <img :src="imgDialog" alt="" style="width:100%">
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import taskXiangxi from '@/components/taskXiangxi/index'
+import { baseUrl } from '@/utils/config'
 export default {
   components: {
     taskXiangxi
@@ -44,10 +53,32 @@ export default {
   },
   data() {
     return {
+      lookPic: false,
+      imgDialog: '',
+      printUrl: `${baseUrl}/file/show/img/create/`,
       dialogVisible: false
     }
   },
   methods: {
+    preview(opt) { // 预览图片
+      const {
+        commandNo
+      } = this.transfe
+      const {
+        checkNo
+      } = this.transfe.check
+      let url = ''
+      switch (opt) {
+        case 1:
+          url = encodeURI(`${this.printUrl}（三水）检查记录表${checkNo}.jpg`)
+          break
+        case 2:
+          url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
+          break
+      }
+      this.lookPic = true
+      this.imgDialog = url
+    },
     look() {
       this.dialogVisible = true
     }

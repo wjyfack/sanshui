@@ -12,7 +12,7 @@
         <span class="name">隐患描述：</span> <div class="info">{{ transfe.dangerDescription }}</div>
       </div>
       <div class="item">
-        <span class="name">违反条例：</span> <div class="info">{{ transfe.commandAgainstRulesIds }}</div>
+        <span class="name">违反条例：</span> <div class="info">{{ transfe.commandAgainstRulesInfo }}</div>
       </div>
       <div class="item">
         <span class="name">处罚依据条例：</span> <div class="info">{{ transfe.commandCcordingRulesNames }}</div>
@@ -21,15 +21,19 @@
         <span class="name">整改措施：</span> <div class="info">{{ transfe.commandChangedNames }}</div>
       </div>
       <div class="item">
-        <span class="name">监察指令书：</span>
+        <span class="name">现场图片：</span>
         <span v-for="item in urlImgs" :key="item">
-          <el-image
+          <img
             :src="baseUrl+item"
             name="监察指令书"
-            style="width: 100px; height: 100px"/>
+            style="width: 100px; height: 100px"
+            @click="handlePictureCardPreview(baseUrl+item)">
         </span>
       </div>
     </div>
+    <el-dialog :visible.sync="dialogPreviewVisible" append-to-body width="30%">
+      <img :src="dialogImageUrl" width="100%" alt="">
+    </el-dialog>
   </div>
 </template>
 
@@ -44,14 +48,22 @@ export default {
   },
   data() {
     return {
-      baseUrl: `${baseUrl}/file/show/rectify/`,
-      urlImgs: []
+      baseUrl: `${baseUrl}/file/show/ScenePictures/`,
+      urlImgs: [],
+      dialogPreviewVisible: false,
+      dialogImageUrl: ''
     }
   },
   mounted() {
-    const urlImgs = this.transfe.commandExecTaskReplyIntroPhotoList
+    const urlImgs = this.transfe.check.checkResultPhotoList
     if (urlImgs) {
       this.urlImgs = urlImgs.split(',')
+    }
+  },
+  methods: {
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file
+      this.dialogPreviewVisible = true
     }
   }
 }

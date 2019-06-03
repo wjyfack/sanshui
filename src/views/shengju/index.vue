@@ -50,6 +50,7 @@
         v-show="deviceShow == 1"
         ref="multipleDevice"
         :data="list"
+        border
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
@@ -87,6 +88,7 @@
         v-show="deviceShow == 2"
         ref="multipleChange"
         :data="bianlist"
+        border
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">

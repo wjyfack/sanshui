@@ -18,7 +18,7 @@
         <el-col :span="12"><label for="" class="label">任务编号：</label><el-input v-model="info.checkNo" class="input" placeholder="请输入任务编号"/></el-col>
         <el-col :span="12">
           <label for="" class="label">状态：</label>
-          <el-select v-model="info.checkTypeId" placeholder="请选择">
+          <el-select v-model="info.checkTypeId" clearable placeholder="请选择">
             <el-option
               v-for="item in taskStatus"
               :key="item.value"
@@ -40,6 +40,7 @@
           <label for="" class="label">年检日期：</label>
           <el-date-picker
             v-model="info.dateChecked"
+            clearable
             type="daterange"
             range-separator="~"
             start-placeholder="年/月/日"

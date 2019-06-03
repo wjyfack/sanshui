@@ -34,7 +34,7 @@
       <div class="table">
         <el-table
           :data="deviceList"
-          style="width: 100%"
+          border
           @cell-click="cellClick">
           <el-table-column
             prop="deviceCertNo"
@@ -66,6 +66,12 @@
               </el-select>
             </template>
           </el-table-column>
+          <el-table-column
+            label="任务状态">
+            <template slot-scope="scope">
+              <task-check :arr="deviceList[scope.$index].selectTask" @send="sendStatus($event,scope.$index)" />
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="btnG">
@@ -83,13 +89,13 @@
           :key="index"
           type="primary"
           class="button"
-          @click="getdeviceDetail(item)">设备{{ index+1 }}</el-button>
+          @click="getdeviceDetail(item.id)">{{ item.deviceCertNo || item.deviceProduceNo }}</el-button>
       </div>
       <deviceDetail :loading="dialogInfoLoading" :info="taskdeviceDetail" />
-      <span slot="footer" class="dialog-footer">
+      <!-- <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogInfoVisible = false">确认</el-button>
         <el-button @click="dialogInfoVisible = false">关闭</el-button>
-      </span>
+      </span> -->
     </el-dialog>
   </div>
 </template>
@@ -101,9 +107,11 @@ import { mapGetters } from 'vuex'
 import { getFormatDate } from '@/utils/common'
 import { fetchDeviceDetail } from '@/api/shebei'
 import deviceDetail from '@/components/deviceDetail'
+import taskCheck from '@/components/taskCheck/index'
 export default {
   components: {
-    deviceDetail
+    deviceDetail,
+    taskCheck
   },
   data() {
     return {
@@ -148,18 +156,24 @@ export default {
     if (this.deptNames.length === 0) {
       this.$store.dispatch('actionsDeptNames')
     }
+    console.log(this.deptNames)
     const { arr, taskTotal, info } = this.$route.query
 
-    console.log(info !== undefined)
+    // console.log(info !== undefined)
     if (info !== undefined) { // 重新派发
-      console.log(info)
+      // console.log(info)
       this.checkIntro = info.checkIntro // 任务要求
       // this.checkResultEndDate = info.checkResultEndDate // 反馈时间
       this.checkTypeId = info.checkTypeId // 检验类型
       this.checkDeptId = info.checkDeptId // 接收部门id
       this.checkDeptName = info.checkDeptName // 接收部门
       this.checkNo = info.checkNo
-      this.deviceList = arr
+      const list = arr.map(element => {
+        const selectTask = [element.taskStatus, element.taskStatusName]
+        element.selectTask = selectTask
+        return element
+      })
+      this.deviceList = list
     } else {
       // let list = []
       // arr.map(item => {
@@ -171,7 +185,8 @@ export default {
       //   })
       //   list = [...list, ...devList]
       // })
-      this.deviceList = arr
+      const list = this.selectDept(arr)
+      this.deviceList = list
     }
     if (!taskTotal) {
       this.isShow = false
@@ -181,11 +196,47 @@ export default {
     }
   },
   methods: {
+    sendStatus(event, index) {
+      console.log(event, index)
+      const {
+        taskStatus,
+        instructionStatus
+      } = event
+      this.deviceList.taskStatus = taskStatus
+      this.deviceList.taskStatusName = instructionStatus
+    },
+    /** 指定接收部门 */
+    selectDept(arr) {
+      let arrs = arr
+      const deptNames = this.deptNames
+      // const { deptArea4Names } = deptNames // 镇街
+      arrs = arrs.map(element => {
+        const { deviceAreaName4 } = element
+        // console.log(deviceAreaName4)
+        const arrG = deptNames.filter(item => {
+          return item.deptArea4Names.indexOf(deviceAreaName4) > -1 && item.deptType === '2'
+        })
+        if (arrG.length !== 0) {
+          element.checkDeptId = arrG[0].id
+        }
+        // console.log(arrG)
+        const selectTask = [element.taskStatus, element.taskStatusName]
+        element.selectTask = selectTask
+        return element
+      })
+      return arrs
+    },
     cellClick(row, column, cell, event) {
       console.log(row)
-      const { deviceIds } = row
-      this.deviceDetailArr = deviceIds.split(',')
-      this.getdeviceDetail(this.deviceDetailArr[0])
+      const { list } = row
+      this.deviceDetailArr = list.map(item => {
+        return {
+          id: item.id,
+          deviceCertNo: item.deviceCertNo,
+          deviceProduceNo: item.deviceProduceNo
+        }
+      })
+      this.getdeviceDetail(this.deviceDetailArr[0].id)
     },
     deptChange(event) {
       console.log(event)
@@ -205,33 +256,48 @@ export default {
     },
     submit() {
       if (!this.checkIntro) {
-        this.$message('请输入任务要求')
+        this.$message.warning('请输入任务要求')
         return ''
       } // 任务要求
       if (!this.checkResultEndDate) {
-        this.$message('请输入反馈时间')
+        this.$message.warning('请输入反馈时间')
         return ''
       } // 反馈时间
       if (!this.checkTypeId) {
-        this.$message('请输入检验类型')
+        this.$message.warning('请输入检验类型')
         return ''
       } // 检验类型
       if (this.isShow) { // 派发任务
         const deviceList = this.deviceList
+        // console.log(deviceList)
+        const isType = deviceList.some(item => {
+          return item.checkDeptId === '' || item.checkDeptId === null
+        })
+        // console.log(isType)
+        if (isType) {
+          this.$message.warning('请选择接收部门')
+          return ''
+        }
+        console.log(12111231)
         const arr = deviceList.map(item => {
-          const data = {}
+          // const data = {}
           const [{ deptName }] = this.deptNames.filter(val => {
             return val.id === item.checkDeptId
           })
-          data.id = item.id
-          data.checkDeptName = deptName
-          data.checkIntro = this.checkIntro
-          data.checkResultEndDate = this.checkResultEndDate
-          data.checkTypeId = this.checkTypeId
-          data.checkNo = item.checkNo
-          data.operateName = '派发任务' // 操作记录
-          return data
+          // data.id = item.id
+          delete item.list
+          delete item.selectTask
+          item.checkDeptName = deptName
+          item.checkIntro = this.checkIntro
+          item.checkResultEndDate = this.checkResultEndDate
+          item.checkTypeId = this.checkTypeId
+          // item.checkNo = item.checkNo
+          // item.checkDeptId = item.checkDeptId
+          item.operateName = '派发任务' // 操作记录
+          return item
         })
+        // console.log(arr)
+        // return ''
         fetchDistributeTask(arr).then(data => {
           if (data.resultCode === '0000000') {
             this.$message({
@@ -242,15 +308,28 @@ export default {
           }
         })
       } else {
-        const data = {
-          checkIntro: this.checkIntro, // 任务要求
-          checkResultEndDate: this.checkResultEndDate, // 反馈时间
-          checkTypeId: this.checkTypeId, // 检验类型
-          checkDeptId: this.checkDeptId, // 接收部门id
-          checkDeptName: this.checkDeptName, // 接收部门
-          operateName: '复查任务',
-          checkNo: this.checkNo
-        }
+        const deviceList = this.deviceList
+        const [data] = deviceList.map(item => {
+          delete item.list
+          delete item.selectTask
+          item.checkIntro = this.checkIntro // 任务要求
+          item.checkResultEndDate = this.checkResultEndDate // 反馈时间
+          item.checkTypeId = this.checkTypeId // 检验类型
+          item.checkDeptId = this.checkDeptId // 接收部门id
+          item.checkDeptName = this.checkDeptName // 接收部门
+          item.operateName = '复查任务'
+          item.checkNo = this.checkNo
+          return item
+        })
+        // const data = {
+        //   checkIntro: this.checkIntro, // 任务要求
+        //   checkResultEndDate: this.checkResultEndDate, // 反馈时间
+        //   checkTypeId: this.checkTypeId, // 检验类型
+        //   checkDeptId: this.checkDeptId, // 接收部门id
+        //   checkDeptName: this.checkDeptName, // 接收部门
+        //   operateName: '复查任务',
+        //   checkNo: this.checkNo
+        // }
         // console.log(data, 123)
         // return ''
         fetchReview(data).then(data => {
@@ -295,4 +374,11 @@ export default {
     justify-content: flex-end;
   }
 }
+.more-shebei {
+    overflow-x: scroll;
+    display:flex;
+    .button {
+      margin-right: 16px;
+    }
+  }
 </style>

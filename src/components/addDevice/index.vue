@@ -34,16 +34,23 @@
       <el-row>
         <el-col :span="12">
           <el-form-item label="设备类型" prop="useEque">
-            <el-cascader
+            <el-select v-model="info.useEque" placeholder="请选择设备类型">
+              <el-option
+                v-for="item in equipmentAllType"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"/>
+            </el-select>
+            <!-- <el-cascader
               ref="useEques"
               v-model="info.useEque"
               :options="equipmentAllType"
-              class="select"/>
+              class="select"/> -->
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="设备状态" prop="status">
-            <el-select v-model="info.status" placeholder="请选择">
+            <el-select v-model="info.status" placeholder="请选择设备状态">
               <el-option
                 v-for="item in status"
                 :key="item.value"
@@ -104,12 +111,14 @@
       </el-row>
       <el-row type="flex" justify="end">
         <el-button type="primary" @click="submitDevice('forms')">添加</el-button>
+        <el-button type="primary" @click="selectDeviceQu">确 定</el-button>
       </el-row>
     </el-form>
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="closed">取 消</el-button>
+    <!-- <span slot="footer" class="dialog-footer">
+    <el-button @click="closed">取 消</el-button>
+      <el-button type="primary" @click="submitDevice('forms')">添加</el-button>
       <el-button type="primary" @click="selectDeviceQu">确 定</el-button>
-    </span>
+    </span> -->
   </div>
 </template>
 
@@ -135,8 +144,8 @@ export default {
       devList: [],
       company: {},
       info: {
-        useEque: [],
-        status: '',
+        useEque: '',
+        status: '01',
         deviceNo: '',
         deviceName: '',
         deviceRegNo: '',
@@ -149,11 +158,11 @@ export default {
       rules: {
         useEque: [{ required: true, message: '请选择设备类型' }],
         status: [{ required: true, message: '请选择设备状态' }],
-        deviceName: [{ required: true, message: '请输入设备名称' }],
-        deviceNo: [{ required: true, message: '请输入设备编号' }],
-        deviceRegNo: [{ required: true, message: '请输入设备注册号' }],
-        deviceModel: [{ required: true, message: '请输入活动资源' }],
-        deviceCertNo: [{ required: true, message: '请输入使用证编号' }],
+        // deviceName: [{ required: true, message: '请输入设备名称' }],
+        // deviceNo: [{ required: true, message: '请输入设备编号' }],
+        // deviceRegNo: [{ required: true, message: '请输入设备注册号' }],
+        // deviceModel: [{ required: true, message: '请输入活动资源' }],
+        // deviceCertNo: [{ required: true, message: '请输入使用证编号' }],
         deviceProduceNo: [{ required: true, message: '请输入设备出厂编号' }],
         installAddr: [{ required: true, message: '请选择设备安装地址' }],
         detailAddr: [{ required: true, message: '请输入详细地址' }]
@@ -184,6 +193,10 @@ export default {
       if (device.list.length !== 0) {
         this.devList = device.list
       }
+      console.log(this.$store.getters.localAddr)
+      const local = this.$store.getters.localAddr
+      this.info.installAddr = local.area
+      this.info.detailAddr = local.useAddress
     },
     getDeviceList(id) { // 获取设备列表
       this.loading = true
@@ -238,7 +251,11 @@ export default {
             installAddr,
             detailAddr
           } = this.info
-          const useEqueArr = this.$refs['useEques'].$el.innerText.replace(/\s+/g, '').split('/')
+          // const useEqueArr = this.$refs['useEques'].$el.innerText.replace(/\s+/g, '').split('/')
+          // 设备类型名称
+          const [deviceTypeN] = this.equipmentAllType.filter(item => {
+            return item.value === useEque
+          })
           const deviceInstallAreaArr = this.$refs['deviceInstallAreas'].$el.innerText.replace(/\s+/g, '').split('/')
           const {
             id,
@@ -249,10 +266,10 @@ export default {
           } = this.company
           const [{ label }] = this.status.filter(item => { return item.value === status })
           const data = {
-            deviceType1: `${useEque[0]}`, // 设备类型1
-            deviceTypeName1: useEqueArr[0], // 设备类型名称1
-            deviceType2: `${useEque[1]}`, // 设备类型2
-            deviceTypeName2: useEqueArr[1], // 设备类型名称2
+            deviceType1: useEque, // 设备类型1
+            deviceTypeName1: deviceTypeN.label, // 设备类型名称1
+            // deviceType2: `${useEque[1]}`, // 设备类型2
+            // deviceTypeName2: useEqueArr[1], // 设备类型名称2
             deviceStatusCode: status,
             deviceStatusName: label, // 状态
             deviceNo, // 设备编号

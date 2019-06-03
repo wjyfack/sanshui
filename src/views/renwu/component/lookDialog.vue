@@ -74,20 +74,22 @@
       <el-row class="row">
         <el-col :span="12">
           <el-form-item label="检查类别" >
-            <el-select v-model="record.checkType" placeholder="请选择" @change="taskSelect">
-              <el-option
-                v-for="item in taskType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
-            <el-select v-model="record.checkType2" placeholder="请选择">
-              <el-option
-                v-for="item in insprcType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
+            <div style="display:flex;">
+              <el-select v-model="record.checkType" placeholder="请选择" @change="taskSelect">
+                <el-option
+                  v-for="item in taskType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+              <el-select v-model="record.checkType2" placeholder="请选择">
+                <el-option
+                  v-for="item in insprcType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -281,7 +283,7 @@
       append-to-body>
       <add-device :device="device" @closed="changeDevice"/>
     </el-dialog>
-    <!-- 添加设备 -->
+    <!-- 图片预览 -->
     <el-dialog
       :visible.sync="lookPic"
       width="40%"
@@ -379,20 +381,21 @@ export default {
       let name = ''
       switch (opt) { // 打印图片
         case 1:
-          url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.jpg`)
-          name = `（三水）检查记录表${checkNo}.jpg`
+          url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.pdf`)
+          name = `（三水）检查记录表${checkNo}.pdf`
           break
         case 2:
-          url = encodeURI(`${this.downloadUrl}（三水）质监特令${commandNo}.jpg`)
-          name = `（三水）质监特令${commandNo}.jpg`
+          url = encodeURI(`${this.downloadUrl}（三水）质监特令${commandNo}.pdf`)
+          name = `（三水）质监特令${commandNo}.pdf`
           break
       }
       const link = document.createElement('a')
       link.style.display = 'none'
       link.href = url
       link.download = name
-      // document.body.appendChild(link)
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
     },
     preview(opt) { // 预览图片
       const {
@@ -416,6 +419,10 @@ export default {
     changeDevice(event) {
       if (event.length !== 0) {
         this.deviceList = event
+        const deviceNoString = this.deviceList.map(item => {
+          return item.deviceCertNo
+        }).join('、')
+        this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${this.command.dangerDescription}`
       }
 
       this.DialogAddDevice = false
@@ -779,8 +786,9 @@ export default {
         checkType2,
         checkUseTypes,
         checkUseTypeNames,
-        checkDateStart: checkDate,
-        checkDateEnd: checkDate,
+        // checkDateStart: checkDate,
+        // checkDateEnd: checkDate,
+        checkDate,
         checkProblem,
         checkResulTreatmentId,
         checkResulTreatmentName,

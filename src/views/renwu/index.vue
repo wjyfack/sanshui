@@ -2,14 +2,14 @@
   <div class="renwu">
     <div class="renwuMg">
       <el-tabs v-model="activeName" @tab-click="renwuTabClick">
-        <el-tab-pane label="待派发" name="1"/>
-        <el-tab-pane label="待接收" name="2"/>
-        <el-tab-pane label="待处理" name="3"/>
-        <el-tab-pane label="处理中" name="4"/>
-        <el-tab-pane label="待审核" name="5"/>
-        <el-tab-pane label="已完成" name="6"/>
-        <el-tab-pane label="全部" name="7"/>
-        <el-tab-pane label="回收站" name="8"/>
+        <el-tab-pane v-if="auths.sys_task_stay_payout" label="待派发" name="1"/>
+        <el-tab-pane v-if="auths.sys_task_stay_receive" label="待接收" name="2"/>
+        <el-tab-pane v-if="auths.sys_task_stay_deal" label="待处理" name="3"/>
+        <el-tab-pane v-if="auths.sys_task_dealing" label="处理中" name="4"/>
+        <el-tab-pane v-if="auths.sys_task_stay_audit" label="待审核" name="5"/>
+        <el-tab-pane v-if="auths.sys_task_finish" label="已完成" name="6"/>
+        <el-tab-pane v-if="auths.sys_task_all" label="全部" name="7"/>
+        <el-tab-pane v-if="auths.sys_task_recycle_space" label="回收站" name="8"/>
       </el-tabs>
       <div class="search">
         <el-row class="row">
@@ -35,7 +35,7 @@
             <label class="label" for="">所属镇街：</label>
             <el-select v-model="search.cont" clearable placeholder="请选择">
               <el-option
-                v-for="item in townType"
+                v-for="item in townSearchType"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"/>
@@ -44,32 +44,34 @@
           <el-col v-if="activeName == '1'" :span="8">
             <el-button type="primary" @click="BatchWholesale">批量批发</el-button>
             <el-button type="danger" @click="closedLoop">闭环</el-button>
-            <el-button type="primary">导出Excel</el-button>
+            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
+            <el-button type="primary" @click="excelIn">Excel导入</el-button>
+            <input id="files" type="file" >
           </el-col>
           <el-col v-else-if="activeName == '2'" :span="8">
             <el-button type="primary" @click="taskOperation(2)">批量接收</el-button>
-            <el-button type="primary">导出Excel</el-button>
+            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
             <el-button type="danger" @click="taskOperation(1)">删除</el-button>
           </el-col>
           <el-col v-else-if="activeName == '3'" :span="8">
             <el-button type="primary" @click="dialogAddTask= true">新增</el-button>
             <el-button type="danger" @click="closedLoop">闭环</el-button>
-            <el-button type="primary">导出Excel</el-button>
+            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '4'" :span="8">
-            <el-button type="primary" @click="dialogAddTask= true">新增</el-button>
+            <!-- <el-button type="primary" @click="dialogAddTask= true">新增</el-button> -->
             <el-button type="danger" @click="taskOperation(1)">删除</el-button>
-            <el-button type="primary">导出Excel</el-button>
+            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '5'" :span="8">
             <el-button type="primary" @click="mutilEditDailog">编辑</el-button>
             <el-button type="danger" @click="closedLoop">闭环</el-button>
-            <el-button type="primary">导出Excel</el-button>
+            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '6'" :span="8">
-            <el-button type="primary">检查记录表下载</el-button>
-            <el-button type="primary">指令书下载</el-button>
-            <el-button type="primary">指+检下载</el-button>
+            <el-button type="primary" @click="downloadOpt(1)">检查记录表下载</el-button>
+            <el-button type="primary" @click="downloadOpt(2)">指令书下载</el-button>
+            <el-button type="primary" @click="downloadOpt(3)">指+检下载</el-button>
           </el-col>
         </el-row>
         <el-row type="flex" justify="center" class="row">
@@ -83,47 +85,41 @@
           v-loading="loading"
           ref="multipleTable"
           :data="taskList"
+          border
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange">
           <el-table-column
-            type="selection"
-            width="55"/>
+            type="selection"/>
           <el-table-column
             prop="checkNo"
-            label="任务编号"
-            min-width="150"/>
+            sortable
+            label="任务编号"/>
           <el-table-column
             prop="companyUseName"
-            label="使用单位"
-            min-width="150"/>
+            label="使用单位"/>
           <el-table-column
             prop="deviceUseAddress"
-            label="使用地址"
-            min-width="150"/>
+            label="使用地址"/>
           <el-table-column
             prop="deviceAreaName4"
-            label="所属镇街"
-            width="100"/>
+            label="所属镇街"/>
 
           <el-table-column
             v-if="activeStatus1"
             key="checkIntro"
             prop="checkIntro"
-            label="任务要求"
-            min-width="150"/>
+            label="任务要求"/>
           <el-table-column
             v-if="activeStatus1"
             key="taskCreateTime"
             prop="taskCreateTime"
-            label="任务生成日期"
-            min-width="150"/>
+            label="任务生成日期"/>
 
           <el-table-column
             v-if="activeStatus2"
             key="taskStatus"
-            label="任务类型"
-            min-width="150">
+            label="任务类型">
             <template slot-scope="scope">
               <!-- scope.row && scope.row.taskStatus ?taskType[~~scope.row.taskStatus].label: '' -->
               <span>{{ getTaskStatus(scope.row) }}</span>
@@ -133,22 +129,11 @@
             v-if="activeStatus2"
             key="checkResulTreatment"
             prop="checkResulTreatment"
-            label="任务处理方式"
-            min-width="150"/>
-
-          <!-- <el-table-column v-if="activeName == 'fifth'" key="shenhe" label="审核状态">
-            <template slot-scope="scope">
-              <el-button
-                :ab="scope.$index"
-                size="mini"
-                type="primary">审核</el-button>
-            </template>
-          </el-table-column> -->
+            label="任务处理方式"/>
           <el-table-column
             v-if="activeName != 6"
             key="optionss"
-            label="操作"
-            width="280">
+            label="操作">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -157,12 +142,12 @@
                 v-if="activeName == '1'"
                 size="mini"
                 type="primary"
-                @click="onlyWholesale(scope.row)">派发任务</el-button>
+                @click="onlyWholesale(scope.row)">派发</el-button>
               <el-button
                 v-else-if="activeName == '2'"
                 size="mini"
                 type="primary"
-                @click="taskDeleteAGet(scope.row, 2)">接收任务</el-button>
+                @click="taskDeleteAGet(scope.row, 2)">接收</el-button>
               <el-button
                 v-if="activeName == '2'"
                 size="mini"
@@ -188,8 +173,7 @@
           <el-table-column
             v-if="activeName == '6'"
             key="optionS"
-            label="操作"
-            width="280">
+            label="操作">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -213,21 +197,21 @@
     <el-dialog
       :visible.sync="dialogInfoVisible"
       :before-close="handleClose"
-      width="60%"
+      width="50%"
       title="">
       <div class="more-shebei">
         <el-button
-          v-for="(item, index) in deviceDetailArr"
-          :key="index"
+          v-for="(item) in deviceDetailArr"
+          :key="item.id"
           type="primary"
           class="button"
-          @click="getdeviceDetail(item)">设备{{ index+1 }}</el-button>
+          @click="getdeviceDetail(item.id)">{{ item.deviceCertNo || item.deviceProduceNo }}</el-button>
       </div>
       <deviceDetail :loading="dialogInfoLoading" :info="taskdeviceDetail" />
-      <span slot="footer" class="dialog-footer">
+      <!-- <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogInfoVisible = false">确认</el-button>
         <el-button @click="dialogInfoVisible = false">关闭</el-button>
-      </span>
+      </span> -->
     </el-dialog>
     <!-- 更多搜索 -->
     <el-dialog
@@ -240,7 +224,7 @@
     <el-dialog
       :visible.sync="dialogEditVisible"
       :before-close="handleClose"
-      width="60%"
+      width="50%"
       class="dialogForm"
       title="">
       <editDialog :task.sync="editTask" @closed="closed"/>
@@ -270,7 +254,7 @@
     <el-dialog
       :visible.sync="dialogLookVisible"
       :before-close="handleClose"
-      width="60%"
+      width="50%"
       class="dialogForm"
       title="">
       <lookDialog :task="editTask" @closed="closed"/>
@@ -293,7 +277,7 @@
     <el-dialog
       :visible.sync="dialogEndVisible"
       :before-close="handleClose"
-      width="60%"
+      width="50%"
       title="">
       <taskDetail :transfe="editTask" />
       <comInfo :transfe="editTask"/>
@@ -324,12 +308,11 @@
           </li>
         </ul>
         <el-upload
-          :on-preview="handlePictureCardPreview"
-          :on-remove="handleRemove"
           :on-success="handleSuccess"
           :action="imgUrl"
-          list-type="picture-card">
-          <i class="el-icon-plus"/>
+          :show-file-list="false"
+          class="avatar-uploader">
+          <i class="el-icon-plus avatar-uploader-icon"/>
         </el-upload>
         <el-dialog :visible.sync="dialogPreviewVisible" append-to-body width="30%">
           <img :src="dialogImageUrl" width="100%" alt="">
@@ -338,6 +321,40 @@
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="sure">确认</el-button>
         <el-button @click="dialogEndVisible = false">关闭</el-button>
+      </span>
+    </el-dialog>
+    <!-- excel -->
+    <el-dialog
+      :visible.sync="dialogExcelVisible"
+      :before-close="handleClose"
+      width="30%"
+      title="提示">
+      <span>
+        <el-radio-group v-model="isExcel">
+          <el-radio :label="1">勾选项导出</el-radio>
+          <el-radio :label="2">全部导出</el-radio>
+        </el-radio-group>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogExcelVisible = false">取 消</el-button>
+        <el-button type="primary" @click="toMakeExcel">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- excel -->
+    <el-dialog
+      :visible.sync="dialogDownloadVisible"
+      :before-close="handleClose"
+      width="30%"
+      title="提示">
+      <span>
+        <el-radio-group v-model="isDownload">
+          <el-radio :label="1">勾选项导出</el-radio>
+          <el-radio :label="2">全部导出</el-radio>
+        </el-radio-group>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogDownloadVisible = false">取 消</el-button>
+        <el-button type="primary" @click="toMakeDownload">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -352,12 +369,13 @@ import editDialog from './component/editDialog'
 import statusRecord from '@/components/statusRecord/index'
 import taskDetail from '@/components/taskDetail/taskDetail'
 import comInfo from '@/components/comInfo/comInfo'
-import { taskType, status, townType, handleType, baseUrl } from '@/utils/config'
+import { taskType, status, townSearchType, handleType, baseUrl } from '@/utils/config'
 import { mapGetters } from 'vuex'
-import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask, fecthResultPhotoList } from '@/api/task'
+import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask, fecthResultPhotoList, fetchExcelTask, fetchImportExcel } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
 import { opLoading } from '@/mixins/loading'
 import authorization from '@/mixins/authorization'
+import { fetchTaskDownload } from '@/api/common'
 
 export default {
   components: {
@@ -373,16 +391,22 @@ export default {
   mixins: [opLoading, authorization],
   data() {
     return {
+      dialogDownloadVisible: false,
+      isDownload: 1,
+      optDownload: 1,
       baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
       imgUrl: `${baseUrl}/file/upload/ScenePictures`,
+      downloadUrl: `${baseUrl}/file/download/create/`,
       rectifyAddImgs: [], // 上传的图片
-      townType,
+      isExcel: 1,
+      townSearchType,
       taskType,
       handleType,
       status,
       isCompent: false,
       // 设备详情
       taskdeviceDetail: {},
+      dialogExcelVisible: false,
       dialogPreviewVisible: false,
       loading: false,
       dialogVisible: false,
@@ -453,6 +477,262 @@ export default {
     }
   },
   methods: {
+    excelIn() {
+      const file = document.getElementById('files')
+      const ev = new MouseEvent('click')
+      file.dispatchEvent(ev)
+      // console.log(file, ev)
+      file.onchange = (e) => {
+        // console.log(e.currentTarget.files)
+        this.toLoadExcel(e.currentTarget.files)
+      }
+    },
+    toLoadExcel(files) {
+      const file = files[0]
+      const lastName = file.name.split('.')
+      if (lastName[lastName.length - 1] === 'xlsx' || lastName[lastName.length - 1] === 'xls') {
+        console.log(lastName, file)
+        const formData = new FormData()
+        formData.append('file', file)
+        fetchImportExcel(formData, (e) => {
+          console.log(e)
+        }).then(res => {
+          if (res.resultCode === '0000000') {
+            this.$message.success(res.resultDesc)
+            this.fecthData()
+          } else {
+            this.$message.error(res.resultDesc)
+          }
+        })
+      } else {
+        this.$message.error('请选择xlsx或xls文件')
+      }
+    },
+    downloadOpt(opt) {
+      this.optDownload = opt
+      this.dialogDownloadVisible = true
+    },
+    toMakeDownload() {
+      let data = {}
+      let url = '/file/downloadPDFs/create/'
+      let imgType = 1
+      if (this.isDownload === 1) {
+        // 勾选
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message.warning('请勾选任务')
+          return ''
+        }
+        data = {}
+        let no = ''
+        console.log(multipleSelection)
+        switch (this.optDownload) { // 1 检查记录表 2 指令书 3 指令+检查
+          case 1:
+            url = `${url}${imgType}`
+            no = multipleSelection.map(item => { // 传任务编号用，隔开
+              return item.checkNo
+            }).join(',')
+            data.no = no
+            break
+          case 2:
+            imgType = 2
+            url = `${url}${imgType}`
+            no = multipleSelection.map(item => { // 传指令书编号，用，隔开
+              return item.commandNo
+            }).join(',')
+            data.no = no
+            break
+          case 3:
+            url = `/file/downloadCmPDF/create`
+            data.id = multipleSelection.map(item => { // 传任务编号用，隔开
+              return item.id
+            }).join(',')
+            // data.commandNos = multipleSelection.map(item => { // 传指令书编号，用，隔开
+            //   return item.commandNo
+            // }).join(',')
+            break
+        }
+        // console.log(data)
+      } else {
+        // 全部
+        const {
+          checkNo, // 任务编号
+          taskStatus, // 任务状态
+          taskStatusName,
+          companyUseName, // 使用单位
+          commandNo, // 指令书编号
+          deviceCertNo, // 使用登记证
+          dateChecked, // 年检日期
+          checkTypeId, // 状态
+          checkAddDeptName, // 任务派发部门
+          checkStatus, // 检查任务状态
+          isRecovery, // 回搜站 1
+          cont // 所属镇街 deviceAreaName4
+        } = this.search
+        const [nameValue] = townSearchType.filter(item => {
+          return item.value === cont
+        })
+        data = {
+          checkNo, // 任务编号
+          taskStatus, // 任务状态
+          taskStatusName,
+          companyUseName, // 使用单位
+          commandNo, // 指令书编号
+          deviceCertNo, // 使用登记证
+          updateTime: dateChecked[0] ? dateChecked[0] : '',
+          commandAddDate: dateChecked[1] ? dateChecked[1] : '',
+          checkTypeId, // 状态
+          checkAddDeptName, // 任务派发部门
+          checkStatus, // 检查任务状态
+          isRecovery, // 回搜站 1
+          // orderType: '1', // 升序
+          deviceAreaName4: nameValue ? nameValue.name : '' // 所属镇街 deviceAreaName4
+        }
+        switch (this.optDownload) { // 1 检查记录表 2 指令书 3 指令+检查
+          case 1:
+            data.no = ''
+            url = `${url}${imgType}`
+            break
+          case 2:
+            data.no = ''
+            imgType = 2
+            url = `${url}${imgType}`
+            break
+          case 3:
+            data.id = ''
+            // data.checkNos = ''
+            // data.commandNos = ''
+            url = `/file/downloadCmPDF/create`
+            break
+        }
+      }
+      console.log(data)
+      fetchTaskDownload({ url, data }).then(res => {
+        const blob = new Blob([res], { type: 'application/pdf' })
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        let name = ''
+        link.style.display = 'none'
+        link.href = objectUrl
+        switch (this.optDownload) { // 1 检查记录表 2 指令书 3 指令+检查
+          case 1:
+            name = `${new Date().getTime()}检查记录表.pdf`
+            break
+          case 2:
+            name = `${new Date().getTime()}指令书.pdf`
+            break
+          case 3:
+            name = `${new Date().getTime()}指令+检查.pdf`
+            break
+        }
+        link.download = name
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(objectUrl)
+      }).then(() => {
+        this.dialogDownloadVisible = false
+      })
+      // this.dialogDownloadVisible = false
+    },
+    toDownload(item) {
+      // console.log(item)
+      // const link = document.createElement('a')
+      // // link.style.display = 'none'
+
+      // const el = document.createEvent('MouseEvents')
+      // el.initMouseEvent('click', false, false) // 初始化事件对象
+      // link.href = item.url
+      // link.download = item.name
+      // link.dispatchevent(el)
+      var a = document.createElement('a')
+      var e = document.createEvent('MouseEvents') // 创建鼠标事件对象
+      e.initEvent('click', false, false) // 初始化事件对象
+      a.href = item.url // 设置下载地址
+      a.download = item.name // 设置下载文件名
+      a.dispatchEvent(e)
+    },
+    toMakeExcel() {
+      let data = {}
+      if (this.isExcel === 1) { // 导出勾选的
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message('请勾选要导出的设备')
+          return ''
+        } else {
+          const id = multipleSelection.map(item => {
+            return item.id
+          }).join(',')
+          data.id = id
+        }
+      } else { // 全部
+        const { // 搜索
+          checkNo, // 任务编号
+          companyUseName, // 使用单位
+          deviceCertNo, // 使用登记证
+          commandNo, // 指令书编号
+          cont, // 所属镇街
+          taskStatus, // 任务状态
+          dateChecked, // 年检日期
+          checkTypeId, // 状态
+          isRecovery, // 回收站
+          checkStatus, // 检查任务状态
+          checkAddDeptName, // 任务派发部门
+          taskStatusName
+        } = this.search
+        const [nameValue] = townSearchType.filter(item => {
+          return item.value === cont
+        })
+        /**
+        页大小	pageSize
+        第几页	pageNum
+        任务编号	checkNo
+        指令书编号	commandNo
+        使用单位	companyUseName
+        所属镇街	deviceAreaName4
+        使用登记证	deviceCertNo
+        任务状态	taskStatus
+        状态	checkTypeId
+        任务派发部门	checkAddDeptName
+        任务日期1	updateTime
+        任务日期2	commandAddDate
+        检查任务状态	checkStatus
+        回收站	isRecovery
+        排序	orderType
+        任务状态2级 taskStatusName
+        */
+        data = {
+          taskStatusName,
+          isRecovery,
+          checkTypeId,
+          checkAddDeptName,
+          companyUseName,
+          taskStatus,
+          commandNo,
+          checkStatus,
+          checkNo,
+          deviceCertNo,
+          deviceAreaName4: nameValue ? nameValue.name : '',
+          updateTime: dateChecked[0] ? dateChecked[0] : '',
+          commandAddDate: dateChecked[1] ? dateChecked[1] : '',
+          orderType: '1'
+        }
+      }
+      fetchExcelTask(data).then(res => {
+        const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = objectUrl
+        link.download = `${new Date().getTime()}任务导出.xls`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(objectUrl)
+      }).then(() => {
+        this.dialogExcelVisible = false
+      })
+    },
     sure() {
       if (~~this.activeName === 6) {
         // 上传图片
@@ -495,7 +775,10 @@ export default {
       this.handlePictureCardPreview({ url })
     },
     handleSuccess(response, file, fileList) {
-      this.rectifyAddImgs = fileList
+      console.log(response)
+      const returnData = response.returnData
+      this.commandPhotoList = [...this.commandPhotoList, returnData]
+      // this.rectifyAddImgs = fileList
     },
     handleRemove(file, fileList) {
       // console.log(file, fileList)
@@ -730,20 +1013,30 @@ export default {
           if (arr.length === 0) {
             this.$message('没有该任务的设备详情')
           } else {
-            this.deviceDetailArr = arr
+            this.deviceDetailArr = arr.map(item => {
+              return {
+                id: item.id,
+                deviceCertNo: item.deviceCertNo,
+                deviceProduceNo: item.deviceProduceNo
+              }
+            })
             // 获取第一个设备信息
-            this.getdeviceDetail(arr[0])
+            this.getdeviceDetail(arr[0].id)
           }
+        } else {
+          this.$message.error(data.resultDesc)
         }
       })
     },
     /** 任务详情 */
     getdeviceDetail(id) {
-      this.dialogInfoVisible = true
       fetchDeviceDetail(id).then(response => {
         const data = response
         if (data.resultCode === '0000000') {
           this.taskdeviceDetail = data.returnData
+          this.dialogInfoVisible = true
+        } else {
+          this.$message.error(data.resultDesc)
         }
       }).finally(() => {
         this.dialogInfoLoading = false
@@ -797,8 +1090,12 @@ export default {
         checkTypeId, // 状态
         isRecovery, // 回收站
         checkStatus, // 检查任务状态
+        taskStatusName,
         checkAddDeptName // 任务派发部门
       } = this.search
+      const [nameValue] = townSearchType.filter(item => {
+        return item.value === cont
+      })
       /**
       页大小	pageSize
       第几页	pageNum
@@ -829,7 +1126,8 @@ export default {
         checkStatus,
         checkNo,
         deviceCertNo,
-        deviceAreaName4: cont,
+        taskStatusName,
+        deviceAreaName4: nameValue ? nameValue.name : '',
         updateTime: dateChecked[0] ? dateChecked[0] : '',
         commandAddDate: dateChecked[1] ? dateChecked[1] : '',
         orderType: '1'
@@ -992,5 +1290,38 @@ export default {
       }
     }
   }
+}
+.avatar-uploader {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 146px;
+  height: 146px;
+  box-sizing: border-box;
+}
+.avatar-uploader:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 146px;
+  height: 146px;
+  line-height: 146px;
+  text-align: center;
+}
+.avatar {
+  width: 146px;
+  height: 146px;
+  display: block;
+}
+.table {
+  width: 100%;
+  padding-left: 1px;
+}
+#files {
+  filter:alpha(opacity=0);opacity:0;width: 0;height: 0;
 }
 </style>

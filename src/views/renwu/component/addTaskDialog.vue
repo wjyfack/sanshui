@@ -2,7 +2,8 @@
 
   <div class="task">
     <el-form ref="form" label-width="130px">
-      <div class="title">单位信息</div>
+      <unitInfo :com="com" @closed="unitClose"/>
+      <!-- <div class="title">单位信息</div>
       <el-row>
         <el-form-item label="使用单位名称" required>
           <el-autocomplete
@@ -30,7 +31,7 @@
         <el-form-item label="使用单位地址">
           <el-input v-model="com.useAddress" placeholder="使用单位地址" />
         </el-form-item>
-      </el-row>
+      </el-row> -->
       <div class="device-info">
         <div class="info">
           <span>设备信息</span>
@@ -135,10 +136,12 @@ import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fetchAddTask, fecthHandleTask } from '@/api/task'
 import { getFormatDate } from '@/utils/common'
 import addDevice from '@/components/addDevice/index'
+import unitInfo from '@/components/unitInfo/index'
 import moHuSearch from '@/mixins/moHuSearch'
 export default {
   components: {
-    addDevice
+    addDevice,
+    unitInfo
   },
   mixins: [moHuSearch],
   props: {
@@ -179,30 +182,6 @@ export default {
         checkDate: getFormatDate(),
         taskone: '',
         tasktwo: ''
-      },
-      info: {
-        useEque: [],
-        status: '',
-        deviceNo: '',
-        deviceName: '',
-        deviceRegNo: '',
-        deviceModel: '',
-        deviceCertNo: '',
-        deviceProduceNo: '',
-        installAddr: [],
-        detailAddr: ''
-      },
-      rules: {
-        useEque: [{ required: true, message: '请选择设备类型' }],
-        status: [{ required: true, message: '请选择设备状态' }],
-        deviceName: [{ required: true, message: '请输入设备名称' }],
-        deviceNo: [{ required: true, message: '请输入设备编号' }],
-        deviceRegNo: [{ required: true, message: '请输入设备注册号' }],
-        deviceModel: [{ required: true, message: '请输入活动资源' }],
-        deviceCertNo: [{ required: true, message: '请输入使用证编号' }],
-        deviceProduceNo: [{ required: true, message: '请输入设备出厂编号' }],
-        installAddr: [{ required: true, message: '请选择设备安装地址' }],
-        detailAddr: [{ required: true, message: '请输入详细地址' }]
       }
     }
   },
@@ -224,6 +203,21 @@ export default {
     this.dataCheck()
   },
   methods: {
+    unitClose(event) {
+      console.log(event)
+      const {
+        id,
+        useName,
+        useContactMan,
+        useTel,
+        useAddress
+      } = event
+      this.com.id = id
+      this.com.useName = useName
+      this.com.useContactMan = useContactMan
+      this.com.useContactManTel = useTel
+      this.com.useAddress = useAddress
+    },
     changeDevice(event) {
       if (event.length !== 0) {
         this.deviceList = event
@@ -241,13 +235,13 @@ export default {
             id,
             useAddress,
             useContactMan,
-            useContactManTel,
+            useTel,
             useName
           } = this.infos.companyUse
           this.com.id = id
           this.com.useName = useName
           this.com.useContactMan = useContactMan
-          this.com.useContactManTel = useContactManTel
+          this.com.useContactManTel = useTel
           this.com.useAddress = useAddress
         }
         const list = this.infos.list
@@ -275,6 +269,7 @@ export default {
       switch (~~value) {
         case 2:
         case 1:
+          this.com.tasktwo = ''
           this.taksTypeSecond = inspectionType
           break
         default:

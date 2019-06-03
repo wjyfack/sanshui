@@ -18,6 +18,7 @@ const getters = {
   instructionModels: state => state.common.instructionModels, // 指令书模板
   deptNames: state => state.common.deptNames, // 接收任务部门
   taskAddTime: state => state.common.taskAddTime, // 指令书日期
+  localAddr: state => state.common.localAddr, // 设备地址
   addRouters: state => state.permission.addRouters
 }
 export default getters

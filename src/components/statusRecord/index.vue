@@ -80,6 +80,7 @@ export default {
   }
   .table {
     width: 100%;
+    padding-left: 1px;
   }
 }
 </style>
