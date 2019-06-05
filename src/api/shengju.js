@@ -24,3 +24,11 @@ export function fetchCompanyBase(data) {
     data: data
   })
 }
+/**  */
+export function fetchDeviceDetail(deviceIds) {
+  return request({
+    url: '/provincial/getDeviceChangeDt',
+    method: 'post',
+    data: { deviceIds }
+  })
+}

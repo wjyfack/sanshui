@@ -1,6 +1,85 @@
 <template>
   <div class="dashboard">
     <el-row :gutter="20">
+      <el-select v-model="town" placeholder="请选择" clearable style="widht: 100px;margin-bottom: 16px;" @change="townChange">
+        <el-option
+          v-for="item in townType"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"/>
+      </el-select>
+    </el-row>
+    <el-row :gutter="20">
+      <div class="newShowTotal">
+        <div class="itemTotal">
+          <div class="left">
+            <div class="mTitle">设备总量</div>
+            <div class="mDesc">{{ townName }}设备总量</div>
+          </div>
+          <div class="right">{{ device.total }}</div>
+        </div>
+        <div class="itemTotal border-left">
+          <div class="left">
+            <div class="mTitle">任务总量</div>
+            <div class="mDesc">{{ townName }}任务总量</div>
+          </div>
+          <div class="right">{{ command.taskTotal }}</div>
+        </div>
+        <div class="itemTotal border-left">
+          <div class="left">
+            <div class="mTitle">指令书总量</div>
+            <div class="mDesc">{{ townName }}指令书总量</div>
+          </div>
+          <div class="right">{{ command.commandTotal }}</div>
+        </div>
+        <div class="itemTotal border-left">
+          <div class="left">
+            <div class="mTitle">超期未检数</div>
+            <div class="mDesc">{{ townName }}超期未检数</div>
+          </div>
+          <div class="right">{{ overCheck.overToday }}</div>
+        </div>
+      </div>
+      <div class="newList">
+        <div class="deviceTotal">
+          <span class="deviceTitle">设备数量</span>
+          <div ref="newZonglei" class="newZonglei"/>
+        </div>
+        <div class="anQuanTotal">
+          <span class="danQuanTitle">安全率</span>
+          <div class="anQuanTu">
+            <el-progress :percentage="command.taskThanCommandpercent" :width="250" :stroke-width="10" type="circle"/>
+          </div>
+          <div class="tips">
+            <div class="ride"/>
+            <span class="">计算公式：检查任务合格数/全部任务数</span>
+          </div>
+        </div>
+      </div>
+      <div class="newTask">
+        <div class="taskTile">任务统计</div>
+        <div class="taskList">
+          <div class="taskItem">
+            <div class="itemTile">任务总量</div>
+            <div class="itemNum">{{ command.taskTotal }}</div>
+          </div>
+          <div class="taskItem">
+            <div class="itemTile">日常监督检查</div>
+            <div class="itemNum">{{ task.riChange }}</div>
+          </div>
+          <div class="taskItem">
+            <div class="itemTile">专项检查</div>
+            <div class="itemNum">{{ task.zhuangXiang }}</div>
+          </div>
+          <div class="taskItem">
+            <div class="itemTile">不合格任务</div>
+            <div class="itemNum">{{ command.commandTotal }}</div>
+          </div>
+        </div>
+        <div ref="taskTotal" class="taskTotal"/>
+      </div>
+    </el-row>
+    <el-row v-if="false" :gutter="20">
       <el-col :span="12">
         <el-row :gutter="20">
           <el-form ref="form" label-width="80px">
@@ -166,6 +245,7 @@ export default {
     return {
       townType: [{ value: '', label: '全部' }, ...townSearchType],
       town: '',
+      townName: '全区',
       u290,
       u319,
       dateTime: '',
@@ -190,6 +270,10 @@ export default {
         taskThanCommandpercent: 0,	// 安全率
         taskThanCommandpercentWeek: 0	// 上周安全率
       },
+      task: {
+        riChange: 0,
+        zhuangXiang: 0
+      },
       deviceSrotName: [],
       deviceSrotList: [],
       taskCheckTotal: []
@@ -213,20 +297,24 @@ export default {
       this.fectData()
     },
     fectData() {
-      let town = this.town
-      if (town) {
+      const townValue = this.town
+      let townName = ''
+      if (townValue) {
         const [selectTown] = this.townType.filter(item => {
-          return item.value === town
+          return item.value === townValue
         })
-        town = selectTown.name
+        townName = selectTown.name
+        this.townName = selectTown.label
+      } else {
+        this.townName = '全区'
       }
-      console.log(town)
+      // console.log(town)
       this.opShowLoading()
       const promises = [
-        fetchDeviceTotal(town),
-        fetchTaskCommandTotal(town),
-        fetchDeviceTypeTotal(town),
-        fetchTotalByMonth(town)
+        fetchDeviceTotal(townValue),
+        fetchTaskCommandTotal(townName),
+        fetchDeviceTypeTotal(townValue),
+        fetchTotalByMonth(townName)
       ]
       Promise.all(promises)
         .then(resAll => {
@@ -257,7 +345,7 @@ export default {
               commandTotal: data.commandTotal,	// 指令书总量
               lastWeekAddCommand: data.lastWeekAddCommand,	// 上周增加数
               everyDayAddCommand: data.everyDayAddCommand,	// 日均增加数
-              taskThanCommandpercent: data.taskThanCommandpercent.substring(0, data.taskThanCommandpercent.length - 1),	// 安全率
+              taskThanCommandpercent: parseFloat(data.taskThanCommandpercent.substring(0, data.taskThanCommandpercent.length - 1)),	// 安全率
               taskThanCommandpercentWeek: data.taskThanCommandpercentWeek	// 上周安全率
             }
           } else {
@@ -280,6 +368,10 @@ export default {
           if (resData4.resultCode === '0000000') {
             const data = resData4.returnData
             this.taskCheckTotal = data
+            this.task = {
+              riChange: data[0].reduce((total, num) => total + num),
+              zhuangXiang: data[1].reduce((total, num) => total + num)
+            }
             // console.log(this.taskCheckTotal)
           } else {
             this.$message.error(resData4.resultDesc)
@@ -291,11 +383,81 @@ export default {
     },
     initCharts() {
       // this.setOptions()
-      this.zongLeiOptions()
+      // this.zongLeiOptions()
       // this.rewushuOptions()
       // this.chaoqiOptions()
-      this.rewuliangOptions()
-      this.anquanOptions()
+      // this.rewuliangOptions()
+      // this.anquanOptions()
+      this.setNewDeviceEharts()
+      this.setNewTaskTotal()
+    },
+    setNewDeviceEharts() { // 设备数量
+      const deviceSrotName = this.deviceSrotName
+      const deviceSrotList = this.deviceSrotList
+      const zongleiChart = echarts.init(this.$refs.newZonglei)
+      const colors = ['#FF9F40', '#FFCB48', '#5584FF', '#46BC15', '#7C6AF2', '#C95FF2', '#FF6383']
+      const option = {
+        color: colors,
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          // orient: 'vertical',
+          // top: 'middle',
+          bottom: 0,
+          left: 'center',
+          data: deviceSrotName
+        },
+        series: [
+          {
+            type: 'pie',
+            radius: '65%',
+            center: ['50%', '50%'],
+            selectedMode: 'single',
+            data: deviceSrotList,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      }
+      zongleiChart.setOption(option)
+    },
+    setNewTaskTotal() {
+      const taskCheckTotal = this.taskCheckTotal
+      const taskTotal = echarts.init(this.$refs.taskTotal)
+      const option = {
+        color: ['#5C89FF', '#C95FF2'],
+        legend: {
+          left: 0,
+          data: ['日常监督检查', '专项任务']
+        },
+        xAxis: {
+          type: 'category',
+          data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        grid: {
+          x: 25
+        },
+        series: [{
+          name: '日常监督检查',
+          data: taskCheckTotal[0],
+          type: 'line'
+        }, {
+          name: '专项任务',
+          data: taskCheckTotal[1],
+          type: 'line'
+        }]
+      }
+      taskTotal.setOption(option)
     },
     setOptions() {
       // 基于准备好的dom，初始化echarts实例
@@ -480,10 +642,133 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+
 .dashboard {
-  color: #B6B6B6;
+  background: #F6F6F6;
   font-size: 14px;
   padding:30px;
+  .newShowTotal {
+    width: 100%;
+    padding: 21px;
+    display: flex;
+    justify-content: space-between;
+    background:rgba(255,255,255,1);
+    box-shadow:0px 1px 3px 0px rgba(0,0,0,0.12);
+    border-radius: 6px;
+    .itemTotal {
+      display: flex;
+      align-items: center;
+      width: 25%;
+      padding: 0 21px;
+      .left {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        flex-direction: column;
+        .mTitle {
+          color: #000000;
+        }
+        .mDesc {
+          color:#999999;
+          line-height: 27px;
+        }
+      }
+      .right {
+        flex: 1;
+        display: flex;
+        color:#5584FF;
+        font-size: 24px;
+      }
+    }
+    .border-left {
+      border-left: 1px solid #E6E7EB;
+    }
+  }
+  .newList {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 15px;
+    .deviceTotal {
+      background: #fff;
+      width: 60%;
+      border-radius: 6px;
+      box-shadow:0px 1px 3px 0px rgba(0,0,0,0.12);
+      padding: 28px 20px;
+      .deviceTitle {
+        font-size: 28px;
+        color: #000;
+      }
+      .newZonglei {
+        height: 325px;
+      }
+    }
+    .anQuanTotal {
+      background: #fff;
+      width: calc(40% - 15px);
+      border-radius: 6px;
+      box-shadow:0px 1px 3px 0px rgba(0,0,0,0.12);
+      padding: 28px 20px;
+      .danQuanTitle {
+        font-size: 28px;
+        color: #000;
+      }
+      .anQuanTu {
+        display: flex;
+        justify-content: center;
+        padding: 30px;
+      }
+      .tips {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color:#666666;
+        .ride {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          margin-right: 5px;
+          background: #5584FF;
+        }
+      }
+    }
+  }
+  .newTask {
+    width: 100%;
+    margin-top: 15px;
+    padding: 21px;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow:0px 1px 3px 0px rgba(0,0,0,0.12);
+    .taskTile {
+      font-size: 28px;
+      color: #000;
+    }
+    .taskList {
+      display: flex;
+      justify-content: space-between;
+      .taskItem {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 21px;
+        .itemTile {
+          color: #666666;
+          line-height: 26px;
+        }
+        .itemNum {
+          color:#000;
+          font-size: 32px;
+          line-height: 38px;
+        }
+      }
+    }
+    .taskTotal {
+      height: 360px;
+    }
+  }
   .chart-item {
     width: 90%;
     height: 335px;

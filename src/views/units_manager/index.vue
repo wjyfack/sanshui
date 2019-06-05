@@ -22,6 +22,12 @@
           <el-input v-model="units.useLegalPerson" class="input" placeholder="" />
           <label for="" class="label">信用代码：</label>
           <el-input v-model="units.useCreditCode" class="input" placeholder="" />
+          <label for="" class="label">镇街：</label>
+          <el-cascader
+            ref="deviceInstallArea"
+            v-model="units.installAddr"
+            :options="addrCasc"
+            clearable/>
         </div>
       </el-row>
     </div>
@@ -29,7 +35,7 @@
       <div class="btn-group">
         <el-button icon="el-icon-plus" type="primary" @click="editCom">编辑</el-button>
         <el-button @click="addCom">新增企业</el-button>
-        <el-button>导出Excel</el-button>
+        <el-button @click="dialogExcelVisible = true">导出Excel</el-button>
       </div>
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ total }} <el-button type="text" @click="clearing">清空</el-button></span></div>
       <el-table
@@ -52,18 +58,39 @@
         <el-table-column
           prop="useAreaName4"
           label="所在镇街"/>
-        <el-table-column
+        <!-- <el-table-column
           prop="useCreditCode"
-          label="统一社会信用代码"/>
+          label="统一社会信用代码"/> -->
         <el-table-column
           prop="useLegalPerson"
           label="单位法人"/>
         <el-table-column
-          prop="useAddManName"
-          label="添加人"/>
+          prop="deviceCount1"
+          label="压力容器"/>
         <el-table-column
-          prop="useAddDate"
-          label="添加时间"/>
+          prop="deviceCount2"
+          label="压力管道"/>
+        <el-table-column
+          prop="deviceCount3"
+          label="场（厂）内专用机动车辆"/>
+        <el-table-column
+          prop="deviceCount4"
+          label="大型游乐设施"/>
+        <el-table-column
+          prop="deviceCount5"
+          label="电梯"/>
+        <el-table-column
+          prop="deviceCount6"
+          label="起重机械"/>
+        <el-table-column
+          prop="deviceCount7"
+          label="锅炉"/>
+          <!-- <el-table-column
+            prop="useAddManName"
+            label="添加人"/>
+          <el-table-column
+            prop="useAddDate"
+            label="添加时间"/> -->
           <!-- x-_-x -->
       </el-table>
 
@@ -80,13 +107,30 @@
       :visible.sync="addDialog">
       <addUnit :infomation="infomation" @closed="closed"/>
     </el-dialog>
+    <!-- excel -->
+    <el-dialog
+      :visible.sync="dialogExcelVisible"
+      width="30%"
+      title="提示">
+      <span>
+        <el-radio-group v-model="isExcel">
+          <el-radio :label="1">勾选项导出</el-radio>
+          <el-radio :label="2">全部导出</el-radio>
+        </el-radio-group>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogExcelVisible = false">取 消</el-button>
+        <el-button type="primary" @click="toMakeExcel">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { addrCasc } from '@/utils/config'
 import addUnit from './component/edit'
 // import { status } from '@/utils/config'
-import { fetchCompanyBase, fetchCompanyForEdit } from '@/api/units'
+import { fetchCompanyBase, fetchCompanyForEdit, fetchExcelCom } from '@/api/units'
 // import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -94,6 +138,9 @@ export default {
   },
   data() {
     return {
+      addrCasc,
+      isExcel: 1,
+      dialogExcelVisible: false,
       loading: false,
       addDialog: false,
       infomation: {},
@@ -101,11 +148,12 @@ export default {
         useName: '', // 使用单位
         addTime: [], // 添加时间
         useLegalPerson: '', // 单位法人
-        useCreditCode: '' // 信用代码
+        useCreditCode: '', // 信用代码
+        installAddr: []
       },
       multipleSelection: [],
       list: [],
-      total: 99,
+      total: 0,
       pageNum: 1,
       pageSize: 10
     }
@@ -116,6 +164,55 @@ export default {
     this.fecthData()
   },
   methods: {
+    toMakeExcel() {
+      let data = {}
+      if (this.isExcel === 1) { // 导出勾选的
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message('请勾选要导出的设备')
+          return ''
+        } else {
+          const id = multipleSelection.map(item => {
+            return item.id
+          }).join(',')
+          data.id = id
+        }
+      } else { // 全部
+        const {
+          useName, // 使用单位
+          addTime, // 添加时间
+          useLegalPerson, // 单位法人
+          useCreditCode, // 信用代码
+          installAddr
+        } = this.units
+        const useArea3 = installAddr[1] ? installAddr[1] : ''
+        const useArea4 = installAddr[2] ? installAddr[2] : ''
+        data = {
+          useName,
+          useAddDate1: addTime[0],
+          useAddDate2: addTime[1],
+          useLegalPerson,
+          useCreditCode,
+          useArea3,
+          useArea4
+        }
+      }
+      this.$message('正在下载...')
+      fetchExcelCom(data).then(res => {
+        const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = objectUrl
+        link.download = `${new Date().getTime()}公司导出.xls`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(objectUrl)
+      }).then(() => {
+        this.dialogExcelVisible = false
+      })
+    },
     addCom() {
       this.addDialog = true
       this.infomation = null
@@ -140,15 +237,19 @@ export default {
         useName, // 使用单位
         addTime, // 添加时间
         useLegalPerson, // 单位法人
-        useCreditCode // 信用代码
+        useCreditCode, // 信用代码
+        installAddr
       } = this.units
-
+      const useArea3 = installAddr[1] ? installAddr[1] : ''
+      const useArea4 = installAddr[2] ? installAddr[2] : ''
       const data = {
         useName,
         useAddDate1: addTime[0],
         useAddDate2: addTime[1],
         useLegalPerson,
-        useCreditCode
+        useCreditCode,
+        useArea3,
+        useArea4
       }
       data.pageNum = `${this.pageNum}`
       data.pageSize = `${this.pageSize}`
@@ -157,10 +258,69 @@ export default {
         if (res.resultCode === '0000000') {
           this.loading = false
           this.total = res.returnData.total
-          const list = res.returnData.list
+          const list = res.returnData.list.map(item => {
+            if (item.deviceTypeTotal.length !== 0) {
+              const count = this.getdeviceCount(item.deviceTypeTotal)
+              item = { ...item, ...count }
+            }
+            return item
+          })
           this.list = list
         }
       })
+    },
+    /** 获取各种设备数量 */
+    getdeviceCount(deviceTypeTotal) {
+      /**
+         * 压力容器
+      压力管道
+      场（厂）内专用机动车辆
+      大型游乐设施
+      电梯
+      起重机械
+      锅炉
+        */
+      let deviceCount1 = 0
+      let deviceCount2 = 0
+      let deviceCount3 = 0
+      let deviceCount4 = 0
+      let deviceCount5 = 0
+      let deviceCount6 = 0
+      let deviceCount7 = 0
+      deviceTypeTotal.forEach(item => {
+        switch (item.deviceTypeName) {
+          case '压力容器':
+            deviceCount1++
+            break
+          case '压力管道':
+            deviceCount2++
+            break
+          case '场（厂）内专用机动车辆':
+            deviceCount3++
+            break
+          case '大型游乐设施':
+            deviceCount4++
+            break
+          case '电梯':
+            deviceCount5++
+            break
+          case '起重机械':
+            deviceCount6++
+            break
+          case '锅炉':
+            deviceCount7++
+            break
+        }
+      })
+      return {
+        deviceCount1,
+        deviceCount2,
+        deviceCount3,
+        deviceCount4,
+        deviceCount5,
+        deviceCount6,
+        deviceCount7
+      }
     },
     pageSizeChange(event) {
       this.pageSize = event

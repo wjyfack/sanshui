@@ -32,3 +32,11 @@ export function fetchEditCompanyUse(data) {
     data: data
   })
 }
+export function fetchExcelCom(data) {
+  return request({
+    url: '/file/excel/export/companyUse',
+    method: 'post',
+    responseType: 'blob',
+    data: data
+  })
+}

@@ -217,10 +217,10 @@
           <el-form-item label="指令书模板" required>
             <el-select :value="command.commandModel" placeholder="请选择指令书模板" @change="changeCommandMode">
               <el-option
-                v-for="item in instructionModels"
+                v-for="(item, index) in instructionModels"
                 :key="item.id"
                 :label="item.name"
-                :value="item"/>
+                :value="index"/>
             </el-select>
           </el-form-item>
         </el-row>
@@ -320,7 +320,7 @@
     <span slot="footer" class="dialog-footer">
       <!-- <el-button v-if="!isShow" type="warning">检查记录打印</el-button>-->
       <el-button @click="recordPreview">检查记录预览</el-button>
-      <el-button v-if="isShow" >指令书预览</el-button>
+      <el-button v-if="isShow" @click="instructionPreview">指令书预览</el-button>
       <el-button type="primary" @click="sure">确定</el-button>
       <el-button @click="closed">取消</el-button>
     </span>
@@ -341,6 +341,15 @@
       append-to-body>
       <previewRecord :record="recordpv"/>
     </el-dialog>
+    <el-dialog
+      :visible.sync="previewInstrDialog"
+      width="850px"
+      title=""
+      top= "0"
+      center
+      append-to-body>
+      <previewInstruction :command="pInstruction"/>
+    </el-dialog>
   </div>
 </template>
 
@@ -353,11 +362,13 @@ import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/c
 import { danWeiType, taskType, inspectionType } from '@/utils/config'
 import addDevice from '@/components/addDevice/index'
 import previewRecord from '@/components/previewRecord/index'
+import previewInstruction from '@/components/previewInstruction/index'
 export default {
   components: {
     taskCheck,
     addDevice,
-    previewRecord
+    previewRecord,
+    previewInstruction
   },
   props: {
     task: {
@@ -372,6 +383,7 @@ export default {
       inspectionType,
       DialogAddDevice: false,
       previewRecordDialog: false,
+      previewInstrDialog: false,
       loading: false,
       noDeviceList: [],
       multipleSelection: [],
@@ -409,6 +421,7 @@ export default {
         checkDate: [] // 日期
       }, // 指令书
       recordpv: {},
+      pInstruction: {},
       deviceList: [],
       illegalCount: [], // 违反模板ids
       info: {
@@ -490,6 +503,36 @@ export default {
     this.tackCheck()
   },
   methods: {
+    instructionPreview() {
+      const {
+        commandChangedEndDate,
+        commandNo,
+        commandDeviceProblem,
+        commandDate,
+        commandAgainstRulesInfo,
+        commandCcordingRulesInfo,
+        commandChangedInfo,
+        commandModel
+      } = this.command
+      if (!commandModel) {
+        this.$message.error('请选择指令书模板')
+        return ''
+      }
+      const {
+        useName
+      } = this.company
+      this.pInstruction = {
+        useName,
+        commandChangedEndDate,
+        commandNo,
+        commandDeviceProblem,
+        commandDate,
+        commandAgainstRulesInfo,
+        commandCcordingRulesInfo,
+        commandChangedInfo
+      }
+      this.previewInstrDialog = true
+    },
     recordPreview() {
       const { checkNo } = this.task
       const {
@@ -510,6 +553,13 @@ export default {
         checkResulTreatmentId,
         checkOpinion
       } = this.record
+      if (!checkUseTypeNames) {
+        this.$message.error('请选择单位类别')
+        return ''
+      } else if (!checkProblem) {
+        this.$message.error('请输入检查意见')
+        return ''
+      }
       this.recordpv = {
         useName, // 单位名称
         useAddress, // 单位地址
@@ -660,7 +710,7 @@ export default {
         rules,
         penalty,
         measure
-      } = event
+      } = this.instructionModels[event]
       this.command.commandAgainstRulesIds = rules
       this.command.commandCcordingRulesIds = penalty
       this.command.commandChangedIds = measure

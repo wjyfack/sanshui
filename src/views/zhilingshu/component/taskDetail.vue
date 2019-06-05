@@ -30,7 +30,7 @@
     <!-- 图片预览 -->
     <el-dialog
       :visible.sync="lookPic"
-      width="40%"
+      width="850px"
       title=""
       append-to-body>
       <img :src="imgDialog" alt="" style="width:100%">

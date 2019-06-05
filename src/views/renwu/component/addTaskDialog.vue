@@ -71,20 +71,22 @@
         <el-row>
           <el-col :span="14">
             <el-form-item label="检查类型" required>
-              <el-select v-model="com.taskone" placeholder="请选择" style="width: 190px;" @change="changeTask">
-                <el-option
-                  v-for="item in taskType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-              <el-select v-model="com.tasktwo" placeholder="请选择" style="width: 200px;">
-                <el-option
-                  v-for="item in taksTypeSecond"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
+              <div style="display: flex;">
+                <el-select v-model="com.taskone" placeholder="请选择" style="width: 190px;" @change="changeTask">
+                  <el-option
+                    v-for="item in taskType"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"/>
+                </el-select>
+                <el-select v-model="com.tasktwo" placeholder="请选择" style="width: 200px;">
+                  <el-option
+                    v-for="item in taksTypeSecond"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"/>
+                </el-select>
+              </div>
             </el-form-item>
           </el-col>
           <el-col :span="10">
@@ -243,6 +245,15 @@ export default {
           this.com.useContactMan = useContactMan
           this.com.useContactManTel = useTel
           this.com.useAddress = useAddress
+        }
+        if (this.infos.taskStatus) {
+          this.com.taskone = this.infos.taskStatus
+        }
+        if (this.infos.taskStatusName) {
+          this.taksTypeSecond = inspectionType
+          this.com.tasktwo = this.infos.taskStatusName
+        } else {
+          this.taksTypeSecond = []
         }
         const list = this.infos.list
         if (list) {

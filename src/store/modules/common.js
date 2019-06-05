@@ -1,6 +1,4 @@
-import {
-  fetchMohuCom
-} from '@/api/shebei'
+// import {fetchMohuCom} from '@/api/shebei'
 import { fetchDeviceType, fetchIntructionModel, fetchDtName } from '@/api/common'
 // import { getTree } from '@/utils/common'
 
@@ -52,28 +50,30 @@ const common = { // 通用滴
   actions: {
     actionsMohuCom({ commit }) {
       return new Promise((resolve, reject) => {
-        const comlist = sessionStorage.getItem('companyList') ? JSON.parse(sessionStorage.getItem('companyList')) : []
-        console.log(comlist.length)
-        if (comlist.length !== 0) {
-          commit('SET_COMPANYLIST', comlist)
-          resolve()
-        } else {
-          fetchMohuCom().then(response => {
-            let data = response.returnData
-            data = data.map(item => {
-              return {
-                value: item.useName,
-                id: item.id,
-                useContactMan: item.useContactMan,
-                useAddress: item.useAddress,
-                useContactManTel: item.useTel
-              }
-            })
-            sessionStorage.setItem('companyList', JSON.stringify(data))
-            commit('SET_COMPANYLIST', data)
-            resolve()
-          }).catch(error => reject(error))
-        }
+        commit('SET_COMPANYLIST', [])
+        resolve()
+        // const comlist = sessionStorage.getItem('companyList') ? JSON.parse(sessionStorage.getItem('companyList')) : []
+        // console.log(comlist.length)
+        // if (comlist.length !== 0) {
+        //   commit('SET_COMPANYLIST', comlist)
+        //   resolve()
+        // } else {
+        //   fetchMohuCom().then(response => {
+        //     let data = response.returnData
+        //     data = data.map(item => {
+        //       return {
+        //         value: item.useName,
+        //         id: item.id,
+        //         useContactMan: item.useContactMan,
+        //         useAddress: item.useAddress,
+        //         useContactManTel: item.useTel
+        //       }
+        //     })
+        //     sessionStorage.setItem('companyList', JSON.stringify(data))
+        //     commit('SET_COMPANYLIST', data)
+        //     resolve()
+        //   }).catch(error => reject(error))
+        // }
       })
     },
     actionsDeviceType({ commit }) {

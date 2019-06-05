@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 const deviceArea3 = '7'
 /** 设备统计 */
-export function fetchDeviceTotal(deviceAreaName4) {
+export function fetchDeviceTotal(deviceArea4) {
   return request({
     url: '/indexTotoal/getDeviceTotal',
     method: 'post',
-    data: { deviceArea3, deviceAreaName4 }
+    data: { deviceArea3, deviceArea4 }
   })
 }
 /** 任务，指令书，安全率统计 */
@@ -17,15 +17,15 @@ export function fetchTaskCommandTotal(deviceAreaName4) {
   })
 }
 /** 设备类型统计 */
-export function fetchDeviceTypeTotal(deviceAreaName4) {
+export function fetchDeviceTypeTotal(deviceArea4) {
   return request({
     url: '/indexTotoal/getDeviceTypeTotal',
     method: 'post',
-    data: { deviceArea3, deviceAreaName4 }
+    data: { deviceArea3, deviceArea4 }
   })
 }
 
-/** 设备类型统计 */
+/** 任务统计 */
 export function fetchTotalByMonth(deviceAreaName4) {
   return request({
     url: '/indexTotoal/getTaskCheckTotalByMonth',

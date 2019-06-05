@@ -4,7 +4,7 @@
     <div class="detail">
       <div class="item">
         <span class="name">处理人：</span> <div class="info">{{ command.commandAddManName }}</div>
-        <span class="name">处理方式：</span> <div class="info">{{ command.checkResulTreatmentId }}</div>
+        <span class="name">处理方式：</span> <div class="info">{{ transfe.checkResulTreatmentName }}</div>
       </div>
       <div class="item">
         <span class="name">执行时间：</span> <div class="info">{{ command.commandAddDate }}</div>
@@ -17,8 +17,8 @@
       <div class="btn-item">
         <el-button size="mini" type="text" @click="look">详情</el-button>
         <div>
-          <el-button size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
-          <el-button size="mini" type="primary" @click="daying(1)">检查记录下载</el-button>
+          <el-button v-if="transfe.checkNo" size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
+          <el-button v-if="transfe.checkNo" size="mini" type="primary" @click="daying(1)">检查记录下载</el-button>
           <el-button v-if="command.id" size="mini" type="warning" @click="preview(2)">指令书预览</el-button>
           <el-button v-if="command.id" size="mini" type="primary" @click="daying(2)">指令书下载</el-button>
         </div>
@@ -40,7 +40,7 @@
     </el-dialog>
     <el-dialog
       :visible.sync="lookPic"
-      width="40%"
+      width="850px"
       title=""
       append-to-body>
       <img :src="imgDialog" alt="" style="width:100%">
@@ -87,7 +87,7 @@ export default {
       const transfe = this.transfe
       const checkRecord = transfe.checkRecord
       const command = transfe.command
-      if (command.id) {
+      if (command.id === null) {
         this.command = command
       } else {
         this.command = {}

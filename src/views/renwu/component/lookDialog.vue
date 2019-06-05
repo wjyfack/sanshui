@@ -246,7 +246,7 @@
             </el-upload>
           </el-form-item>
         </el-row> -->
-        <el-dialog :visible.sync="dialogVisible" append-to-body>
+        <el-dialog :visible.sync="dialogVisible" append-to-body width="850px">
           <img :src="dialogImageUrl" width="100%" alt="">
         </el-dialog>
         <el-row class="row" style="margin-bottom: 10px;">
@@ -286,7 +286,7 @@
     <!-- 图片预览 -->
     <el-dialog
       :visible.sync="lookPic"
-      width="40%"
+      width="850px"
       title=""
       append-to-body>
       <img :src="imgDialog" alt="" style="width:100%">

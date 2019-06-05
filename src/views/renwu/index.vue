@@ -131,7 +131,7 @@
             prop="checkResulTreatment"
             label="任务处理方式"/>
           <el-table-column
-            v-if="activeName != 6"
+            v-if="activeName != 6 && activeName != 7"
             key="optionss"
             label="操作">
             <template slot-scope="scope">
@@ -171,7 +171,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="activeName == '6'"
+            v-if="activeName == '6' || activeName == '7'"
             key="optionS"
             label="操作">
             <template slot-scope="scope">
@@ -314,7 +314,7 @@
           class="avatar-uploader">
           <i class="el-icon-plus avatar-uploader-icon"/>
         </el-upload>
-        <el-dialog :visible.sync="dialogPreviewVisible" append-to-body width="30%">
+        <el-dialog :visible.sync="dialogPreviewVisible" append-to-body width="850px">
           <img :src="dialogImageUrl" width="100%" alt="">
         </el-dialog>
       </div>
@@ -472,9 +472,9 @@ export default {
   },
   mounted() {
     this.fecthData()
-    if (this.companyList.length === 0) {
-      this.$store.dispatch('actionsMohuCom')
-    }
+    // if (this.companyList.length === 0) {
+    //   this.$store.dispatch('actionsMohuCom')
+    // }
   },
   methods: {
     excelIn() {
@@ -961,6 +961,7 @@ export default {
             return { id: item.id, isRecovery: '1', operateName: '删除任务', checkNo: item.checkNo }
           })
           break
+        case 2:
         case 3:
           data = multipleSelection.map(item => {
             return { id: item.id, checkStatus: '3', operateName: '接收任务', checkNo: item.checkNo }

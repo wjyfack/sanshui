@@ -29,9 +29,10 @@ const instruction = { // 通用滴
         fetchInstructionList(data).then(response => {
           if (response.resultCode === '0000000') {
             const data = response.returnData
+            const pages = data.pages
             commit('SET_TOTAL', data.total)
             commit('SET_LIST', data.list)
-            commit('SET_PAGES', data.pages)
+            commit('SET_PAGES', pages)
             resolve()
           } else {
             reject()

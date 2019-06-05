@@ -74,7 +74,7 @@
                 <el-button
                   :ab="scope.$index"
                   size="mini"
-                  @click="recitfyDialog(scope.row)">整改查看</el-button>
+                  @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
                 <el-button
                   size="mini"
                   @click="yijiaoDialog(scope.row, 6)">移交</el-button>
@@ -89,7 +89,7 @@
                 <el-button
                   :ab="scope.$index"
                   size="mini"
-                  @click="recitfyDialog(scope.row)">整改查看</el-button>
+                  @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
                 <el-button
                   size="mini"
                   @click="yijiaoDialog(scope.row)">移交</el-button>
@@ -639,10 +639,11 @@ export default {
     recitfyDialog(row) {
       fetchBeforeRectify(row.id).then(res => {
         const data = res.returnData
-        if (!data) {
-          this.$message('没有数据')
-        }
-        if (data.rectifyImg === null) {
+        // if (!data) {
+        //   this.$message('没有数据')
+        // }
+        console.log(res)
+        if (!data || !data.rectifyImg || data.rectifyImg === null) {
           data.rectifyImg = []
         } else {
           data.rectifyImg = data.rectifyImg.split(',')

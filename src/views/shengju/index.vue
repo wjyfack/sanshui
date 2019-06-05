@@ -122,6 +122,16 @@
         <el-table-column
           prop="in_corp"
           label="转入法定代表人"/>
+        <el-table-column
+          label="操作">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              icon="el-icon-search"
+              type="primary"
+              @click="radirtaskDetail(scope.row)">详情</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-table
         v-loading="loading"
@@ -165,20 +175,40 @@
           @size-change="pageSizeChange"/>
       </div>
     </div>
+    <el-dialog
+      :visible.sync="dialogInfoVisible"
+      width="50%"
+      title="">
+      <div class="more-shebei">
+        <el-button
+          v-for="(item) in deviceDetailArr"
+          :key="item.id"
+          type="primary"
+          class="button"
+          @click="changeDeviceDetail(item)">{{ item.cert_code }}</el-button>
+      </div>
+      <deviceDetail :loading="dialogInfoLoading" :info="taskdeviceDetail" />
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import deviceDetail from './component/deviceDetail'
 import equementCascader from './../shebei/component/equementCascader'
 import { status } from '@/utils/config'
-import { fetchDeviceList, fetchChangeList, fetchCompanyBase } from '@/api/shengju'
+import { fetchDeviceList, fetchChangeList, fetchCompanyBase, fetchDeviceDetail } from '@/api/shengju'
 import { mapGetters } from 'vuex'
 export default {
   components: {
-    equementCascader
+    equementCascader,
+    deviceDetail
   },
   data() {
     return {
+      dialogInfoVisible: false,
+      deviceDetailArr: [],
+      dialogInfoLoading: false,
+      taskdeviceDetail: {},
       loading: false,
       deviceShow: '1', // 显示内容 1,2,3
       selectBtns: ['primary', 'info', 'info'],
@@ -230,6 +260,33 @@ export default {
     this.fecthData()
   },
   methods: {
+    changeDeviceDetail(item) {
+      this.taskdeviceDetail = item
+    },
+    radirtaskDetail(row) {
+      console.log(row)
+      const { deviceIds } = row
+      this.getdeviceDetail(deviceIds)
+    },
+    /** 任务详情 */
+    getdeviceDetail(ids) {
+      fetchDeviceDetail(ids).then(response => {
+        const data = response
+        if (data.resultCode === '0000000') {
+          if (data.returnData.length !== 0) {
+            this.deviceDetailArr = data.returnData
+            this.taskdeviceDetail = this.deviceDetailArr[0]
+            this.dialogInfoVisible = true
+          } else {
+            this.$message.error('暂无数据')
+          }
+        } else {
+          this.$message.error(data.resultDesc)
+        }
+      }).finally(() => {
+        this.dialogInfoLoading = false
+      })
+    },
     getDeviceStatus(value) {
       const [item] = this.status.filter(item => {
         return item.value === value
