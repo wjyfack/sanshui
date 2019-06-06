@@ -329,6 +329,7 @@ import { fetchIdRefiy } from '@/api/common'
 import { refiyUrl, townType, baseUrl } from '@/utils/config'
 import authorization from '@/mixins/authorization'
 import { fetchTaskDownload } from '@/api/common'
+import { toViewer } from '@/utils/common'
 export default {
   components: {
     transferInfo,
@@ -505,7 +506,8 @@ export default {
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
-      this.dialogPreviewVisible = true
+      // this.dialogPreviewVisible = true
+      toViewer(this.dialogImageUrl)
     },
     /** 整改end */
     zSure() {

@@ -33,3 +33,11 @@ export function fetchTotalByMonth(deviceAreaName4) {
     data: { deviceArea3, deviceAreaName4 }
   })
 }
+/** 单位统计 */
+export function fectTotalCompany(useArea4) {
+  return request({
+    url: '/indexTotoal/getCompanyUseTotal',
+    method: 'post',
+    data: { useArea3: deviceArea3, useArea4 }
+  })
+}

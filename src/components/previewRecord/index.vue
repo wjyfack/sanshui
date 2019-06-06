@@ -12,8 +12,8 @@
           <div class="stl_01" style="left:35.9942em;top: 10.0315em; "><span class="stl_10 stl_11 stl_09">{{ info.checkNo }} &nbsp;</span></div>
           <div class="stl_01" style="left:34.3214em;top: 9.8549em; "><span class="stl_12 stl_08 stl_09">№</span></div>
           <!-- <div class="stl_01" style="left:28.049em;top: 12.5118em; z-index:391; "><span class="stl_13 stl_14 stl_09">✔</span></div> -->
-          <div class="stl_01" style="left:5.702em;top: 12.2513em; "><span class="stl_15 stl_11 stl_16" style="word-spacing:0.8939em;">检查类别<span v-if="info.checkType == 0 || info.checkType == 2">&nbsp;&nbsp;&nbsp;√</span><span v-else> □</span>日常监督检查 &nbsp;</span></div>
-          <div class="stl_01" style="left:27.75em;top: 12.2513em; "><span class="stl_15 stl_11 stl_17"><span v-if="info.checkType == 1 || info.checkType == 2">√</span><span v-else> □</span>专项监督检查 &nbsp;</span></div>
+          <div class="stl_01" style="left:5.702em;top: 12.2513em; "><span class="stl_15 stl_11 stl_16" style="word-spacing:0.8939em;">检查类别<span v-if="info.checkType == 0 || info.checkType == 2">&nbsp;&nbsp;&nbsp;<img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>日常监督检查 &nbsp;</span></div>
+          <div class="stl_01" style="left:27.75em;top: 12.2513em; "><span class="stl_15 stl_11 stl_17"><span v-if="info.checkType == 1 || info.checkType == 2"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>专项监督检查 &nbsp;</span></div>
           <div class="stl_01" style="left:5.702em;top: 14.0913em; "><span class="stl_15 stl_11 stl_09">检查日期 &nbsp;</span></div>
           <div class="stl_01" style="left:18.7833em;top: 14.1647em; "><span class="stl_18 stl_11 stl_09">{{ info.dateM }} &nbsp;</span></div>
           <div class="stl_01" style="left:13.211em;top: 14.1432em; "><span class="stl_15 stl_11 stl_09">年</span></div>
@@ -36,16 +36,16 @@
           <div class="stl_01" style="left:23.9592em;top: 19.9289em; "><span class="stl_18 stl_11 stl_09">{{ info.checkUseContactPosition }} &nbsp;</span></div>
           <div class="stl_01" style="left:36.655em;top: 19.8131em; z-index:373; "><span class="stl_22 stl_23 stl_24">{{ info.useContactManTel }} &nbsp;</span></div>
           <!-- <div class="stl_01" style="left:12.719em;top: 21.8618em; z-index:430; "><span class="stl_13 stl_14 stl_09">✔</span></div> -->
-          <div class="stl_01" style="left:10.2242em;top: 21.5929em; "><span class="stl_15 stl_11 stl_09">类别</span><span class="stl_25 stl_11 stl_09">:</span><span class="stl_15 stl_11 stl_26"><span v-if="info.checkUseTypeNames == '设计'">√</span><span v-else>□</span> 设计<span v-if="info.checkUseTypeNames == '制造'">√</span><span v-else>□</span>制造<span v-if="info.checkUseTypeNames == '安装'">√</span><span v-else>□</span>安装<span v-if="info.checkUseTypeNames == '改造'">√</span><span v-else>□</span>改造<span v-if="info.checkUseTypeNames == '维修'">√</span><span v-else>□</span>维修<span v-if="info.checkUseTypeNames == '使用'">√</span><span v-else>□</span>使用<span v-if="info.checkUseTypeNames == '气瓶充装'">√</span><span v-else>□</span>气瓶充装<span v-if="info.checkUseTypeNames == '经营'">√</span><span v-else>□</span>经营<span v-if="info.checkUseTypeNames == '其他'">√</span><span v-else>□</span>其他 &nbsp;</span></div>
+          <div class="stl_01" style="left:10.2242em;top: 21.5929em; "><span class="stl_15 stl_11 stl_09">类别</span><span class="stl_25 stl_11 stl_09">:</span><span class="stl_15 stl_11 stl_26"><span v-if="info.checkUseTypeNames == '设计'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span> 设计<span v-if="info.checkUseTypeNames == '制造'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>制造<span v-if="info.checkUseTypeNames == '安装'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>安装<span v-if="info.checkUseTypeNames == '改造'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>改造<span v-if="info.checkUseTypeNames == '维修'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>维修<span v-if="info.checkUseTypeNames == '使用'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>使用<span v-if="info.checkUseTypeNames == '气瓶充装'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>气瓶充装<span v-if="info.checkUseTypeNames == '经营'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>经营<span v-if="info.checkUseTypeNames == '其他'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else>□</span>其他 &nbsp;</span></div>
           <div class="stl_01" style="left:6.162em;top: 23.7754em; z-index:186; "><span class="stl_15 stl_11 stl_19">抽查设备名称 &nbsp;</span></div>
           <div class="stl_01" style="left:7.022em;top: 25.9954em; "><span class="stl_15 stl_11 stl_09">设备数量 &nbsp;</span></div>
           <div class="stl_01" style="left:14.7458em;top: 27.6154em; "><span class="stl_15 stl_11 stl_27">安全监督检查情况或发现的主要问题（可另附续页） &nbsp;</span></div>
           <div class="stl_01" style="left:6.745em;top: 29.258em; "><span class="stl_18 stl_11 stl_09">{{ info.checkProblem }}</span></div>
           <!-- <div class="stl_01" style="left:10.259em;top: 46.2218em; z-index:359; "><span class="stl_13 stl_14 stl_09">✔</span></div> -->
-          <div class="stl_01" style="left:5.582em;top: 45.9613em; z-index:280; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.2611em;">处理措施：<span v-if="info.checkResulTreatmentId == '1'">√</span><span v-else> □</span> 下达监察指令书 &nbsp;</span></div>
-          <div class="stl_01" style="left:20.0483em;top: 45.9613em; z-index:285; "><span class="stl_15 stl_11 stl_29"><span v-if="info.checkResulTreatmentId == '2'">√</span><span v-else> □</span>实施查封 &nbsp;</span></div>
-          <div class="stl_01" style="left:27.03em;top: 45.9613em; z-index:290; "><span class="stl_15 stl_11 stl_30"><span v-if="info.checkResulTreatmentId == '3'">√</span><span v-else> □</span>实施扣押 &nbsp;</span></div>
-          <div class="stl_01" style="left:9.9642em;top: 47.2613em; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.4629em;"><span v-if="info.checkResulTreatmentId == '4'">√</span><span v-else> □</span> 其他：（选择打勾，单选） &nbsp;</span></div>
+          <div class="stl_01" style="left:5.582em;top: 45.9613em; z-index:280; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.2611em;">处理措施：<span v-if="info.checkResulTreatmentId == '1'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span> 下达监察指令书 &nbsp;</span></div>
+          <div class="stl_01" style="left:20.0483em;top: 45.9613em; z-index:285; "><span class="stl_15 stl_11 stl_29"><span v-if="info.checkResulTreatmentId == '2'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>实施查封 &nbsp;</span></div>
+          <div class="stl_01" style="left:27.03em;top: 45.9613em; z-index:290; "><span class="stl_15 stl_11 stl_30"><span v-if="info.checkResulTreatmentId == '3'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>实施扣押 &nbsp;</span></div>
+          <div class="stl_01" style="left:9.9642em;top: 47.2613em; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.4629em;"><span v-if="info.checkResulTreatmentId == '4'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span> 其他：（选择打勾，单选） &nbsp;</span></div>
           <div class="stl_01" style="left:7.3017em;top: 48.1055em; "><span class="stl_18 stl_11 stl_09">{{ info.checkOpinion }}</span></div>
           <div class="stl_01" style="left:5.582em;top: 53.8429em; z-index:322; "><span class="stl_15 stl_11 stl_27">被检查单位对检查记录的意见： &nbsp;</span></div>
           <div class="stl_01" style="left:28.35em;top: 56.4429em; z-index:325; "><span class="stl_15 stl_11 stl_09">签名： &nbsp;</span></div>
@@ -67,6 +67,7 @@
 
 <script>
 import sv from './woff/img_01.svg'
+import img from './woff/select.png'
 export default {
   props: {
     record: {
@@ -77,6 +78,7 @@ export default {
   data() {
     return {
       sv,
+      img,
       info: {}
     }
   },
@@ -225,7 +227,7 @@ a:visited {text-decoration:none;}
 }
 .stl_18 {
 	font-size: 0.833333em;
-	font-family: "OBAQNT+SimSun", "Times New Roman";
+	// font-family: "OBAQNT+SimSun", "Times New Roman";
 	color: #000000;
 }
 .stl_19 {
@@ -255,7 +257,7 @@ a:visited {text-decoration:none;}
 }
 .stl_22 {
 	font-size: 0.833333em;
-	font-family: "UHSING+Helvetica", "Times New Roman";
+	// font-family: "UHSING+Helvetica", "Times New Roman";
 	color: #000000;
 }
 .stl_23 {

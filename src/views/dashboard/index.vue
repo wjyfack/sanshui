@@ -20,17 +20,17 @@
         </div>
         <div class="itemTotal border-left">
           <div class="left">
-            <div class="mTitle">任务总量</div>
-            <div class="mDesc">{{ townName }}任务总量</div>
+            <div class="mTitle">隐患总量</div>
+            <div class="mDesc">{{ townName }}隐患总量</div>
           </div>
           <div class="right">{{ command.taskTotal }}</div>
         </div>
         <div class="itemTotal border-left">
           <div class="left">
-            <div class="mTitle">指令书总量</div>
-            <div class="mDesc">{{ townName }}指令书总量</div>
+            <div class="mTitle">单位总量</div>
+            <div class="mDesc">{{ townName }}单位总量</div>
           </div>
-          <div class="right">{{ command.commandTotal }}</div>
+          <div class="right">{{ unitTotal }}</div>
         </div>
         <div class="itemTotal border-left">
           <div class="left">
@@ -228,7 +228,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+// import { mapGetters } from 'vuex'
 import echarts from 'echarts'
 import { townSearchType } from '@/utils/config'
 import u290 from '@/assets/u290.png'
@@ -236,7 +236,8 @@ import u319 from '@/assets/u319.png'
 import { fetchDeviceTotal,
   fetchTaskCommandTotal,
   fetchDeviceTypeTotal,
-  fetchTotalByMonth } from '@/api/charts'
+  fetchTotalByMonth,
+  fectTotalCompany } from '@/api/charts'
 import { opLoading } from '@/mixins/loading'
 export default {
   name: 'Dashboard',
@@ -274,16 +275,17 @@ export default {
         riChange: 0,
         zhuangXiang: 0
       },
+      unitTotal: 0,
       deviceSrotName: [],
       deviceSrotList: [],
       taskCheckTotal: []
     }
   },
   computed: {
-    ...mapGetters([
-      'name',
-      'roles'
-    ])
+    // ...mapGetters([
+    //   'name',
+    //   'roles'
+    // ])
   },
   mounted() {
     if (this.$store.getters.deptNames.length === 0) {
@@ -314,7 +316,8 @@ export default {
         fetchDeviceTotal(townValue),
         fetchTaskCommandTotal(townName),
         fetchDeviceTypeTotal(townValue),
-        fetchTotalByMonth(townName)
+        fetchTotalByMonth(townName),
+        fectTotalCompany(townValue)
       ]
       Promise.all(promises)
         .then(resAll => {
@@ -322,6 +325,7 @@ export default {
           const resData2 = resAll[1]
           const resData3 = resAll[2]
           const resData4 = resAll[3]
+          const resData5 = resAll[4]
           if (resData.resultCode === '0000000') {
             const data = resData.returnData
             this.device = {
@@ -375,6 +379,13 @@ export default {
             // console.log(this.taskCheckTotal)
           } else {
             this.$message.error(resData4.resultDesc)
+          }
+          if (resData5.resultCode === '0000000') {
+            const data = resData5.returnData
+            // this.taskCheckTotal = data
+            this.unitTotal = data.total
+          } else {
+            this.$message.error(resData5.resultDesc)
           }
         }).finally(() => {
           this.onCloseLoading()

@@ -4,7 +4,7 @@
       <el-row class="row">
         <el-col :span="24" style="display: flex;align-items:center">
           <label for="" class="label">任务状态：</label>
-          <task-check @send="getSend"/>
+          <task-check ref="taskCheckNativeRef" @click.native="taskCheckNative" @send="getSend"/>
           <!-- <el-select v-model="info.taskStatus" placeholder="请选择">
             <el-option
               v-for="item in taskType"
@@ -89,6 +89,9 @@ export default {
     }
   },
   methods: {
+    taskCheckNative() {
+      this.$refs.taskCheckNativeRef.clear()
+    },
     moreSearch() {
       this.$emit('closed', {
         info: this.info,
@@ -107,6 +110,7 @@ export default {
         checkTypeId: '', // 状态
         checkAddDeptName: '' // 任务派发部门
       }
+      this.taskCheckNative()
       this.$message('重置成功')
     },
     handleClose(done) {

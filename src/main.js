@@ -7,7 +7,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/zh-CN' // lang i18n
 
 import '@/styles/index.scss' // global css
-
+import 'viewerjs/dist/viewer.css'
 import App from './App'
 import store from './store'
 import router from './router'
@@ -26,21 +26,22 @@ import '@/router/main'
  */
 // import '../mock' // simulation data
 
-import VuePreview from 'vue-preview'
+// import VuePreview from 'vue-preview'
+// import Viewer from 'viewerjs'
 
 // defalut vue-preview
 // Vue.use(VuePreview)
 
-Vue.use(VuePreview, {
-  mainClass: 'pswp--minimal--dark',
-  barsSize: { top: 0, bottom: 0 },
-  captionEl: false,
-  fullscreenEl: true,
-  shareEl: false,
-  bgOpacity: 0.85,
-  tapToClose: true,
-  tapToToggleControls: false
-})
+// Vue.use(VuePreview, {
+//   mainClass: 'pswp--minimal--dark',
+//   barsSize: { top: 0, bottom: 0 },
+//   captionEl: false,
+//   fullscreenEl: true,
+//   shareEl: false,
+//   bgOpacity: 0.85,
+//   tapToClose: true,
+//   tapToToggleControls: false
+// })
 
 Vue.use(ElementUI, { locale })
 

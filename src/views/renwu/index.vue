@@ -42,7 +42,7 @@
             </el-select>
           </el-col>
           <el-col v-if="activeName == '1'" :span="8">
-            <el-button type="primary" @click="BatchWholesale">批量批发</el-button>
+            <el-button type="primary" @click="BatchWholesale">批量派发</el-button>
             <el-button type="danger" @click="closedLoop">闭环</el-button>
             <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
             <el-button type="primary" @click="excelIn">Excel导入</el-button>
@@ -1043,7 +1043,7 @@ export default {
         this.dialogInfoLoading = false
       })
     },
-    /** BatchWholesale  批量批发*/
+    /** BatchWholesale  批量派发*/
     BatchWholesale() {
       const multipleSelection = this.multipleSelection
       if (multipleSelection.length === 0) {

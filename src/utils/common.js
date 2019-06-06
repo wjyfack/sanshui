@@ -1,8 +1,8 @@
+import Viewer from 'viewerjs'
 /**
  * arr 生成书结构
  *
 */
-
 export function translateDataToTree(data) {
   return new Promise((resolve, reject) => {
     var parents = data.filter(value => value.deviceTypePID === '0')
@@ -108,4 +108,21 @@ export function autoDeviceCountConcat(list) {
     }
   })
   return data
+}
+
+/**
+ * @desc 图片预览
+ * @param src {String}
+ */
+export function toViewer(src) {
+  const img = new Image()
+  img.src = src
+  img.alt = ''
+  const viewer = new Viewer(img, {
+    zIndex: 10000,
+    hidden: function() {
+      viewer.destroy()
+    }
+  })
+  viewer.show()
 }

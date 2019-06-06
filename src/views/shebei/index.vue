@@ -7,7 +7,9 @@
           <el-input v-model="search.useUnit" class="input" placeholder="" />
           <label for="" class="label">设备种类：</label>
           <equement-cascader
+            ref="equipmentCasc1"
             :equipment="equipmentAllType"
+            @click.native="equipmentCascClear"
             @cascader="onUseEqueChange"/>
           <!-- <el-cascader
             v-model="search.useEque"
@@ -131,7 +133,9 @@
               :options="equipmentAllType"
               class="select"/> -->
             <equement-cascader
+              ref="equipmentCasc2"
               :equipment="equipmentAllType"
+              @click.native="equipmentCascClear"
               @cascader="onUseEqueChange"/>
           </el-col>
         </el-row>
@@ -521,6 +525,16 @@ export default {
     }
   },
   methods: {
+    equipmentCascClear() {
+      const equipmentCasc1 = this.$refs.equipmentCasc1
+      if (equipmentCasc1) {
+        equipmentCasc1.clear()
+      }
+      const equipmentCasc2 = this.$refs.equipmentCasc2
+      if (equipmentCasc2) {
+        equipmentCasc2.clear()
+      }
+    },
     unitClose(event) {
       console.log(event)
       if (event.id) {
@@ -912,6 +926,7 @@ export default {
         inspecDate: [], // 年检日期
         addrCasc: '' // 地区联级
       }
+      this.equipmentCascClear()
       this.$message('重置成功')
     },
     pageSizeChange(event) {

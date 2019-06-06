@@ -59,9 +59,9 @@
         <el-table-column>
           <template slot-scope="scope">
             <el-form-item label="违反模板" >
-              <el-select v-model="illegalCount[scope.$index]" placeholder="请选择违反条例">
+              <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择违反条例">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in IrregularitiesType"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
@@ -319,10 +319,15 @@
     </div>
     <span slot="footer" class="dialog-footer">
       <!-- <el-button v-if="!isShow" type="warning">检查记录打印</el-button>-->
-      <el-button @click="recordPreview">检查记录预览</el-button>
-      <el-button v-if="isShow" @click="instructionPreview">指令书预览</el-button>
-      <el-button type="primary" @click="sure">确定</el-button>
-      <el-button @click="closed">取消</el-button>
+      <div style="padding-left: 30px;">
+        <el-button type="warning" @click="recordPreview">检查记录预览</el-button>
+        <el-button v-if="isShow" type="warning" @click="instructionPreview">指令书预览</el-button>
+      </div>
+      <div>
+        <el-button type="primary" @click="sure">确定</el-button>
+        <el-button @click="closed">取消</el-button>
+      </div>
+
     </span>
     <!-- 添加设备 -->
     <el-dialog
@@ -359,7 +364,7 @@ import taskCheck from '@/components/taskCheck/index'
 import { fectEditTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/common'
-import { danWeiType, taskType, inspectionType } from '@/utils/config'
+import { danWeiType, taskType, inspectionType, IrregularitiesType } from '@/utils/config'
 import addDevice from '@/components/addDevice/index'
 import previewRecord from '@/components/previewRecord/index'
 import previewInstruction from '@/components/previewInstruction/index'
@@ -378,6 +383,7 @@ export default {
   },
   data() {
     return {
+      IrregularitiesType,
       taskType,
       danWeiType,
       inspectionType,
@@ -553,13 +559,13 @@ export default {
         checkResulTreatmentId,
         checkOpinion
       } = this.record
-      if (!checkUseTypeNames) {
-        this.$message.error('请选择单位类别')
-        return ''
-      } else if (!checkProblem) {
-        this.$message.error('请输入检查意见')
-        return ''
-      }
+      // if (!checkUseTypeNames) {
+      //   this.$message.error('请选择单位类别')
+      //   return ''
+      // } else if (!checkProblem) {
+      //   this.$message.error('请输入检查意见')
+      //   return ''
+      // }
       this.recordpv = {
         useName, // 单位名称
         useAddress, // 单位地址
@@ -582,7 +588,15 @@ export default {
     },
     changeDevice(event) {
       if (event.length !== 0) {
-        this.deviceList = event
+        this.deviceList = event.map(item => {
+          const data = item
+          if (item.illegalCountId) {
+            data.illegalCountId = item.illegalCountId.split(',')
+          } else {
+            data.illegalCountId = []
+          }
+          return data
+        })
         console.log(this.deviceList)
         const {
           deviceType1Count,
@@ -619,6 +633,16 @@ export default {
       // console.log(task)
       const company = task.companyUse
       const record = task.checkRecord
+      if (company) {
+        const useArea2 = company.useArea2 ? company.useArea2 : ''
+        const useArea3 = company.useArea3 ? company.useArea3 : ''
+        const useArea4 = company.useArea4 ? company.useArea4 : ''
+        const area = [useArea2, useArea3, useArea4]
+        const useAddress = company.useAddress
+        const local = { area, useAddress }
+        console.log(local)
+        this.$store.dispatch('actionsLocalAddr', local)
+      }
       if (record && record.id) {
         company.useLegalPerson = record.checkUseLegalPerson ? record.checkUseLegalPerson : ''
         company.useContactMan = record.checkUseContactMan
@@ -690,7 +714,15 @@ export default {
       record.deviceType10Count = deviceType10Count
       this.record = record
       // console.log(record)
-      this.deviceList = task.list
+      this.deviceList = task.list.map(item => {
+        const data = item
+        if (item.illegalCountId) {
+          data.illegalCountId = item.illegalCountId.split(',')
+        } else {
+          data.illegalCountId = []
+        }
+        return data
+      })
       this.illegalCount = this.deviceList.map(item => item.illegalCountId)
     },
     changeCommandMode(event) {
@@ -872,7 +904,7 @@ export default {
       // 设备ids
       const deviceIds = this.deviceList.map(item => item.id).join(',')
       // 违反模板ids
-      const illegalCountIds = this.illegalCount.join(',')
+      const illegalCountIds = this.deviceList.map(item => item.illegalCountId.join(',')).join(';')
       // checkDate 检查日期
       // const [checkDateStart, checkDateEnd] = checkDate
       // 处理措施
@@ -891,16 +923,16 @@ export default {
         checkUseContactPosition, // 联系人职务
         deviceIds,
         illegalCountIds,
-        deviceType1Count,
-        deviceType2Count,
-        deviceType3Count,
-        deviceType4Count,
-        deviceType5Count,
-        deviceType6Count,
-        deviceType7Count,
-        deviceType8Count,
-        deviceType9Count,
-        deviceType10Count,
+        deviceType1Count: `${deviceType1Count}`,
+        deviceType2Count: `${deviceType2Count}`,
+        deviceType3Count: `${deviceType3Count}`,
+        deviceType4Count: `${deviceType4Count}`,
+        deviceType5Count: `${deviceType5Count}`,
+        deviceType6Count: `${deviceType6Count}`,
+        deviceType7Count: `${deviceType7Count}`,
+        deviceType8Count: `${deviceType8Count}`,
+        deviceType9Count: `${deviceType9Count}`,
+        deviceType10Count: `${deviceType10Count}`,
         checkType,
         checkType2,
         checkUseTypes: '' + checkUseTypes,
@@ -937,6 +969,7 @@ export default {
         checkNo: checkNo
       }
       console.log(data, 11)
+      // return
       fectEditTask(data).then(res => {
         // console.log(res)
         if (res.resultCode === '0000000') {
@@ -1031,7 +1064,7 @@ export default {
   }
   .dialog-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
   }
 }

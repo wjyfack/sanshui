@@ -4,7 +4,7 @@
     <div class="detail">
       <div class="item">
         <span class="name">处理人：</span> <div class="info">{{ transfe.check.checkExecManName }}</div>
-        <span class="name">处理方式：</span> <div class="info">{{ transfe.check.checkResulTreatmentName }}</div>
+        <span class="name">处理方式：</span> <div class="info">{{ transfe.check.checkResulTreatment }}</div>
       </div>
       <div class="item">
         <span class="name">执行时间：</span> <div class="info">{{ transfe.commandAddDate }}</div>
@@ -41,6 +41,7 @@
 <script>
 import taskXiangxi from '@/components/taskXiangxi/index'
 import { baseUrl } from '@/utils/config'
+import { toViewer } from '@/utils/common'
 export default {
   components: {
     taskXiangxi
@@ -76,8 +77,9 @@ export default {
           url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
           break
       }
-      this.lookPic = true
-      this.imgDialog = url
+      // this.lookPic = true
+      // this.imgDialog = url
+      toViewer(url)
     },
     look() {
       this.dialogVisible = true
@@ -121,7 +123,7 @@ export default {
     .btn-group {
       position: absolute;
       right: 5px;
-      top: 60px;
+      bottom: 0;
     }
     .table {
       margin-bottom: 10px;

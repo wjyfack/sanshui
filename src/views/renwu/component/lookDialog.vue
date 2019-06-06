@@ -59,9 +59,9 @@
         <el-table-column>
           <template slot-scope="scope">
             <el-form-item label="违反模板" >
-              <el-select v-model="illegalCount[scope.$index]" placeholder="请选择违反条例">
+              <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择违反条例">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in IrregularitiesType"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
@@ -299,8 +299,8 @@ import taskCheck from '@/components/taskCheck/index'
 import { /** fetchBeforeTask, */ fetchAddDevice } from '@/api/shebei'
 import { fecthExamineTask } from '@/api/task'
 import { mapGetters } from 'vuex'
-import { status, addrCasc, danWeiType, baseUrl, taskType, inspectionType } from '@/utils/config'
-import { getFormatDate } from '@/utils/common'
+import { status, addrCasc, danWeiType, baseUrl, taskType, inspectionType, IrregularitiesType } from '@/utils/config'
+import { getFormatDate, toViewer } from '@/utils/common'
 import addDevice from '@/components/addDevice/index'
 export default {
   components: {
@@ -323,6 +323,7 @@ export default {
       danWeiType,
       taskType,
       inspectionType,
+      IrregularitiesType,
       dialogImageUrl: '',
       dialogVisible: false,
       nowFileList: [], // 现场图片
@@ -413,12 +414,21 @@ export default {
           url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
           break
       }
-      this.lookPic = true
-      this.imgDialog = url
+      // this.lookPic = true
+      // this.imgDialog = url
+      toViewer(url)
     },
     changeDevice(event) {
       if (event.length !== 0) {
-        this.deviceList = event
+        this.deviceList = event.map(item => {
+          const data = item
+          if (item.illegalCountId) {
+            data.illegalCountId = item.illegalCountId.split(',')
+          } else {
+            data.illegalCountId = []
+          }
+          return data
+        })
         const deviceNoString = this.deviceList.map(item => {
           return item.deviceCertNo
         }).join('、')
@@ -441,6 +451,16 @@ export default {
       const company = task.companyUse !== null ? task.companyUse : {}
       const record = task.checkRecord
       console.log(company, record)
+      if (company) {
+        const useArea2 = company.useArea2 ? company.useArea2 : ''
+        const useArea3 = company.useArea3 ? company.useArea3 : ''
+        const useArea4 = company.useArea4 ? company.useArea4 : ''
+        const area = [useArea2, useArea3, useArea4]
+        const useAddress = company.useAddress
+        const local = { area, useAddress }
+        console.log(local)
+        this.$store.dispatch('actionsLocalAddr', local)
+      }
       if (record && record.id) {
         console.log(2222222)
         if (company) {
@@ -483,7 +503,15 @@ export default {
       // if (record.checkResulTreatmentId === '1') { this.isShow = true } del
       this.record = record
       // console.log(record)
-      this.deviceList = task.list === null ? [] : task.list
+      this.deviceList = task.list === null ? [] : task.list.map(item => {
+        const data = item
+        if (item.illegalCountId) {
+          data.illegalCountId = item.illegalCountId.split(',')
+        } else {
+          data.illegalCountId = []
+        }
+        return data
+      })
       this.illegalCount = this.deviceList.map(item => item.illegalCountId)
     },
     taskSelect(event) { // 检查类别
@@ -757,7 +785,7 @@ export default {
       // 设备ids
       const deviceIds = this.deviceList.map(item => item.id).join(',')
       // 违反模板ids
-      const illegalCountIds = this.illegalCount.join(',')
+      const illegalCountIds = this.deviceList.map(item => item.illegalCountId.join(',')).join(';')
       // checkDate 检查日期
       // const [checkDateStart, checkDateEnd] = checkDate
       // 处理措施

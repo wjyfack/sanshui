@@ -11,10 +11,10 @@
       <el-row type="flex" align="middle" class="row">
         <el-col :span="6">
           <label class="label" for="">任务要求：</label>
-          <el-input v-model="checkIntro" class="input" placeholder="请输入任务要求"/>
+          <el-input v-model="checkIntro" class="input" placeholder="请输入任务要求" @change="taskIntro"/>
         </el-col>
         <el-col :span="6"><label class="label" for="">检验类型：</label>
-          <el-select v-model="checkTypeId" placeholder="请选择">
+          <el-select v-model="checkTypeId" placeholder="请选择" @change="taskType">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -28,7 +28,8 @@
             v-model="checkResultEndDate"
             type="date"
             placeholder="选择日期"
-            value-format="yyyy-MM-dd"/>
+            value-format="yyyy-MM-dd"
+            @change="taskDate"/>
         </el-col>
       </el-row>
       <div class="table">
@@ -45,19 +46,38 @@
           <el-table-column
             prop="deviceLastTestResult"
             label="上次检验结论"/>
-          <!-- <el-table-column
-            prop="address"
-            label="检验类型"/>
           <el-table-column
-            prop="address"
-            label="任务要求"/>
+            label="任务要求">
+            <template slot-scope="scope">
+              <el-input v-model="deviceList[scope.$index].checkIntro" placeholder="任务要求"/>
+            </template>
+          </el-table-column>
           <el-table-column
-            prop="checkResultEndDate"
-            label="最迟反馈时间"/> -->
+            label="检验类型">
+            <template slot-scope="scope">
+              <el-select v-model="deviceList[scope.$index].checkTypeId" placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="最迟反馈时间">
+            <template slot-scope="scope">
+              <el-date-picker
+                v-model="deviceList[scope.$index].checkResultEndDate"
+                type="date"
+                placeholder="选择日期"
+                value-format="yyyy-MM-dd"/>
+            </template>
+          </el-table-column>
           <el-table-column
             label="接收部门">
             <template slot-scope="scope">
-              <el-select v-model="deviceList[scope.$index].checkDeptId" :disabled="!isShow" placeholder="请选择" @change="deptChange">
+              <el-select v-model="deviceList[scope.$index].checkDeptId" placeholder="请选择" @change="deptChange">
                 <el-option
                   v-for="(item) in deptNames"
                   :key="item.id"
@@ -120,7 +140,7 @@ export default {
       taskTotal: 0,
       id: '', // 任务id
       checkIntro: '', // 任务要求
-      checkResultEndDate: getFormatDate(), // 反馈时间
+      checkResultEndDate: '', // 反馈时间
       checkTypeId: '', // 检验类型
       checkDeptId: '', // 接收部门id
       checkDeptName: '', // 接收部门
@@ -152,6 +172,11 @@ export default {
       'deptNames'
     ])
   },
+  watch: {
+    checkIntro: function(val) {
+      this.taskIntro(val)
+    }
+  },
   mounted() {
     if (this.deptNames.length === 0) {
       this.$store.dispatch('actionsDeptNames')
@@ -162,11 +187,11 @@ export default {
     // console.log(info !== undefined)
     if (info !== undefined) { // 重新派发
       // console.log(info)
-      this.checkIntro = info.checkIntro // 任务要求
+      // this.checkIntro = info.checkIntro // 任务要求
       // this.checkResultEndDate = info.checkResultEndDate // 反馈时间
-      this.checkTypeId = info.checkTypeId // 检验类型
-      this.checkDeptId = info.checkDeptId // 接收部门id
-      this.checkDeptName = info.checkDeptName // 接收部门
+      // this.checkTypeId = info.checkTypeId // 检验类型
+      // this.checkDeptId = info.checkDeptId // 接收部门id
+      // this.checkDeptName = info.checkDeptName // 接收部门
       this.checkNo = info.checkNo
       const list = arr.map(element => {
         const selectTask = [element.taskStatus, element.taskStatusName]
@@ -196,6 +221,24 @@ export default {
     }
   },
   methods: {
+    taskIntro(event) {
+      this.deviceList = this.deviceList.map(item => {
+        item.checkIntro = event
+        return item
+      })
+    },
+    taskType(event) {
+      this.deviceList = this.deviceList.map(item => {
+        item.checkTypeId = event
+        return item
+      })
+    },
+    taskDate(event) {
+      this.deviceList = this.deviceList.map(item => {
+        item.checkResultEndDate = event
+        return item
+      })
+    },
     sendStatus(event, index) {
       console.log(event, index)
       const {
@@ -222,21 +265,25 @@ export default {
         // console.log(arrG)
         const selectTask = [element.taskStatus, element.taskStatusName]
         element.selectTask = selectTask
+        element.checkResultEndDate = element.checkResultEndDate ? element.checkResultEndDate : getFormatDate()
         return element
       })
       return arrs
     },
     cellClick(row, column, cell, event) {
-      console.log(row)
-      const { list } = row
-      this.deviceDetailArr = list.map(item => {
-        return {
-          id: item.id,
-          deviceCertNo: item.deviceCertNo,
-          deviceProduceNo: item.deviceProduceNo
-        }
-      })
-      this.getdeviceDetail(this.deviceDetailArr[0].id)
+      // console.log(column, cell)
+      const { label } = column
+      if (label === '使用登记证') {
+        const { list } = row
+        this.deviceDetailArr = list.map(item => {
+          return {
+            id: item.id,
+            deviceCertNo: item.deviceCertNo,
+            deviceProduceNo: item.deviceProduceNo
+          }
+        })
+        this.getdeviceDetail(this.deviceDetailArr[0].id)
+      }
     },
     deptChange(event) {
       console.log(event)
@@ -255,29 +302,38 @@ export default {
       })
     },
     submit() {
-      if (!this.checkIntro) {
+      const deviceList = this.deviceList
+      // console.log(deviceList)
+      const ischeckIntro = deviceList.some(item => {
+        return item.checkIntro === '' || item.checkIntro === null
+      })
+      if (ischeckIntro) {
         this.$message.warning('请输入任务要求')
         return ''
       } // 任务要求
-      if (!this.checkResultEndDate) {
-        this.$message.warning('请输入反馈时间')
-        return ''
-      } // 反馈时间
-      if (!this.checkTypeId) {
+      const ischeckTypeId = deviceList.some(item => {
+        return item.checkTypeId === '' || item.checkTypeId === null
+      })
+      if (ischeckTypeId) {
         this.$message.warning('请输入检验类型')
         return ''
       } // 检验类型
+      const ischeckResultEndDate = deviceList.some(item => {
+        return item.checkResultEndDate === '' || item.checkResultEndDate === null
+      })
+      if (ischeckResultEndDate) {
+        this.$message.warning('请输入反馈时间')
+        return ''
+      } // 反馈时间
+      const isType = deviceList.some(item => {
+        return item.checkDeptId === '' || item.checkDeptId === null
+      })
+      // console.log(isType)
+      if (isType) {
+        this.$message.warning('请选择接收部门')
+        return ''
+      }
       if (this.isShow) { // 派发任务
-        const deviceList = this.deviceList
-        // console.log(deviceList)
-        const isType = deviceList.some(item => {
-          return item.checkDeptId === '' || item.checkDeptId === null
-        })
-        // console.log(isType)
-        if (isType) {
-          this.$message.warning('请选择接收部门')
-          return ''
-        }
         console.log(12111231)
         const arr = deviceList.map(item => {
           // const data = {}
@@ -288,9 +344,9 @@ export default {
           delete item.list
           delete item.selectTask
           item.checkDeptName = deptName
-          item.checkIntro = this.checkIntro
-          item.checkResultEndDate = this.checkResultEndDate
-          item.checkTypeId = this.checkTypeId
+          // item.checkIntro = this.checkIntro
+          // item.checkResultEndDate = this.checkResultEndDate
+          // item.checkTypeId = this.checkTypeId
           // item.checkNo = item.checkNo
           // item.checkDeptId = item.checkDeptId
           item.operateName = '派发任务' // 操作记录
@@ -308,15 +364,19 @@ export default {
           }
         })
       } else {
-        const deviceList = this.deviceList
+        // const deviceList = this.deviceList
         const [data] = deviceList.map(item => {
+          const [{ deptName }] = this.deptNames.filter(val => {
+            return val.id === item.checkDeptId
+          })
           delete item.list
           delete item.selectTask
-          item.checkIntro = this.checkIntro // 任务要求
-          item.checkResultEndDate = this.checkResultEndDate // 反馈时间
-          item.checkTypeId = this.checkTypeId // 检验类型
-          item.checkDeptId = this.checkDeptId // 接收部门id
-          item.checkDeptName = this.checkDeptName // 接收部门
+          item.checkDeptName = deptName
+          // item.checkIntro = this.checkIntro // 任务要求
+          // item.checkResultEndDate = this.checkResultEndDate // 反馈时间
+          // item.checkTypeId = this.checkTypeId // 检验类型
+          // item.checkDeptId = this.checkDeptId // 接收部门id
+          // item.checkDeptName = this.checkDeptName // 接收部门
           item.operateName = '复查任务'
           item.checkNo = this.checkNo
           return item

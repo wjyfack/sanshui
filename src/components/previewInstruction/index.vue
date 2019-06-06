@@ -13,7 +13,12 @@
           <div class="stl_01" style="left:6.0725em;top: 11.9066em; z-index:362; "><span class="stl_10 stl_08 stl_09">{{ info.useName }} &nbsp;</span></div>
           <div class="stl_01" style="left:28.5333em;top: 11.9224em; z-index:34; "><span class="stl_11 stl_08 stl_09">：</span></div>
           <div class="stl_01" style="left:8.2415em;top: 14.0061em; "><span class="stl_11 stl_08 stl_09">经检查，你单位（个人）在特种设备安全方面存在下列问题： &nbsp;</span></div>
-          <div class="stl_01" style="left:6.0725em;top: 16.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem }} &nbsp;</span></div>
+          <div class="stl_01" style="left:6.0725em;top: 16.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem1 }} &nbsp;</span></div>
+          <div class="stl_01" style="left:6.0725em;top: 18.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem2 }} &nbsp;</span></div>
+          <div class="stl_01" style="left:6.0725em;top: 20.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem3 }} &nbsp;</span></div>
+          <div class="stl_01" style="left:6.0725em;top: 22.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem4 }} &nbsp;</span></div>
+          <div class="stl_01" style="left:6.0725em;top: 24.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem5 }} &nbsp;</span></div>
+          <div class="stl_01" style="left:6.0725em;top: 26.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem6 }} &nbsp;</span></div>
           <div class="stl_01" style="left:16.49em;top: 28.5324em; "><span class="stl_10 stl_08 stl_09">{{ info.commandAgainstRulesInfo }} &nbsp;</span></div>
           <div class="stl_01" style="left:8.287em;top: 28.5894em; "><span class="stl_11 stl_08 stl_09">上述问题违反了 &nbsp;</span></div>
           <div class="stl_01" style="left:13.4625em;top: 32.6432em; "><span class="stl_10 stl_08 stl_09">{{ info.ccording1 }} &nbsp;</span></div>
@@ -91,14 +96,21 @@ export default {
       info.dateEndM = dateEndM
       info.dateEndD = dateEndD
       // const lenght = info.commandChangedInfo.lenght
+      info.commandDeviceProblem1 = info.commandDeviceProblem.substr(0, 36)
+      info.commandDeviceProblem2 = info.commandDeviceProblem.substr(36, 36)
+      info.commandDeviceProblem3 = info.commandDeviceProblem.substr(72, 36)
+      info.commandDeviceProblem4 = info.commandDeviceProblem.substr(108, 36)
+      info.commandDeviceProblem5 = info.commandDeviceProblem.substr(144, 36)
+      info.commandDeviceProblem6 = info.commandDeviceProblem.substr(180)
+
       info.changeInfo1 = info.commandChangedInfo.substr(0, 26)
       info.changeInfo2 = info.commandChangedInfo.substr(26, 33)
       info.changeInfo3 = info.commandChangedInfo.substr(59, 33)
       info.changeInfo4 = info.commandChangedInfo.substr(92, 33)
       info.changeInfo5 = info.commandChangedInfo.substr(125, 33)
       info.changeInfo6 = info.commandChangedInfo.substr(158, 33)
-      info.ccording1 = info.commandCcordingRulesInfo.substr(0, 26)
-      info.ccording2 = info.commandCcordingRulesInfo.substr(26)
+      info.ccording1 = info.commandCcordingRulesInfo.substr(0, 24)
+      info.ccording2 = info.commandCcordingRulesInfo.substr(24)
       this.info = info
     }
   }

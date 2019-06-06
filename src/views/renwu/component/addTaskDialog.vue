@@ -219,6 +219,8 @@ export default {
       this.com.useContactMan = useContactMan
       this.com.useContactManTel = useTel
       this.com.useAddress = useAddress
+      // this.getDeviceList(id, 1)
+      this.deviceList = []
     },
     changeDevice(event) {
       if (event.length !== 0) {
@@ -233,18 +235,27 @@ export default {
         this.task.id = this.infos.id // 任务id
         this.task.checkNo = this.infos.checkNo // 任务id
         if (this.infos.companyUse && this.infos.companyUse.id) {
+          const companyUse = this.infos.companyUse
           const {
             id,
             useAddress,
             useContactMan,
             useTel,
             useName
-          } = this.infos.companyUse
+          } = companyUse
           this.com.id = id
           this.com.useName = useName
           this.com.useContactMan = useContactMan
           this.com.useContactManTel = useTel
           this.com.useAddress = useAddress
+          const useArea2 = companyUse.useArea2 ? companyUse.useArea2 : ''
+          const useArea3 = companyUse.useArea3 ? companyUse.useArea3 : ''
+          const useArea4 = companyUse.useArea4 ? companyUse.useArea4 : ''
+          const area = [useArea2, useArea3, useArea4]
+          // const useAddress = companyUse.useAddress
+          const local = { area, useAddress }
+          console.log(local)
+          this.$store.dispatch('actionsLocalAddr', local)
         }
         if (this.infos.taskStatus) {
           this.com.taskone = this.infos.taskStatus
@@ -436,6 +447,7 @@ export default {
         data.sendTime = this.sendTime
         data.listDevice = listDevice
         data.taskStatus = taskone
+        data.checkStatus = '4'
         data.taskStatusName = tasktwo
         data.operateName = '新增任务'
         fetchAddTask(data).then(response => {

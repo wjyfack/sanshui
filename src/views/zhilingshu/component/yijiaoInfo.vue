@@ -10,11 +10,11 @@
     <el-row class="row">
       <el-col :span="12" type="flex">
         <span class="label">任务移交人</span>
-        <span class="mes">{{ transfe.commandExecTaskAddManName }}</span>
+        <span class="mes">{{ transfe.commandExecTaskAddManName1 }}</span>
       </el-col>
       <el-col :span="12" type="flex">
         <span class="label">移交人部门</span>
-        <span class="mes">{{ transfe.commandExecTaskAddDeptName }}</span>
+        <span class="mes">{{ transfe.commandExecTaskAddDeptName1 }}</span>
       </el-col>
     </el-row>
     <el-row class="row">
@@ -42,6 +42,7 @@
 
 <script>
 import { baseUrl } from '@/utils/config'
+import { toViewer } from '@/utils/common'
 export default {
   props: {
     transfe: {
@@ -76,8 +77,9 @@ export default {
         this.$message.error('无移交书编号')
         return ''
       }
-      this.lookPic = true
+      // this.lookPic = true
       this.imgDialog = encodeURI(`${this.printUrl}${commandTransferNo}.jpg`)
+      toViewer(this.imgDialog)
     },
     download() {
       const { commandTransferNo } = this.transfe
@@ -117,7 +119,7 @@ export default {
     label {font-weight: 300;color:#333;}
   }
   .row {
-      padding: 10px 0;
+      padding-bottom: 10px;
       .red {color: red;}
       .label {display: inline-block; width: 110px;text-align: left;margin-right: 5px;}
       .input {width: 220px;}

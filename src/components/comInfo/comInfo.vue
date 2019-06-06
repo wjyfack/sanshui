@@ -143,7 +143,7 @@ export default {
           // text-align: right;
         }
         .info {
-          min-width: 200px;
+          width: 350px;
           color:#999999;
         }
       }

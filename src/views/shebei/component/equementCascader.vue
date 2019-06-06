@@ -42,6 +42,13 @@ export default {
     }
   },
   methods: {
+    clear() {
+      this.useEque = ''
+      this.useEque2 = ''
+      this.useEque3 = ''
+      this.equipment2 = []
+      this.equipment3 = []
+    },
     onUseEque1Change(event, opt) {
       console.log(event)
       if (event) {

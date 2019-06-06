@@ -114,6 +114,7 @@ export default {
         const area = [useArea2, useArea3, useArea4]
         const useAddress = data.useAddress
         const local = { area, useAddress }
+        console.log(local)
         this.$store.dispatch('actionsLocalAddr', local)
         this.$emit('closed', data)
         this.dialogFormVisible = false

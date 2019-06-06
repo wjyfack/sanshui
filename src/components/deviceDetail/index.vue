@@ -19,7 +19,7 @@
         <el-row type="flex" align="middle" class="row pd-top">
           <el-col :span="8"><span class="name">使用证编号</span><span class="info">{{ info.deviceCertNo }}</span> </el-col>
           <el-col :span="8"><span class="name">设备出厂编号</span><span class="info">{{ info.deviceProduceNo }}</span> </el-col>
-          <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ info.deviceIndexesID }}</span> </el-col>
+          <el-col :span="8"><span class="name">设备系统编号</span><span class="info">{{ info.deviceSystemCode }}</span> </el-col>
         </el-row>
         <el-row type="flex" align="middle" class="row pd-top">
           <span class="name">使用单位部门地址</span><span class="info">{{ info.deviceCertNo }}</span>
@@ -71,10 +71,10 @@
           </el-row>
           <el-row type="flex" align="middle" class="row">
             <el-col :span="12"><span class="name">联系人</span><span class="info">{{ info.deviceInstallContactTel }}</span> </el-col>
-            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.deviceUseAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系电话</span><span class="info">{{ info.deviceInstallContactTel }}</span> </el-col>
           </el-row>
           <el-row type="flex" align="middle" class="row">
-            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.deviceUseAddress }}</span> </el-col>
+            <el-col :span="12"><span class="name">联系地址</span><span class="info">{{ info.deviceInstallAddress }}</span> </el-col>
           </el-row>
         </div>
         <div>

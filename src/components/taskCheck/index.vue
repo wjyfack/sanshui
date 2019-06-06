@@ -45,6 +45,12 @@ export default {
     // console.log(this.taskStatus, this.instructionStatus, 123)
   },
   methods: {
+    clear() {
+      this.taskStatus = ''
+      this.instructionStatus = ''
+      this.insprcType
+      console.log('clear')
+    },
     taskSelect(event) {
       console.log(event, this.taskStatus)
       switch (~~this.taskStatus) {

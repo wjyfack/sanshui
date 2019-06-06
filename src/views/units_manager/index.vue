@@ -149,7 +149,8 @@ export default {
         addTime: [], // 添加时间
         useLegalPerson: '', // 单位法人
         useCreditCode: '', // 信用代码
-        installAddr: []
+        installAddr: [],
+        useArea3: '7'
       },
       multipleSelection: [],
       list: [],
@@ -183,9 +184,10 @@ export default {
           addTime, // 添加时间
           useLegalPerson, // 单位法人
           useCreditCode, // 信用代码
-          installAddr
+          installAddr,
+          useArea3
         } = this.units
-        const useArea3 = installAddr[1] ? installAddr[1] : ''
+        // const useArea3 = installAddr[1] ? installAddr[1] : ''
         const useArea4 = installAddr[2] ? installAddr[2] : ''
         data = {
           useName,
@@ -238,9 +240,10 @@ export default {
         addTime, // 添加时间
         useLegalPerson, // 单位法人
         useCreditCode, // 信用代码
-        installAddr
+        installAddr,
+        useArea3
       } = this.units
-      const useArea3 = installAddr[1] ? installAddr[1] : ''
+      // const useArea3 = installAddr[1] ? installAddr[1] : ''
       const useArea4 = installAddr[2] ? installAddr[2] : ''
       const data = {
         useName,
@@ -287,31 +290,33 @@ export default {
       let deviceCount5 = 0
       let deviceCount6 = 0
       let deviceCount7 = 0
-      deviceTypeTotal.forEach(item => {
-        switch (item.deviceTypeName) {
-          case '压力容器':
-            deviceCount1++
-            break
-          case '压力管道':
-            deviceCount2++
-            break
-          case '场（厂）内专用机动车辆':
-            deviceCount3++
-            break
-          case '大型游乐设施':
-            deviceCount4++
-            break
-          case '电梯':
-            deviceCount5++
-            break
-          case '起重机械':
-            deviceCount6++
-            break
-          case '锅炉':
-            deviceCount7++
-            break
-        }
-      })
+      if (deviceTypeTotal !== null) {
+        deviceTypeTotal.forEach(item => {
+          switch (item.deviceTypeName) {
+            case '压力容器':
+              deviceCount1++
+              break
+            case '压力管道':
+              deviceCount2++
+              break
+            case '场（厂）内专用机动车辆':
+              deviceCount3++
+              break
+            case '大型游乐设施':
+              deviceCount4++
+              break
+            case '电梯':
+              deviceCount5++
+              break
+            case '起重机械':
+              deviceCount6++
+              break
+            case '锅炉':
+              deviceCount7++
+              break
+          }
+        })
+      }
       return {
         deviceCount1,
         deviceCount2,
@@ -343,6 +348,14 @@ export default {
     },
     searchReset() {
       this.$message('重置成功')
+      this.units = {
+        useName: '', // 使用单位
+        addTime: [], // 添加时间
+        useLegalPerson: '', // 单位法人
+        useCreditCode: '', // 信用代码
+        installAddr: [],
+        useArea3: '7'
+      }
     },
     toggleSelection(rows) {
       if (rows) {

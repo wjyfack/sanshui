@@ -3,11 +3,11 @@
     <el-row><div class="bianhao"><label for="">任务编号：{{ transfe.checkNo }}</label></div></el-row>
     <div class="detail">
       <div class="item">
-        <span class="name">处理人：</span> <div class="info">{{ command.commandAddManName }}</div>
-        <span class="name">处理方式：</span> <div class="info">{{ transfe.checkResulTreatmentName }}</div>
+        <span class="name">处理人：</span> <div class="info">{{ transfe.checkExecManName }}</div>
+        <span class="name">处理方式：</span> <div class="info">{{ transfe.checkResulTreatment }}</div>
       </div>
       <div class="item">
-        <span class="name">执行时间：</span> <div class="info">{{ command.commandAddDate }}</div>
+        <span class="name">执行时间：</span> <div class="info">{{ transfe.checkRecord.checkDate }}</div>
         <span class="name">关联指令书编号：</span> <div class="info">{{ command.commandNo }}</div>
       </div>
       <div class="item">
@@ -51,6 +51,7 @@
 <script>
 import taskXiangxi from '@/components/taskXiangxi/index'
 import { baseUrl } from '@/utils/config'
+import { toViewer } from '@/utils/common'
 export default {
   components: {
     taskXiangxi
@@ -85,14 +86,12 @@ export default {
     },
     changeData() {
       const transfe = this.transfe
-      const checkRecord = transfe.checkRecord
+      // const checkRecord = transfe.checkRecord
       const command = transfe.command
-      if (command.id === null) {
+      if (command.id !== null) {
         this.command = command
-      } else {
-        this.command = {}
-        this.command.commandAddManName = checkRecord.checkAddDate
-        this.command.commandAddDate = checkRecord.checkAddManName
+        // this.command.commandAddManName = checkRecord.checkAddDate
+        // this.command.commandAddDate = checkRecord.checkAddManName
       }
     },
     daying(opt) {
@@ -137,8 +136,9 @@ export default {
           url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
           break
       }
-      this.lookPic = true
-      this.imgDialog = url
+      // this.lookPic = true
+      // this.imgDialog = url
+      toViewer(url)
     }
   }
 }
@@ -167,11 +167,11 @@ export default {
         padding-bottom: 10px;
         .name {
           display: inline-block;
-          // min-width: 130px;
+          min-width: 130px;
           // text-align: right;
         }
         .info {
-          min-width: 200px;
+          width: 350px;
           color:#999999;
         }
       }

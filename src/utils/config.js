@@ -25,6 +25,25 @@ export const equipmentType = [ // 设备种类 一级分类
   }
 ]
 
+export const IrregularitiesType = [ // 违规
+  {
+    value: '1',
+    label: '超期未检'
+  },
+  {
+    value: '2',
+    label: '未登记'
+  },
+  {
+    value: '3',
+    label: '电梯不安全'
+  },
+  {
+    value: '4',
+    label: '缺少提示语'
+  }
+]
+
 export const equipmentAllType = [
   {
     value: 1,

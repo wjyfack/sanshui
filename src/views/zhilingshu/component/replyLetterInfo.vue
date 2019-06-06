@@ -12,7 +12,7 @@
     <el-row class="row" type="flex">
       <el-col :span="12">
         <span class="label">任务回复人</span>
-        <span class="mes">超级管理源</span>
+        <span class="mes">{{ transfe.commandExecTaskReplyManName }}</span>
       </el-col>
       <el-col :span="12">
         <span class="label">任务回复时间</span>
@@ -22,7 +22,7 @@
     <el-row class="row" type="flex">
       <el-col :span="12">
         <span class="label">回复书日期</span>
-        <span class="mes">{{ transfe.commandExecTaskAddTime }}</span>
+        <span class="mes">{{ transfe.commandReplyDate }}</span>
       </el-col>
     </el-row>
     <el-row type="flex" class="row">
@@ -55,6 +55,7 @@
 
 <script>
 import { baseUrl } from '@/utils/config'
+import { toViewer } from '@/utils/common'
 export default {
   props: {
     transfe: {
@@ -83,8 +84,9 @@ export default {
   methods: {
     preview() {
       const { commandReplyNo } = this.transfe
-      this.dialogPreviewVisible = true
+      // this.dialogPreviewVisible = true
       this.dialogImageUrl = encodeURI(`${this.printUrl}${commandReplyNo}.jpg`)
+      toViewer(this.dialogImageUrl)
     },
     download() {
       const { commandReplyNo } = this.transfe
@@ -105,8 +107,9 @@ export default {
       console.log(this.urlImgs)
     },
     hasHandlePreview(url) {
-      this.dialogPreviewVisible = true
-      this.dialogImageUrl = url
+      // this.dialogPreviewVisible = true
+      // this.dialogImageUrl = url
+      toViewer(url)
     }
   }
 }
@@ -121,7 +124,7 @@ export default {
   label {font-weight: 300;color:#333;}
 }
 .row {
-  padding: 10px 0;
+  padding-bottom: 10px;
   .red {color: red;}
   .label {display: inline-block; width: 110px;text-align: left;margin-right: 5px;}
   .input {width: 220px;}

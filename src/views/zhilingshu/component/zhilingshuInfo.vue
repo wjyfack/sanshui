@@ -39,6 +39,7 @@
 
 <script>
 import { baseUrl } from '@/utils/config'
+import { toViewer } from '@/utils/common'
 export default {
   props: {
     transfe: {
@@ -62,8 +63,9 @@ export default {
   },
   methods: {
     handlePictureCardPreview(file) {
-      this.dialogImageUrl = file
-      this.dialogPreviewVisible = true
+      // this.dialogImageUrl = file
+      // this.dialogPreviewVisible = true
+      toViewer(file)
     }
   }
 }
@@ -102,7 +104,7 @@ export default {
       }
     }
     .row {
-      padding: 10px 0;
+      // padding: 10px 0;
       .red {color: red;}
       .label {display: inline-block; width: 110px;text-align: right;margin-right: 5px;}
       .input {width: 220px;}
