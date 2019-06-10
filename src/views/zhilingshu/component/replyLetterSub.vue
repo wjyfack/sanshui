@@ -30,7 +30,30 @@
     </el-row>
     <el-row type="flex" class="row">
       <span class="label"><span class="red">*</span>任务回复相册</span>
-      <el-upload
+      <div class="" style="display:flex;">
+        <ul class="el-upload-list el-upload-list--picture-card">
+          <li v-for="(item, index) in commandExecTaskReplyIntroPhotoList" :key="index" class="el-upload-list__item is-success">
+            <img :src="showUrl+item" alt="" class="el-upload-list__item-thumbnail">
+            <i class="el-icon-close"/>
+            <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(showUrl+item)">
+                <i class="el-icon-zoom-in"/>
+              </span>
+              <span class="el-upload-list__item-delete" @click="handleRemove(index)">
+                <i class="el-icon-delete"/>
+              </span>
+            </span>
+          </li>
+        </ul>
+        <el-upload
+          :on-success="handleSuccess"
+          :before-upload="beforeAvatarUpload"
+          :action="baseUrl"
+          class="avatar-uploader">
+          <i class="el-icon-plus avatar-uploader-icon"/>
+        </el-upload>
+      </div>
+      <!-- <el-upload
         :on-preview="handlePictureCardPreview"
         :on-success="handleSuccess"
         :on-remove="handleRemove"
@@ -38,7 +61,7 @@
         :limit="3"
         list-type="picture-card">
         <i class="el-icon-plus avatar-uploader-icon"/>
-      </el-upload>
+      </el-upload> -->
     </el-row>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closed">取 消</el-button>
@@ -53,7 +76,7 @@
 <script>
 import { baseUrl } from '@/utils/config'
 import { fetchClosedLoop } from '@/api/instruction'
-import { getFormatDate } from '@/utils/common'
+import { getFormatDate, toViewer, beforeUpload } from '@/utils/common'
 export default {
   props: {
     transfe: {
@@ -63,6 +86,7 @@ export default {
   },
   data() {
     return {
+      showUrl: `${baseUrl}/file/show/reply/`,
       baseUrl: `${baseUrl}/file/upload/reply`,
       info: {
         id: '',
@@ -86,6 +110,9 @@ export default {
     this.changeStatus()
   },
   methods: {
+    beforeAvatarUpload(file) {
+      beforeUpload(file)
+    },
     changeStatus() {
       // console.log(this.transfe)
       const {
@@ -119,9 +146,10 @@ export default {
       // info.id = id
       // info.commandReplyNo = commandReplyNo
 
-      const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.map(item => {
-        return item.response.returnData
-      }).join(',')
+      // const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.map(item => {
+      //   return item.response.returnData
+      // }).join(',')
+      const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.join(',')
       console.log(this.commandExecTaskReplyIntroPhotoList)
       if (!commandExecTaskReplyIntroPhotoList) {
         this.$message({ message: '请选择任务回复相册', type: 'error' })
@@ -146,15 +174,21 @@ export default {
     },
     handleSuccess(response, file, fileList) {
       console.log(fileList)
-      this.commandExecTaskReplyIntroPhotoList = fileList
+      if (response.resultCode === '0000000') {
+        const returnData = response.returnData
+        this.commandExecTaskReplyIntroPhotoList = [...this.commandExecTaskReplyIntroPhotoList, returnData]
+      } else {
+        this.$message.error(response.resultDesc || '操作失败')
+      }
+      // this.commandExecTaskReplyIntroPhotoList = fileList
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList)
-      this.commandExecTaskReplyIntroPhotoList = fileList
+    handleRemove(index) {
+      const rectifyImg = this.commandExecTaskReplyIntroPhotoList
+      rectifyImg.splice(index, 1)
+      this.commandExecTaskReplyIntroPhotoList = rectifyImg
     },
     handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible = true
+      toViewer(file)
     }
   }
 }
@@ -234,5 +268,31 @@ export default {
       display: flex;
       justify-content: flex-end;
     }
+}
+.avatar-uploader {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 146px;
+  height: 146px;
+  box-sizing: border-box;
+}
+.avatar-uploader:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 146px;
+  height: 146px;
+  line-height: 146px;
+  text-align: center;
+}
+.avatar {
+  width: 146px;
+  height: 146px;
+  display: block;
 }
 </style>

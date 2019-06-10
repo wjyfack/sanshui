@@ -135,7 +135,8 @@
           highlight-current-row
           border
           style="width: 100%;margin-top: 1px;"
-          @current-change="handleCurrentChange">
+          @current-change="handleCurrentChange"
+          @row-click="cellClick">
           <el-table-column
             type="index"
             width="50"/>
@@ -178,11 +179,40 @@
         </div>
       </el-tab-pane>
     </el-tabs>
+    <el-dialog
+      :visible.sync="dialogEndVisible"
+      width="50%"
+      append-to-body
+      title="">
+      <taskDetail :transfe="editTask" />
+      <comInfo :transfe="editTask"/>
+      <statusRecord :status="editTask.taskCheckLogList"/>
+      <div v-if="commandPhotoList.length != 0" class="imgLists" >
+        <span>现场图片：</span>
+        <ul class="el-upload-list el-upload-list--picture-card">
+          <li v-for="(item, index) in commandPhotoList" :key="index" class="el-upload-list__item is-success">
+            <img :src="baseImgUrl+item" alt="" class="el-upload-list__item-thumbnail">
+          </li>
+        </ul>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { fecthBeforeEdit } from '@/api/task'
+import { opLoading } from '@/mixins/loading'
+import { baseUrl } from '@/utils/config'
+import statusRecord from '@/components/statusRecord/index'
+import comInfo from '@/components/comInfo/comInfo'
+import taskDetail from '@/components/taskDetail/taskDetail'
 export default {
+  components: {
+    statusRecord,
+    comInfo,
+    taskDetail
+  },
+  mixins: [opLoading],
   props: {
     info: {
       type: Object,
@@ -193,12 +223,41 @@ export default {
       default: false
     }
   },
+
   data() {
     return {
-      activeName: 'first'
+      activeName: 'first',
+      commandPhotoList: [],
+      editTask: {},
+      dialogEndVisible: false,
+      baseImgUrl: `${baseUrl}/file/show/ScenePictures/`
     }
   },
   methods: {
+    cellClick(row) {
+      console.log(row)
+      this.radirtaskDetail(row)
+    },
+    radirtaskDetail(row) {
+      this.opShowLoading()
+      fecthBeforeEdit(row.id).then(res => {
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          this.editTask = data
+          this.dialogEndVisible = true
+          let commandPhotoList = []
+          if (data.checkResultPhotoList !== null) {
+            commandPhotoList = data.checkResultPhotoList.split(',')
+          }
+          this.commandPhotoList = commandPhotoList // 现场图片
+        } else {
+          this.$message.error(res.resultDesc)
+        }
+      }).then(() => {
+        // this.isCompent = true
+        this.onCloseLoading()
+      })
+    },
     checkTypeIdchange(checkType) {
       let name = ''
       switch (~~checkType) {

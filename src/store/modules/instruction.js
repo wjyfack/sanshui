@@ -115,7 +115,7 @@ const instruction = { // 通用滴
             }, 0)
             info.instrStatusAll = instrStatusAll
             info.instrStatusEnd = info.instrStatus5 + info.instrStatus51
-            console.log(info)
+            // console.log(info)
             commit('SET_INSTRCOUNT', info)
           }
         })

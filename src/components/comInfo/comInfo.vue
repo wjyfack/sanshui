@@ -42,17 +42,17 @@
       width="40%"
       title="设备"
       append-to-body>
-      <deviceDetail :info="info"/>
+      <deviceDetail2 :info="info"/>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import deviceDetail from '@/components/deviceDetail/index'
+import deviceDetail2 from '@/components/deviceDetail/index'
 import { fetchDeviceDetail } from '@/api/shebei'
 export default {
   components: {
-    deviceDetail
+    deviceDetail2
   },
   props: {
     transfe: {

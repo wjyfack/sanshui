@@ -91,7 +91,7 @@ const task = { // 通用滴
               return tatol + item.total
             }, 0)
             info.taskStatusAll = taskStatusAll
-            console.log(info)
+            // console.log(info)
             commit('SET_TASKCOUNT', info)
           }
         })
