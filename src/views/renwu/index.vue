@@ -2,13 +2,13 @@
   <div class="renwu">
     <div class="renwuMg">
       <el-tabs v-model="activeName" @tab-click="renwuTabClick">
-        <el-tab-pane v-if="auths.sys_task_stay_payout" label="待派发" name="1"/>
-        <el-tab-pane v-if="auths.sys_task_stay_receive" label="待接收" name="2"/>
-        <el-tab-pane v-if="auths.sys_task_stay_deal" label="待处理" name="3"/>
-        <el-tab-pane v-if="auths.sys_task_dealing" label="处理中" name="4"/>
-        <el-tab-pane v-if="auths.sys_task_stay_audit" label="待审核" name="5"/>
-        <el-tab-pane v-if="auths.sys_task_finish" label="已完成" name="6"/>
-        <el-tab-pane v-if="auths.sys_task_all" label="全部" name="7"/>
+        <el-tab-pane v-if="auths.sys_task_stay_payout" :label="`待派发(${taskCount.taskStatus1})`" name="1"/>
+        <el-tab-pane v-if="auths.sys_task_stay_receive" :label="`待接收(${taskCount.taskStatus2})`" name="2"/>
+        <el-tab-pane v-if="auths.sys_task_stay_deal" :label="`待处理(${taskCount.taskStatus3})`" name="3"/>
+        <el-tab-pane v-if="auths.sys_task_dealing" :label="`处理中(${taskCount.taskStatus4})`" name="4"/>
+        <el-tab-pane v-if="auths.sys_task_stay_audit" :label="`待审核(${taskCount.taskStatus5})`" name="5"/>
+        <el-tab-pane v-if="auths.sys_task_finish" :label="`已完成(${taskCount.taskStatus6})`" name="6"/>
+        <el-tab-pane v-if="auths.sys_task_all" :label="`全部(${taskCount.taskStatusAll})`" name="7"/>
         <el-tab-pane v-if="auths.sys_task_recycle_space" label="回收站" name="8"/>
       </el-tabs>
       <div class="search">
@@ -44,6 +44,7 @@
           <el-col v-if="activeName == '1'" :span="8">
             <el-button type="primary" @click="BatchWholesale">批量派发</el-button>
             <el-button type="danger" @click="closedLoop">闭环</el-button>
+            <el-button type="danger" @click="taskOperation(1)">删除</el-button>
             <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
             <el-button type="primary" @click="excelIn">Excel导入</el-button>
             <input id="files" type="file" >
@@ -51,15 +52,14 @@
           <el-col v-else-if="activeName == '2'" :span="8">
             <el-button type="primary" @click="taskOperation(2)">批量接收</el-button>
             <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
-            <el-button type="danger" @click="taskOperation(1)">删除</el-button>
           </el-col>
           <el-col v-else-if="activeName == '3'" :span="8">
-            <el-button type="primary" @click="dialogAddTask= true">新增</el-button>
+            <!-- <el-button type="primary" @click="dialogAddTask= true">新增</el-button> -->
             <el-button type="danger" @click="closedLoop">闭环</el-button>
             <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '4'" :span="8">
-            <!-- <el-button type="primary" @click="dialogAddTask= true">新增</el-button> -->
+            <el-button type="primary" @click="dialogAddTask= true">新增</el-button>
             <el-button type="danger" @click="taskOperation(1)">删除</el-button>
             <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
@@ -467,7 +467,8 @@ export default {
     ...mapGetters([
       'companyList',
       'taskTotal',
-      'taskList'
+      'taskList',
+      'taskCount'
     ])
   },
   mounted() {
@@ -569,6 +570,12 @@ export default {
           isRecovery, // 回搜站 1
           cont // 所属镇街 deviceAreaName4
         } = this.search
+        let dateCheckeds = []
+        if (!dateChecked) {
+          dateCheckeds = []
+        } else {
+          dateCheckeds = dateChecked
+        }
         const [nameValue] = townSearchType.filter(item => {
           return item.value === cont
         })
@@ -579,8 +586,8 @@ export default {
           companyUseName, // 使用单位
           commandNo, // 指令书编号
           deviceCertNo, // 使用登记证
-          updateTime: dateChecked[0] ? dateChecked[0] : '',
-          commandAddDate: dateChecked[1] ? dateChecked[1] : '',
+          updateTime: dateCheckeds[0] ? dateCheckeds[0] : '',
+          commandAddDate: dateCheckeds[1] ? dateCheckeds[1] : '',
           checkTypeId, // 状态
           checkAddDeptName, // 任务派发部门
           checkStatus, // 检查任务状态
@@ -1129,13 +1136,14 @@ export default {
         deviceCertNo,
         taskStatusName,
         deviceAreaName4: nameValue ? nameValue.name : '',
-        updateTime: dateChecked[0] ? dateChecked[0] : '',
-        commandAddDate: dateChecked[1] ? dateChecked[1] : '',
+        updateTime: dateChecked ? dateChecked[0] ? dateChecked[0] : '' : '',
+        commandAddDate: dateChecked ? dateChecked[1] ? dateChecked[1] : '' : '',
         orderType: '1'
       }
       // console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
         this.loading = false
+        this.$store.dispatch('actionsTaskCount')
       })
     },
     taskSearch() {
@@ -1143,13 +1151,11 @@ export default {
       // this.$message('搜索成功')
     },
     searchReset() {
-      this.search = { // 搜索
-        checkNo: '', // 任务编号
-        companyUseName: '', // 使用单位
-        deviceCertNo: '', // 使用登记证
-        commandNo: '', // 指令书编号
-        cont: '' // 所属镇街
-      }
+      this.search.checkNo = '' // 任务编号
+      this.search.companyUseName = '' // 使用单位
+      this.search.deviceCertNo = '' // 使用登记证
+      this.search.commandNo = '' // 指令书编号
+      this.search.cont = '' // 所属镇街
       this.$message('重置成功')
     },
     pageSizeChange(event) {

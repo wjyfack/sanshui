@@ -158,3 +158,11 @@ export function fetchImportExcel(data, fn) {
     onUploadProgress: fn
   })
 }
+/** 各个任务状态数量 */
+export function fetchTaskCount(deviceArea3 = '7') {
+  return request({
+    url: '/taskCheck/getTaskCount',
+    method: 'post',
+    data: { deviceArea3 }
+  })
+}

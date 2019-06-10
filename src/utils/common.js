@@ -1,4 +1,5 @@
 import Viewer from 'viewerjs'
+import { Message } from 'element-ui'
 /**
  * arr 生成书结构
  *
@@ -125,4 +126,17 @@ export function toViewer(src) {
     }
   })
   viewer.show()
+}
+/**
+ * @desc 限制类型
+ * @param file {Object}
+ */
+export function beforeUpload(file) {
+  console.log(file)
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg'
+  console.log(isJPG)
+  if (!isJPG) {
+    Message.error('上传只能是图片格式!')
+  }
+  return isJPG
 }

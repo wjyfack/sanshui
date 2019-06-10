@@ -105,6 +105,7 @@ export default {
       }
       data.pageNum = `${this.pageNum}`
       data.pageSize = `${this.pageSize}`
+      data.useArea3 = '7'
       this.loading = true
       fetchCompanyBase(data).then((res) => {
         if (res.resultCode === '0000000') {
@@ -155,5 +156,8 @@ export default {
 }
 .row {
   display: flex;
+}
+.search {
+  margin-bottom: 10px;
 }
 </style>

@@ -432,7 +432,7 @@ export default {
         const deviceNoString = this.deviceList.map(item => {
           return item.deviceCertNo
         }).join('、')
-        this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${this.command.dangerDescription}`
+        this.command.commandDeviceProblem = `在用的【${deviceNoString}】${this.command.dangerDescription}`
       }
 
       this.DialogAddDevice = false
@@ -449,8 +449,11 @@ export default {
       // this.info = this.task
       const task = this.task
       const company = task.companyUse !== null ? task.companyUse : {}
-      const record = task.checkRecord
+      let record = task.checkRecord
       console.log(company, record)
+      if (record === null) {
+        record = {}
+      }
       if (company) {
         const useArea2 = company.useArea2 ? company.useArea2 : ''
         const useArea3 = company.useArea3 ? company.useArea3 : ''
@@ -512,7 +515,7 @@ export default {
         }
         return data
       })
-      this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+      // this.illegalCount = this.deviceList.map(item => item.illegalCountId)
     },
     taskSelect(event) { // 检查类别
       console.log(event)
@@ -689,7 +692,7 @@ export default {
       const deviceNoString = this.deviceList.map(item => {
         return item.deviceCertNo
       }).join('、')
-      this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${templateProblemTitel}`
+      this.command.commandDeviceProblem = `在用的【${deviceNoString}】${templateProblemTitel}`
     },
     handleSuccess(response, file, fileList) {
       this.nowFileList = fileList
@@ -846,7 +849,8 @@ export default {
         // companyUseConfirmMan,
         // companyUseConfirmManPhone
         operateName: '审核任务', // operate
-        checkNo: checkNo
+        checkNo: checkNo,
+        deviceAreaName4: this.task.deviceAreaName4
       }
       console.log(data, 11)
       // return ''

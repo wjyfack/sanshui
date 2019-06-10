@@ -7,7 +7,9 @@
           <el-input v-model="device.use_org_name" class="input" placeholder="" />
           <label for="" class="label">设备种类：</label>
           <equement-cascader
+            ref="equipmentCasc1"
             :equipment="equipmentAllType"
+            @click.native="equipmentClear"
             @cascader="onUseEqueChange"/>
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
@@ -260,6 +262,12 @@ export default {
     this.fecthData()
   },
   methods: {
+    equipmentClear() {
+      const equipmentCasc1 = this.$refs.equipmentCasc1
+      if (equipmentCasc1) {
+        equipmentCasc1.clear()
+      }
+    },
     changeDeviceDetail(item) {
       this.taskdeviceDetail = item
     },
@@ -377,6 +385,21 @@ export default {
     },
     searchReset() {
       this.$message('重置成功')
+      this.device = {
+        equ_kind: '', // 一级
+        equ_type: '', // 设备种类二级
+        use_org_name: '', // 单位名称
+        area_code: '440607'
+      }
+      this.biange = {
+        out_area_code: '440607',
+        apply_type: '',
+        out_org_name: ''
+      }
+      this.units = {
+        org_name: ''
+      }
+      this.equipmentClear()
     },
     toggleSelection(rows) {
       if (rows) {

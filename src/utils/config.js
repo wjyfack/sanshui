@@ -1,6 +1,6 @@
 
-export const baseUrl = 'http://192.168.0.142:8607' // 'http://192.168.0.142:8607'
-export const refiyUrl = 'http://192.168.0.142:8507'
+export const baseUrl = 'http://192.168.0.142:8607' // 'http://47.112.211.171/sanshui_app-api' //
+export const refiyUrl = 'http://192.168.0.142:8507' // 'https://www.xiangua.net/customer_app-api' //
 export const systemKey = 'dgrl44212haoakkewicenwwhnsja443'
 export const systemSign = 'sanshuiSafetyServer'
 export const equipmentType = [ // 设备种类 一级分类

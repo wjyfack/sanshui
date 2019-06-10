@@ -98,7 +98,7 @@ export default {
           // text-align: right;
         }
         .info {
-          min-width: 150px;
+          width: 350px;
           color:#999999;
         }
       }

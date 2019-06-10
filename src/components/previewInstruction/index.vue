@@ -24,11 +24,11 @@
           <div class="stl_01" style="left:13.4625em;top: 32.6432em; "><span class="stl_10 stl_08 stl_09">{{ info.ccording1 }} &nbsp;</span></div>
           <div class="stl_01" style="left:6.0725em;top: 34.6432em; "><span class="stl_10 stl_08 stl_09">{{ info.ccording2 }} &nbsp;</span></div>
           <div class="stl_01" style="left:5.9082em;top: 32.7556em; "><span class="stl_11 stl_08 stl_09">的规定，根据 &nbsp;</span></div>
-          <div class="stl_01" style="left:22.2719em;top: 36.9049em; z-index:370; "><span class="stl_10 stl_08 stl_09">{{ info.dateEndY }} &nbsp;</span></div>
+          <div class="stl_01" style="left:22.2719em;top: 36.9049em; z-index:370; "><span class="stl_10 stl_08 stl_09" style="font-size:1.05em;">{{ info.dateEndY }} &nbsp;</span></div>
           <div class="stl_01" style="left:5.9082em;top: 36.9217em; z-index:88; "><span class="stl_11 stl_08 stl_09">的规定，责令你单位（个人）于 &nbsp;</span></div>
           <div class="stl_01" style="left:24.5118em;top: 36.9217em; z-index:89; "><span class="stl_11 stl_08 stl_09">年</span></div>
           <div class="stl_01" style="left:27.299em;top: 36.9217em; z-index:90; "><span class="stl_11 stl_08 stl_09">月</span></div>
-          <div class="stl_01" style="left:26.205em;top: 36.9349em; z-index:358; "><span class="stl_10 stl_08 stl_09" style="word-spacing:1.1043em;">{{ info.dateEndM }}  {{ info.dateEndD }} &nbsp;</span></div>
+          <div class="stl_01" style="left:26.205em;top: 36.9349em; z-index:358; "><span class="stl_10 stl_08 stl_09" style="font-size:1.05em;word-spacing:1.1043em;">{{ info.dateEndM }}  {{ info.dateEndD }} &nbsp;</span></div>
           <div class="stl_01" style="left:30.0862em;top: 36.9217em; z-index:102; "><span class="stl_11 stl_08 stl_09">日前采取以下措施予以改正 &nbsp;</span></div>
           <div class="stl_01" style="left:5.907em;top: 38.9932em; z-index:355; "><span class="stl_11 stl_08 stl_09">或者消除事故隐患</span><span class="stl_11 stl_08 stl_12">：</span><span class="stl_10 stl_08 stl_09">{{ info.changeInfo1 }} &nbsp;</span></div>
           <div class="stl_01" style="left:6.0725em;top: 40.7182em; "><span class="stl_10 stl_08 stl_09">{{ info.changeInfo2 }} &nbsp;</span></div>
@@ -44,7 +44,7 @@
           <div class="stl_01" style="left:8.2458em;top: 64.1974em; "><span class="stl_11 stl_08 stl_09">被检查单位（负责人）签名： &nbsp;</span></div>
           <div class="stl_01" style="left:35.7542em;top: 66.2811em; "><span class="stl_10 stl_08 stl_17">{{ info.dateY }}</span><span class="stl_11 stl_08 stl_17">年 &nbsp;</span></div>
           <div class="stl_01" style="left:41.1575em;top: 66.2811em; z-index:248; "><span class="stl_11 stl_08 stl_09" style="word-spacing:1.107em;">月 日 &nbsp;</span></div>
-          <div class="stl_01" style="left:39.5192em;top: 66.3116em; z-index:400; "><span class="stl_10 stl_08 stl_09" style="word-spacing:1.2479em;">{{ info.dateM }} {{ info.dateD }} &nbsp;</span></div>
+          <div class="stl_01" style="left:39.8192em;top: 66.3116em; z-index:400; "><span class="stl_10 stl_08 stl_09" style="word-spacing:1.2479em;">{{ info.dateM }} {{ info.dateD }} &nbsp;</span></div>
           <div class="stl_01" style="left:5.9083em;top: 68.8698em; "><span class="stl_18 stl_08 stl_09">备注：本指令书一式两份，发出部门、被检查单位各一份。 &nbsp;</span></div>
         </div>
       </div>

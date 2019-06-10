@@ -623,7 +623,7 @@ export default {
         const deviceNoString = this.deviceList.map(item => {
           return item.deviceCertNo
         }).join('、')
-        this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${this.command.dangerDescription}`
+        this.command.commandDeviceProblem = `在用的【${deviceNoString}】${this.command.dangerDescription}`
       }
       this.DialogAddDevice = false
     },
@@ -723,7 +723,7 @@ export default {
         }
         return data
       })
-      this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+      // this.illegalCount = this.deviceList.map(item => item.illegalCountId)
     },
     changeCommandMode(event) {
       // console.log(event)
@@ -763,7 +763,7 @@ export default {
       const deviceNoString = this.deviceList.map(item => {
         return item.deviceCertNo
       }).join('、')
-      this.command.commandDeviceProblem = `在用的【${deviceNoString}】+${templateProblemTitel}`
+      this.command.commandDeviceProblem = `在用的【${deviceNoString}】${templateProblemTitel}`
     },
     taskSelect(event) { // 检查类别
       console.log(event)
@@ -966,7 +966,8 @@ export default {
         companyUseConfirmMan,
         companyUseConfirmManPhone,
         operateName: '编辑任务', // operate
-        checkNo: checkNo
+        checkNo: checkNo,
+        deviceAreaName4: this.task.deviceAreaName4
       }
       console.log(data, 11)
       // return

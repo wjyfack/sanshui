@@ -23,7 +23,7 @@
             <div class="mTitle">隐患总量</div>
             <div class="mDesc">{{ townName }}隐患总量</div>
           </div>
-          <div class="right">{{ command.taskTotal }}</div>
+          <div class="right">{{ command.total }}</div>
         </div>
         <div class="itemTotal border-left">
           <div class="left">
@@ -343,6 +343,7 @@ export default {
           if (resData2.resultCode === '0000000') {
             const data = resData2.returnData
             this.command = {
+              total: data.total,
               taskTotal: data.taskTotal,	// 任务总量
               lastWeekAddTask: data.lastWeekAddTask,	// 上周增加数
               everyDayAddTask: data.everyDayAddTask,	// 日均增加数

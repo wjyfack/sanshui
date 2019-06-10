@@ -71,3 +71,11 @@ export function fetchReview(data) {
     data: data
   })
 }
+/** 各个指令书状态数量 */
+export function fetchTaskCount(deviceArea3 = '7') {
+  return request({
+    url: '/taskCommand/getCommandCount',
+    method: 'post',
+    data: { deviceArea3 }
+  })
+}

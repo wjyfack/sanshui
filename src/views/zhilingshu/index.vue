@@ -50,14 +50,14 @@
       </div>
       <div class="table">
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane v-if="auths.sys_command_town_remove" label="镇街移交" name="first"/>
-          <el-tab-pane v-if="auths.sys_command_stay_remove" label="待移交" name="second"/>
-          <el-tab-pane v-if="auths.sys_command_approval_remove" label="批准移交" name="third"/>
-          <el-tab-pane v-if="auths.sys_command_stay_deal" label="待处理" name="fourth"/>
-          <el-tab-pane v-if="auths.sys_command_reply_audit" label="回复审核" name="fifth"/>
-          <el-tab-pane v-if="auths.sys_command_stay_ok" label="待确认" name="sixth"/>
-          <el-tab-pane v-if="auths.sys_command_finish" label="已完成" name="seventh"/>
-          <el-tab-pane v-if="auths.sys_command_all" label="全部" name="eight"/>
+          <el-tab-pane v-if="auths.sys_command_town_remove" :label="`镇街移交(${instrCount.instrStatus1})`" name="first"/>
+          <el-tab-pane v-if="auths.sys_command_stay_remove" :label="`待移交(${instrCount.instrStatus12})`" name="second"/>
+          <el-tab-pane v-if="auths.sys_command_approval_remove" :label="`批准移交(${instrCount.instrStatus7})`" name="third"/>
+          <el-tab-pane v-if="auths.sys_command_stay_deal" :label="`待处理(${instrCount.instrStatus3})`" name="fourth"/>
+          <el-tab-pane v-if="auths.sys_command_reply_audit" :label="`回复审核(${instrCount.instrStatus8})`" name="fifth"/>
+          <el-tab-pane v-if="auths.sys_command_stay_ok" :label="`待确认(${instrCount.instrStatus4})`" name="sixth"/>
+          <el-tab-pane v-if="auths.sys_command_finish" :label="`已完成(${instrCount.instrStatusEnd})`" name="seventh"/>
+          <el-tab-pane v-if="auths.sys_command_all" :label="`全部(${instrCount.instrStatusAll})`" name="eight"/>
         </el-tabs>
         <el-table
           v-loading="loading"
@@ -187,13 +187,12 @@
                 </li>
               </ul>
               <el-upload
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove"
                 :on-success="handleSuccess"
+                :before-upload="beforeAvatarUpload"
                 :action="imgUrl"
                 :headers="imgToken"
-                list-type="picture-card">
-                <i class="el-icon-plus"/>
+                class="avatar-uploader">
+                <i class="el-icon-plus avatar-uploader-icon"/>
               </el-upload>
             </div>
             <el-dialog :visible.sync="dialogPreviewVisible" width="30%" append-to-body>
@@ -329,7 +328,7 @@ import { fetchIdRefiy } from '@/api/common'
 import { refiyUrl, townType, baseUrl } from '@/utils/config'
 import authorization from '@/mixins/authorization'
 import { fetchTaskDownload } from '@/api/common'
-import { toViewer } from '@/utils/common'
+import { toViewer, beforeUpload } from '@/utils/common'
 export default {
   components: {
     transferInfo,
@@ -395,7 +394,8 @@ export default {
   computed: {
     ...mapGetters([
       'instructionTotal',
-      'instructionList'
+      'instructionList',
+      'instrCount'
     ])
   },
   watch: {
@@ -440,6 +440,9 @@ export default {
     this.fecthData()
   },
   methods: {
+    beforeAvatarUpload(file) {
+      beforeUpload(file)
+    },
     yijiaoDownload(row) {
       // this.$message('模拟下载')
       const { commandTransferNo, commandNo, commandReplyNo } = row
@@ -498,7 +501,13 @@ export default {
       this.handlePictureCardPreview({ url })
     },
     handleSuccess(response, file, fileList) {
-      this.recitfy.rectifyAddImgs = fileList
+      // this.recitfy.rectifyAddImgs = fileList
+      if (response.resultCode === '0000000') {
+        const returnData = response.returnData
+        this.recitfy.rectifyImg = [...this.recitfy.rectifyImg, returnData]
+      } else {
+        this.$message.error(response.resultDesc || '操作失败')
+      }
     },
     handleRemove(file, fileList) {
       // console.log(file, fileList)
@@ -640,11 +649,14 @@ export default {
     /** 整改查看 */
     recitfyDialog(row) {
       fetchBeforeRectify(row.id).then(res => {
-        const data = res.returnData
+        let data = res.returnData
         // if (!data) {
         //   this.$message('没有数据')
         // }
         console.log(res)
+        if (data === null) {
+          data = {}
+        }
         if (!data || !data.rectifyImg || data.rectifyImg === null) {
           data.rectifyImg = []
         } else {
@@ -745,6 +757,7 @@ export default {
       // console.log(data)
       this.$store.dispatch('fetchInstructionList', data).then(() => {
         this.loading = false
+        this.$store.dispatch('actionsTaskCount')
       })
     },
     pageSizeChange(event) {
@@ -884,5 +897,31 @@ export default {
     width: 100%;
     padding-left: 1px;
   }
+}
+.avatar-uploader {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 146px;
+  height: 146px;
+  box-sizing: border-box;
+}
+.avatar-uploader:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 146px;
+  height: 146px;
+  line-height: 146px;
+  text-align: center;
+}
+.avatar {
+  width: 146px;
+  height: 146px;
+  display: block;
 }
 </style>
