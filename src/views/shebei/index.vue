@@ -31,7 +31,7 @@
     <div class="shebeiTable">
       <div class="btn-group">
         <el-button icon="el-icon-plus" type="primary" @click="() => {dialogAddVisible = true;infoTitle = '新增'}">新增</el-button>
-        <el-button @click="makeTask">生成任务</el-button>
+        <el-button v-if="auths.sys_device_create_comand" @click="makeTask">生成任务</el-button>
         <el-button @click="dialogExcelVisible = true">导出Excel</el-button>
       </div>
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ deviceTotal }} <el-button type="text" @click="clearing">清空</el-button></span></div>
@@ -343,6 +343,11 @@
               <el-input v-model="info.devDetail" type="textarea" placeholder="请输入设备详情"/>
             </el-form-item>
           </el-row>
+          <el-row>
+            <el-form-item label="设备图片">
+              <img-load v-if="dialogAddVisible" :list="info.devicePhotos" :imgurl="imgUrl" :imgshow="baseImgUrl" @sendimg="sendImgLoad"/>
+            </el-form-item>
+          </el-row>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -395,10 +400,12 @@ import equementCascader from './component/equementCascader'
 import addTaskDialog from './component/addTaskDialog'
 import deviceDetail from '@/components/deviceDetail'
 import addUnit from '@/components/unitInfo/unit'
-import { equipmentType, status, checkStatus, overdue, addrCasc, townSearchType } from '@/utils/config'
+import imgLoad from '@/components/imgLoad/index'
+import { equipmentType, status, checkStatus, overdue, addrCasc, townSearchType, baseUrl } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchAddDevice, fetchMohuCom, fetchDeviceDetail, fetchGetDevice, fetchUpdateDevice } from '@/api/shebei'
 import { fetchExcelDevice } from '@/api/common'
+import authorization from '@/mixins/authorization'
 //  fetchMakeTakes,
 export default {
   components: {
@@ -406,10 +413,14 @@ export default {
     equementCascader,
     addTaskDialog,
     deviceDetail,
-    addUnit
+    addUnit,
+    imgLoad
   },
+  mixins: [authorization],
   data() {
     return {
+      baseImgUrl: `${baseUrl}/file/show/Device/`,
+      imgUrl: `${baseUrl}/file/upload/Device`,
       townSearchType,
       center: { lng: 0, lat: 0 },
       zoom: 3,
@@ -497,7 +508,7 @@ export default {
       pageNum: 1,
       // 设备详情
       deviceDetail: {},
-
+      phoneListString: '',
       options: [],
       activeName: 'first',
       danwei: '',
@@ -525,6 +536,10 @@ export default {
     }
   },
   methods: {
+    sendImgLoad(event) {
+      // console.log(event)
+      this.phoneListString = event
+    },
     equipmentCascClear() {
       const equipmentCasc1 = this.$refs.equipmentCasc1
       if (equipmentCasc1) {
@@ -722,7 +737,8 @@ export default {
             deviceUseContactMan, // 使用单位联系人
             deviceUseTel, // 使用单位电话
             deviceUseAddress, // 使用单位地址
-            deviceIntro // 设备详情
+            deviceIntro, // 设备详情
+            devicePhotos
           } = res
           const useEques = (deviceType1, deviceType2) => {
             if (deviceType2) {
@@ -756,7 +772,8 @@ export default {
             devDetail: deviceIntro, // 设备详情
             factNum: deviceProduceNo, // 设备出厂编号
             installAddr: installAddr(deviceArea2, deviceArea3, deviceArea4), // 设备安装地址
-            keyMonitor: deviceIsMonitoring === '0' ? '' : '1' // 重点监控设备
+            keyMonitor: deviceIsMonitoring === '0' ? '' : '1', // 重点监控设备
+            devicePhotos
           }
         }
       })
@@ -785,7 +802,8 @@ export default {
             factNum, // 设备出厂编号
             installAddr, // 设备安装地址
             keyMonitor, // 重点监控设备
-            deviceUseID
+            deviceUseID,
+            devicePhotos
           } = this.info
           const useEqueArr = this.$refs['useEque'].$el.innerText.replace(/\s+/g, '').split('/')
           const deviceInstallAreaArr = this.$refs['deviceInstallArea'].$el.innerText.replace(/\s+/g, '').split('/')
@@ -829,9 +847,15 @@ export default {
           }
           const changeMethod = (data, id) => {
             if (this.infoTitle === '新增') {
+              data.devicePhotos = this.phoneListString.split(',').map(item => {
+                return `/file/upload/Device/${item}`
+              }).join(',')
               return fetchAddDevice(data)
             } else {
               data.id = id
+              data.devicePhotos = this.phoneListString !== '' ? this.phoneListString.split(',').map(item => {
+                return `/file/upload/Device/${item}`
+              }).join(',') : devicePhotos
               return fetchUpdateDevice(data)
             }
           }

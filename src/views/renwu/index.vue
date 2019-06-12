@@ -227,7 +227,7 @@
       width="50%"
       class="dialogForm"
       title="">
-      <editDialog :task.sync="editTask" @closed="closed"/>
+      <editDialog v-if="dialogEditVisible" :task.sync="editTask" @closed="closed"/>
     </el-dialog>
     <!-- 退回 -->
     <el-dialog
@@ -282,41 +282,15 @@
       <taskDetail :transfe="editTask" />
       <comInfo :transfe="editTask"/>
       <statusRecord :status="editTask.taskCheckLogList"/>
-      <!-- <div class="imgLists">
-        <span>现场图片：</span>
-        <div class="imglist">
-          <img v-for="item in commandPhotoList" :key="item.src" :src="item.src" class="imgitem" alt="" srcset="" @click="seeCommandList(item.src)">
+      <div class="imgLists" >
+        <div class="imgLists-item">
+          <span>检查记录：</span>
+          <img-loadc v-if="dialogEndVisible" :imgurl="imgUrlRe" :imgshow="baseImgUrlRe" :limit="1" @sendimg="sendImgLoad"/>
         </div>
-        <el-dialog :visible.sync="dialogPreviewVisible" append-to-body>
-          <img :src="dialogImageUrl" width="100%" alt="">
-        </el-dialog>
-      </div> -->
-      <div v-if="activeName == 6" class="imgLists" >
-        <span>现场图片：</span>
-        <ul class="el-upload-list el-upload-list--picture-card">
-          <li v-for="(item, index) in commandPhotoList" :key="index" class="el-upload-list__item is-success">
-            <img :src="baseImgUrl+item" alt="" class="el-upload-list__item-thumbnail">
-            <i class="el-icon-close"/>
-            <span class="el-upload-list__item-actions">
-              <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseImgUrl+item)">
-                <i class="el-icon-zoom-in"/>
-              </span>
-              <span class="el-upload-list__item-delete" @click="hasHandelDelete(index)">
-                <i class="el-icon-delete"/>
-              </span>
-            </span>
-          </li>
-        </ul>
-        <el-upload
-          :on-success="handleSuccess"
-          :action="imgUrl"
-          :show-file-list="false"
-          class="avatar-uploader">
-          <i class="el-icon-plus avatar-uploader-icon"/>
-        </el-upload>
-        <el-dialog :visible.sync="dialogPreviewVisible" append-to-body width="850px">
-          <img :src="dialogImageUrl" width="100%" alt="">
-        </el-dialog>
+        <div v-if="dialogEndVisible && editTask.command && editTask.command.id" class="imgLists-item">
+          <span>指令书：</span>
+          <img-loadi :imgurl="imgUrlCom" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
+        </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="sure">确认</el-button>
@@ -376,7 +350,9 @@ import { fetchDeviceDetail } from '@/api/shebei'
 import { opLoading } from '@/mixins/loading'
 import authorization from '@/mixins/authorization'
 import { fetchTaskDownload } from '@/api/common'
-
+import { toViewer } from '@/utils/common'
+import imgLoadc from '@/components/imgLoad/index'
+import imgLoadi from '@/components/imgLoad/index'
 export default {
   components: {
     deviceDetail,
@@ -386,7 +362,9 @@ export default {
     editDialog,
     statusRecord,
     taskDetail,
-    comInfo
+    comInfo,
+    imgLoadc,
+    imgLoadi
   },
   mixins: [opLoading, authorization],
   data() {
@@ -394,8 +372,10 @@ export default {
       dialogDownloadVisible: false,
       isDownload: 1,
       optDownload: 1,
-      baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
-      imgUrl: `${baseUrl}/file/upload/ScenePictures`,
+      baseImgUrlRe: `${baseUrl}/file/show/CheckRecord/`,
+      imgUrlRe: `${baseUrl}/file/upload/CheckRecord`,
+      baseImgUrlCom: `${baseUrl}/file/show/TaskCommand/`,
+      imgUrlCom: `${baseUrl}/file/upload/TaskCommand`,
       downloadUrl: `${baseUrl}/file/download/create/`,
       rectifyAddImgs: [], // 上传的图片
       isExcel: 1,
@@ -460,7 +440,9 @@ export default {
       value5: '',
       list: [
       ],
-      slides: []
+      slides: [],
+      inStucListString: '',
+      recordListString: ''
     }
   },
   computed: {
@@ -478,6 +460,14 @@ export default {
     // }
   },
   methods: {
+    sendImgLoad(event) {
+      // console.log(event)
+      this.recordListString = event
+    },
+    sendImgLoad2(event) {
+      // console.log(event)
+      this.inStucListString = event
+    },
     excelIn() {
       const file = document.getElementById('files')
       const ev = new MouseEvent('click')
@@ -747,16 +737,18 @@ export default {
           id,
           checkNo
         } = this.editTask
-        console.log(this.commandPhotoList, this.rectifyAddImgs)
-        const rectifyAddImgs = this.rectifyAddImgs.map(item => {
-          return item.response.returnData
-        })
-        const checkResultPhotoList = [...this.commandPhotoList, ...rectifyAddImgs].join(',')
+        // console.log(this.commandPhotoList, this.rectifyAddImgs)
+        // const rectifyAddImgs = this.rectifyAddImgs.map(item => {
+        //   return item.response.returnData
+        // })
+        // const checkResultPhotoList = [...this.commandPhotoList, ...rectifyAddImgs].join(',')
         const data = {
           id,
           checkNo,
-          checkResultPhotoList,
-          operateName: '上传现场图片'
+          // checkResultPhotoList,
+          taskCommandPhotoList: this.recordListString,
+          taskPhotoList: this.inStucListString,
+          operateName: '上传签名图片'
         }
 
         // console.log(data)
@@ -793,7 +785,8 @@ export default {
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
-      this.dialogPreviewVisible = true
+      // this.dialogPreviewVisible = true
+      toViewer(this.dialogImageUrl)
     },
     /** 多选的编辑 */
     mutilEditDailog() {
@@ -1288,6 +1281,10 @@ export default {
   .imgLists {
     padding-top: 15px;
     display: flex;
+    .imgLists-item {
+      flex: 1;
+      display: flex;
+    }
     .imglist {
       display: flex;
       .imgitem {

@@ -194,11 +194,11 @@
           <el-input v-model="record.checkOpinion" type="textarea" placeholder="请输入检查意见"/>
         </el-form-item>
       </el-row>
-      <!-- <el-row class="row">
-        <el-form-item label="是否填写指令书" >
-          <el-checkbox id="isZhiLingShu" @change="onCheckbox"/>
+      <el-row class="row">
+        <el-form-item label="现场图片">
+          <img-load :imgurl="imgUrl" :imgshow="baseImgUrl" :time="`${new Date().getTime()}`" @sendimg="sendImgLoad"/>
         </el-form-item>
-      </el-row> -->
+      </el-row>
     </el-form>
     <div v-show="isShow" class="zhilingshu-info">
       <div class="title">指令书信息</div>
@@ -324,7 +324,7 @@
         <el-button v-if="isShow" type="warning" @click="instructionPreview">指令书预览</el-button>
       </div>
       <div>
-        <el-button type="primary" @click="sure">确定</el-button>
+        <el-button :loading="subLoading" type="primary" @click="sure">确定</el-button>
         <el-button @click="closed">取消</el-button>
       </div>
 
@@ -332,7 +332,6 @@
     <!-- 添加设备 -->
     <el-dialog
       :visible.sync="DialogAddDevice"
-      width="%"
       title=""
       append-to-body>
       <add-device :device="device" @closed="changeDevice"/>
@@ -364,16 +363,18 @@ import taskCheck from '@/components/taskCheck/index'
 import { fectEditTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/common'
-import { danWeiType, taskType, inspectionType, IrregularitiesType } from '@/utils/config'
+import { danWeiType, taskType, inspectionType, IrregularitiesType, baseUrl } from '@/utils/config'
 import addDevice from '@/components/addDevice/index'
 import previewRecord from '@/components/previewRecord/index'
 import previewInstruction from '@/components/previewInstruction/index'
+import imgLoad from '@/components/imgLoad/index'
 export default {
   components: {
     taskCheck,
     addDevice,
     previewRecord,
-    previewInstruction
+    previewInstruction,
+    imgLoad
   },
   props: {
     task: {
@@ -383,10 +384,13 @@ export default {
   },
   data() {
     return {
+      baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
+      imgUrl: `${baseUrl}/file/upload/ScenePictures`,
       IrregularitiesType,
       taskType,
       danWeiType,
       inspectionType,
+      subLoading: false,
       DialogAddDevice: false,
       previewRecordDialog: false,
       previewInstrDialog: false,
@@ -489,7 +493,8 @@ export default {
       value: '',
       options: [
       ],
-      radio2: ''
+      radio2: '',
+      phoneListString: ''
     }
   },
   computed: {
@@ -509,6 +514,10 @@ export default {
     this.tackCheck()
   },
   methods: {
+    sendImgLoad(event) {
+      // console.log(event)
+      this.phoneListString = event
+    },
     instructionPreview() {
       const {
         commandChangedEndDate,
@@ -591,7 +600,7 @@ export default {
         this.deviceList = event.map(item => {
           const data = item
           if (item.illegalCountId) {
-            data.illegalCountId = item.illegalCountId.split(',')
+            data.illegalCountId = item.illegalCountId ? item.illegalCountId.split(',') : []
           } else {
             data.illegalCountId = []
           }
@@ -967,9 +976,11 @@ export default {
         companyUseConfirmManPhone,
         operateName: '编辑任务', // operate
         checkNo: checkNo,
-        deviceAreaName4: this.task.deviceAreaName4
+        deviceAreaName4: this.task.deviceAreaName4,
+        checkResultPhotoList: this.phoneListString
       }
       console.log(data, 11)
+      this.subLoading = true
       // return
       fectEditTask(data).then(res => {
         // console.log(res)
@@ -978,6 +989,7 @@ export default {
             message: res.resultDesc,
             type: 'success'
           })
+          this.subLoading = false
           this.closed()
         } else {
           this.$message({

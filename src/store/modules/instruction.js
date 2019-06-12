@@ -59,7 +59,7 @@ const instruction = { // 通用滴
     changeStatus({ commit }, data) {
       commit('SET_STATUS', data)
     },
-    actionsTaskCount({ commit }) {
+    actionsIntrcCount({ commit }) {
       return new Promise((resolve, reject) => {
         fetchTaskCount().then(response => {
           // console.log(response)

@@ -247,8 +247,8 @@ export default {
       const useArea4 = installAddr[2] ? installAddr[2] : ''
       const data = {
         useName,
-        useAddDate1: addTime[0],
-        useAddDate2: addTime[1],
+        useAddDate1: addTime ? addTime[0] : '',
+        useAddDate2: addTime ? addTime[1] : '',
         useLegalPerson,
         useCreditCode,
         useArea3,

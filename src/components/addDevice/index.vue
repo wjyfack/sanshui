@@ -109,6 +109,11 @@
           <el-input v-model="info.detailAddr" class="input" placeholder="请输入详细地址"/>
         </el-form-item>
       </el-row>
+      <el-row>
+        <el-form-item label="设备图片">
+          <img-load :imgurl="imgUrl" :imgshow="baseImgUrl" @sendimg="sendImgLoad"/>
+        </el-form-item>
+      </el-row>
       <el-row type="flex" justify="end">
         <el-button type="primary" @click="submitDevice('forms')">添加</el-button>
         <el-button type="primary" @click="selectDeviceQu">确 定</el-button>
@@ -124,10 +129,13 @@
 
 <script>
 import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
-import { addrCasc, status } from '@/utils/config'
+import { addrCasc, status, baseUrl } from '@/utils/config'
 import { mapGetters } from 'vuex'
+import imgLoad from '@/components/imgLoad/index'
 export default {
-
+  components: {
+    imgLoad
+  },
   props: {
     device: {
       type: Object,
@@ -136,6 +144,8 @@ export default {
   },
   data() {
     return {
+      baseImgUrl: `${baseUrl}/file/show/Device/`,
+      imgUrl: `${baseUrl}/file/upload/Device`,
       addrCasc,
       status,
       loading: false,
@@ -143,6 +153,7 @@ export default {
       noDeviceList: [],
       devList: [],
       company: {},
+      phoneListString: '',
       info: {
         useEque: '',
         status: '01',
@@ -183,6 +194,10 @@ export default {
     this.chageData()
   },
   methods: {
+    sendImgLoad(event) {
+      // console.log(event)
+      this.phoneListString = event
+    },
     chageData() {
       const device = this.device
       // console.log(this.device)
@@ -296,7 +311,8 @@ export default {
             deviceUseTel: useContactManTel, // 使用单位电话
             deviceUseAddress: useAddress, // 使用单位地址
             // deviceIntro: devDetail, // 设备详情
-            deviceUseID: id
+            deviceUseID: id,
+            devicePhotos: this.phoneListString
           }
           console.log(data)
           fetchAddDevice(data).then(response => {

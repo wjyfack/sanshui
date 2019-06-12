@@ -50,14 +50,15 @@
       </div>
       <div class="table">
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane v-if="auths.sys_command_town_remove" :label="`镇街移交(${instrCount.instrStatus1})`" name="first"/>
-          <el-tab-pane v-if="auths.sys_command_stay_remove" :label="`待移交(${instrCount.instrStatus12})`" name="second"/>
-          <el-tab-pane v-if="auths.sys_command_approval_remove" :label="`批准移交(${instrCount.instrStatus7})`" name="third"/>
-          <el-tab-pane v-if="auths.sys_command_stay_deal" :label="`待处理(${instrCount.instrStatus3})`" name="fourth"/>
-          <el-tab-pane v-if="auths.sys_command_reply_audit" :label="`回复审核(${instrCount.instrStatus8})`" name="fifth"/>
-          <el-tab-pane v-if="auths.sys_command_stay_ok" :label="`待确认(${instrCount.instrStatus4})`" name="sixth"/>
-          <el-tab-pane v-if="auths.sys_command_finish" :label="`已完成(${instrCount.instrStatusEnd})`" name="seventh"/>
-          <el-tab-pane v-if="auths.sys_command_all" :label="`全部(${instrCount.instrStatusAll})`" name="eight"/>
+          <el-tab-pane :label="`镇街移交(${instrCount.instrStatus1})`" name="first"/>
+          <el-tab-pane :label="`待移交(${instrCount.instrStatus12})`" name="second"/>
+          <el-tab-pane :label="`确认批准(${instrCount.instrStatus4})`" name="sixth"/>
+          <el-tab-pane :label="`批准移交(${instrCount.instrStatus7})`" name="third"/>
+          <el-tab-pane :label="`待处理(${instrCount.instrStatus3})`" name="fourth"/>
+          <el-tab-pane :label="`回复审核(${instrCount.instrStatus8})`" name="fifth"/>
+          <el-tab-pane :label="`已完成(${instrCount.instrStatusEnd})`" name="seventh"/>
+          <el-tab-pane :label="`全部(${instrCount.instrStatusAll})`" name="eight"/>
+          <!-- auths.sys_command_all -->
         </el-tabs>
         <el-table
           v-loading="loading"
@@ -70,9 +71,9 @@
             fixed
             label="操作">
             <template slot-scope="scope">
-              <div v-if="activeName == 'first'">
+              <div v-if="activeName == 'first' && auths.sys_command_town_remove">
                 <el-button
-                  :ab="scope.$index"
+                  :type="getOverTime(scope.row.commandChangedEndDate)"
                   size="mini"
                   @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
                 <el-button
@@ -85,9 +86,9 @@
                   size="mini"
                   @click="reviewDialog(scope.row)">复查</el-button>
               </div>
-              <div v-else-if="activeName == 'second'">
+              <div v-else-if="activeName == 'second' && auths.sys_command_stay_remove">
                 <el-button
-                  :ab="scope.$index"
+                  :type="getOverTime(scope.row.commandChangedEndDate)"
                   size="mini"
                   @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
                 <el-button
@@ -101,22 +102,22 @@
                   @click="reviewDialog(scope.row)">复查</el-button>
               </div>
               <el-button
-                v-else-if="activeName == 'third'"
+                v-else-if="activeName == 'third' && auths.sys_command_approval_remove"
                 size="mini"
                 @click="yijiaoDialog(scope.row,2)">审核移交</el-button>
               <el-button
-                v-else-if="activeName == 'fourth'"
+                v-else-if="activeName == 'fourth' && auths.sys_command_stay_deal"
                 size="mini"
                 @click="yijiaoDialog(scope.row,3)">处理</el-button>
               <el-button
-                v-else-if="activeName == 'fifth'"
+                v-else-if="activeName == 'fifth' && auths.sys_command_reply_audit"
                 size="mini"
                 @click="yijiaoDialog(scope.row,4)">审核</el-button>
               <el-button
-                v-else-if="activeName == 'sixth'"
+                v-else-if="activeName == 'sixth' && auths.sys_command_stay_ok"
                 size="mini"
                 @click="yijiaoDialog(scope.row,7)">确认</el-button>
-              <div v-else-if="activeName == 'seventh'">
+              <div v-else-if="activeName == 'seventh' && auths.sys_command_finish">
                 <el-button
                   size="mini"
                   @click="yijiaoDownload(scope.row)">下载</el-button>
@@ -124,6 +125,7 @@
                   size="mini"
                   @click="yijiaoDialog(scope.row,5)">查看</el-button>
               </div>
+              <div v-else-if="activeName == 'nine' && auths.sys_task_confirm_ratify">1123</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -440,6 +442,18 @@ export default {
     this.fecthData()
   },
   methods: {
+    getOverTime(time) {
+      const timeDate = new Date().getTime()
+      if (time === null) {
+        return ''
+      }
+      const timeDateEnd = new Date(time).getTime()
+      if (timeDate > timeDateEnd) {
+        return 'danger'
+      } else {
+        return ''
+      }
+    },
     beforeAvatarUpload(file) {
       beforeUpload(file)
     },
@@ -757,7 +771,7 @@ export default {
       // console.log(data)
       this.$store.dispatch('fetchInstructionList', data).then(() => {
         this.loading = false
-        this.$store.dispatch('actionsTaskCount')
+        this.$store.dispatch('actionsIntrcCount')
       })
     },
     pageSizeChange(event) {

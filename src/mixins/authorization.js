@@ -18,14 +18,14 @@ const authorization = {
         this.getNavName(this.roles)
         resolve()
       }).then(() => {
-        // console.log(this.auths)
+        console.log(this.auths)
       })
     },
     getNavName(list) {
       if (list.lenght !== 0) {
         list.forEach(item => {
           this.auths[`${item.navName}`] = true
-          if (item.childNav.lenght === 0) {
+          if (item.childNav.length !== 0) {
             this.getNavName(item.childNav)
           }
         })

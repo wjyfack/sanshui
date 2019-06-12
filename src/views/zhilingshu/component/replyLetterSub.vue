@@ -117,13 +117,18 @@ export default {
       // console.log(this.transfe)
       const {
         id,
-        commandReplyNo
+        commandReplyNo,
         // commandExecIsFiling,
         // commandExecTaskReplyIntro,
-        // commandExecTaskReplyIntroPhotoList,
+        commandExecTaskReplyIntroPhotoList
         // commandReplyDate
       } = this.transfe
       // console.log(commandReplyNo)
+      if (commandExecTaskReplyIntroPhotoList === null) {
+        this.commandExecTaskReplyIntroPhotoList = []
+      } else {
+        this.commandExecTaskReplyIntroPhotoList = commandExecTaskReplyIntroPhotoList.split(',')
+      }
       this.info.commandReplyNo = commandReplyNo
       this.info.id = id
     },

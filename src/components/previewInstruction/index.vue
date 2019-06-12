@@ -19,7 +19,8 @@
           <div class="stl_01" style="left:6.0725em;top: 22.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem4 }} &nbsp;</span></div>
           <div class="stl_01" style="left:6.0725em;top: 24.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem5 }} &nbsp;</span></div>
           <div class="stl_01" style="left:6.0725em;top: 26.0291em; "><span class="stl_10 stl_08 stl_09">{{ info.commandDeviceProblem6 }} &nbsp;</span></div>
-          <div class="stl_01" style="left:16.49em;top: 28.5324em; "><span class="stl_10 stl_08 stl_09">{{ info.commandAgainstRulesInfo }} &nbsp;</span></div>
+          <div class="stl_01" style="left:16.49em;top: 28.5324em; "><span class="stl_10 stl_08 stl_09">{{ info.commandAgainstRulesInfo1 }} &nbsp;</span></div>
+          <div class="stl_01" style="left: 6.09em;top: 30.5324em; "><span class="stl_10 stl_08 stl_09">{{ info.commandAgainstRulesInfo2 }} &nbsp;</span></div>
           <div class="stl_01" style="left:8.287em;top: 28.5894em; "><span class="stl_11 stl_08 stl_09">上述问题违反了 &nbsp;</span></div>
           <div class="stl_01" style="left:13.4625em;top: 32.6432em; "><span class="stl_10 stl_08 stl_09">{{ info.ccording1 }} &nbsp;</span></div>
           <div class="stl_01" style="left:6.0725em;top: 34.6432em; "><span class="stl_10 stl_08 stl_09">{{ info.ccording2 }} &nbsp;</span></div>
@@ -109,8 +110,10 @@ export default {
       info.changeInfo4 = info.commandChangedInfo.substr(92, 33)
       info.changeInfo5 = info.commandChangedInfo.substr(125, 33)
       info.changeInfo6 = info.commandChangedInfo.substr(158, 33)
-      info.ccording1 = info.commandCcordingRulesInfo.substr(0, 24)
-      info.ccording2 = info.commandCcordingRulesInfo.substr(24)
+      info.ccording1 = info.commandCcordingRulesInfo.substr(0, 26)
+      info.ccording2 = info.commandCcordingRulesInfo.substr(26)
+      info.commandAgainstRulesInfo1 = info.commandAgainstRulesInfo.substr(0, 24)
+      info.commandAgainstRulesInfo2 = info.commandAgainstRulesInfo.substr(24)
       this.info = info
     }
   }
