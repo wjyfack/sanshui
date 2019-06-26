@@ -13,7 +13,8 @@
             @cascader="onUseEqueChange"/>
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
-          <el-button @click="dialogVisible = true">更多查询</el-button>
+          <!-- <el-button @click="dialogVisible = true">更多查询</el-button> -->
+          <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
         </div>
         <div v-if="deviceShow == 2" class="searchs">
           <label for="" class="label">单位名称：</label>
@@ -28,14 +29,16 @@
           </el-select>
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
-          <el-button @click="dialogVisible = true">更多查询</el-button>
+          <!-- <el-button @click="dialogVisible = true">更多查询</el-button> -->
+          <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
         </div>
         <div v-if="deviceShow == 3" class="searchs">
           <label for="" class="label">单位名称：</label>
           <el-input v-model="units.org_name" class="input" placeholder="" />
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button @click="searchReset">重置</el-button>
-          <el-button @click="dialogVisible = true">更多查询</el-button>
+          <!-- <el-button @click="dialogVisible = true">更多查询</el-button> -->
+          <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
         </div>
       </el-row>
     </div>
@@ -44,7 +47,6 @@
         <el-button :type="selectBtns[0]" @click="changeInfo(1)">设备信息</el-button>
         <el-button :type="selectBtns[1]" @click="changeInfo(2)">变更信息</el-button>
         <el-button :type="selectBtns[2]" @click="changeInfo(3)">单位信息</el-button>
-        <el-button v-if="!deviceShow" @click="$message('导出Excel')">导出Excel</el-button>
       </div>
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ total }} <el-button type="text" @click="clearing">清空</el-button></span></div>
       <el-table
@@ -100,9 +102,6 @@
         <el-table-column
           prop="apply_type"
           label="申请类别"/>
-        <el-table-column
-          prop="out_org_name"
-          label="单位名称"/>
         <el-table-column
           prop="out_org_name"
           label="使用单位"/>
@@ -191,6 +190,21 @@
       </div>
       <deviceDetail :loading="dialogInfoLoading" :info="taskdeviceDetail" />
     </el-dialog>
+    <el-dialog
+      :visible.sync="dialogExcelVisible"
+      width="30%"
+      title="提示">
+      <span>
+        <el-radio-group v-model="isExcel">
+          <el-radio :label="1">勾选项导出</el-radio>
+          <el-radio :label="2">全部导出</el-radio>
+        </el-radio-group>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogExcelVisible = false">取 消</el-button>
+        <el-button :loading="isExcelLoading" type="primary" @click="toMakeExcel">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -198,7 +212,7 @@
 import deviceDetail from './component/deviceDetail'
 import equementCascader from './../shebei/component/equementCascader'
 import { status } from '@/utils/config'
-import { fetchDeviceList, fetchChangeList, fetchCompanyBase, fetchDeviceDetail } from '@/api/shengju'
+import { fetchDeviceList, fetchChangeList, fetchCompanyBase, fetchDeviceDetail, fetchExcelUnit, fetchExcelDeviceBase, fetchExcelDeviceChange } from '@/api/shengju'
 import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -207,6 +221,9 @@ export default {
   },
   data() {
     return {
+      dialogExcelVisible: false,
+      isExcel: 1,
+      isExcelLoading: false,
       dialogInfoVisible: false,
       deviceDetailArr: [],
       dialogInfoLoading: false,
@@ -262,6 +279,117 @@ export default {
     this.fecthData()
   },
   methods: {
+    toMakeExcel() {
+      const data = {}
+      if (this.isExcel === 1) { // 导出勾选的
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message('请勾选要导出选项')
+          return ''
+        } else {
+          this.isExcelLoading = true
+          data.fileType = '1'
+          let arr = []
+          switch (this.deviceShow) {
+            case '1': // 设备
+              arr = multipleSelection.map(item => {
+                const dataItem = {}
+                dataItem.USE_ORG_NAME = item.use_org_name
+                dataItem.USE_ORG_ADDR = item.use_org_addr
+                dataItem.CERT_CODE = item.cert_code
+                dataItem.PRODUCT_CODE = item.product_code
+                dataItem.REG_CODE = item.reg_code
+                dataItem.MAI_ORG_CERT_CODE = item.mai_org_cert_code
+                dataItem.USE_STATUS = item.use_status
+                return dataItem
+              })
+
+              data.arr = arr
+              console.log(JSON.stringify(arr))
+              fetchExcelDeviceBase(data).then(res => {
+                this.toLoading(res)
+              })
+              break
+            case '2': // 变更
+              arr = multipleSelection.map(item => {
+                const dataItem = {}
+                dataItem.DStatusName = item.apply_type
+                dataItem.OUT_ORG_NAME = item.out_org_name
+                dataItem.OUT_ORG_ADDR = item.out_org_addr
+                dataItem.OUT_CORP = item.out_corp
+                dataItem.OUT_TEL = item.out_tel
+                dataItem.IN_ORG_NAME = item.in_org_addr
+                dataItem.IN_ORG_ADDR = item.in_org_name
+                return dataItem
+              })
+              data.arr = arr
+              // console.log(JSON.stringify(arr))
+              // return ''
+              fetchExcelDeviceChange(data).then(res => {
+                this.toLoading(res)
+              })
+              break
+            case '3': // 单位
+              arr = multipleSelection.map(item => {
+                const dataItem = {}
+                dataItem.ORG_NAME = item.org_name
+                dataItem.ORG_ADDR = item.org_addr
+                dataItem.LEGALREPRE = item.legalrepre
+                dataItem.TEL = item.tel
+                dataItem.AREA_CODE = item.area_code
+                dataItem.LEGALREPRE_CERT_CODE = item.legalrepre_cert_code
+                // dataItem.useCreditCode = item.legalrepre_cert_code
+                return dataItem
+              })
+              data.arr = arr
+              fetchExcelUnit(data).then(res => {
+                this.toLoading(res)
+              })
+              break
+          }
+        }
+      } else { // 全部
+        this.isExcelLoading = true
+        data.fileType = '2'
+        switch (this.deviceShow) {
+          case '1': // 设备
+            data.use_org_name = this.device.use_org_name
+            data.equ_kind = this.device.equ_kind
+            data.equ_type = this.device.equ_type
+            fetchExcelDeviceBase(data).then(res => {
+              this.toLoading(res)
+            })
+            break
+          case '2': // 变更
+            data.apply_type = this.biange.apply_type
+            data.out_org_name = this.biange.out_org_name
+            fetchExcelDeviceChange(data).then(res => {
+              this.toLoading(res)
+            })
+            break
+          case '3': // 单位
+            data.org_name = this.units.org_name
+            fetchExcelUnit(data).then(res => {
+              this.toLoading(res)
+            })
+            break
+        }
+      }
+    },
+    toLoading(res, opt = 1) {
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = objectUrl
+      link.download = `${new Date().getTime()}导出.xls`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(objectUrl)
+      this.dialogExcelVisible = false
+      this.isExcelLoading = false
+    },
     equipmentClear() {
       const equipmentCasc1 = this.$refs.equipmentCasc1
       if (equipmentCasc1) {

@@ -21,7 +21,7 @@ router.beforeEach((to, from, next) => {
           store.dispatch('GenerateRoutes', { roles }).then(() => {
             const routes = [...constantRouterMap, ...store.getters.addRouters]
             router.options.routes = routes
-            // console.log(routes, store.getters.addRouters)
+            console.log(routes, store.getters.addRouters)
             router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
             if (from.name === null) {
               next(`/`)

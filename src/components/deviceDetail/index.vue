@@ -33,9 +33,21 @@
         <el-row type="flex" align="middle" class="row pd-top">
           <span class="name">设备详情</span><span class="info">{{ info.deviceIntro }}</span>
         </el-row>
-        <!-- <el-row type="flex" align="middle" class="row pd-top">
-          <span class="name">设备相册</span><span class="info">devicePhotos</span>
-        </el-row> -->
+        <el-row type="flex" align="middle" class="row pd-top">
+          <span class="name">设备相册</span>
+          <div v-if="commandPhotoList.length != 0" class="imgLists" >
+            <ul class="el-upload-list el-upload-list--picture-card">
+              <li v-for="(item, index) in commandPhotoList" :key="index" class="el-upload-list__item is-success">
+                <img :src="baseUrl+item" alt="" class="el-upload-list__item-thumbnail">
+                <span class="el-upload-list__item-actions">
+                  <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseUrl+item)">
+                    <i class="el-icon-zoom-in"/>
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </el-row>
       </el-tab-pane>
       <el-tab-pane label="单位信息" name="second">
         <div>
@@ -187,14 +199,6 @@
       <taskDetail :transfe="editTask" />
       <comInfo :transfe="editTask"/>
       <statusRecord :status="editTask.taskCheckLogList"/>
-      <div v-if="commandPhotoList.length != 0" class="imgLists" >
-        <span>现场图片：</span>
-        <ul class="el-upload-list el-upload-list--picture-card">
-          <li v-for="(item, index) in commandPhotoList" :key="index" class="el-upload-list__item is-success">
-            <img :src="baseImgUrl+item" alt="" class="el-upload-list__item-thumbnail">
-          </li>
-        </ul>
-      </div>
     </el-dialog>
   </div>
 </template>
@@ -206,6 +210,7 @@ import { baseUrl } from '@/utils/config'
 import statusRecord from '@/components/statusRecord/index'
 import comInfo from '@/components/comInfo/comInfo'
 import taskDetail from '@/components/taskDetail/taskDetail'
+import { toViewer } from '@/utils/common'
 export default {
   components: {
     statusRecord,
@@ -226,6 +231,7 @@ export default {
 
   data() {
     return {
+      baseUrl,
       activeName: 'first',
       commandPhotoList: [],
       editTask: {},
@@ -233,7 +239,18 @@ export default {
       baseImgUrl: `${baseUrl}/file/show/ScenePictures/`
     }
   },
+  watch: {
+    info: function() {
+      this.commandPhotoList = this.info.devicePhotos ? this.info.devicePhotos.split(',') : []
+    }
+  },
+  mounted() {
+    this.commandPhotoList = this.info.devicePhotos ? this.info.devicePhotos.split(',') : []
+  },
   methods: {
+    hasHandlePreview(url) {
+      toViewer(url)
+    },
     cellClick(row) {
       console.log(row)
       this.radirtaskDetail(row)
@@ -245,11 +262,11 @@ export default {
           const data = res.returnData
           this.editTask = data
           this.dialogEndVisible = true
-          let commandPhotoList = []
-          if (data.checkResultPhotoList !== null) {
-            commandPhotoList = data.checkResultPhotoList.split(',')
-          }
-          this.commandPhotoList = commandPhotoList // 现场图片
+          // let commandPhotoList = []
+          // if (data.checkResultPhotoList !== null) {
+          // commandPhotoList = data.checkResultPhotoList.split(',')
+          // }
+          // this.commandPhotoList = commandPhotoList // 现场图片
         } else {
           this.$message.error(res.resultDesc)
         }

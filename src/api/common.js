@@ -24,11 +24,11 @@ export function fetchSendPhoto(file) {
 /**
  * 指令书模板
  */
-export function fetchIntructionModel(isApp = 0) {
+export function fetchIntructionModel(isApp = '0', is_lock = '0') {
   return request({
     url: '/base/param/getletterTemplate',
     method: 'post',
-    data: { isApp }
+    data: { isApp, is_lock }
   })
 }
 /** 接收任务部门 */

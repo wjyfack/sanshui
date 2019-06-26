@@ -21,6 +21,7 @@ const getters = {
   deptNames: state => state.common.deptNames, // 接收任务部门
   taskAddTime: state => state.common.taskAddTime, // 指令书日期
   localAddr: state => state.common.localAddr, // 设备地址
+  IrregularitiesType: state => state.common.taskIllegal,
   addRouters: state => state.permission.addRouters
 }
 export default getters

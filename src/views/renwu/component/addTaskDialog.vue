@@ -111,7 +111,7 @@
       width="45%"
       title=""
       append-to-body>
-      <add-device :device="device" @closed="changeDevice"/>
+      <add-device v-if="DialogAddDevice" :device="device" @closed="changeDevice"/>
     </el-dialog>
 
     <el-dialog

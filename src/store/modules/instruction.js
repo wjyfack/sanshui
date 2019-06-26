@@ -11,13 +11,13 @@ const instruction = { // 通用滴
     status: '1',
     instrCount: {
       instrStatus1: 0,
-      instrStatus12: 0,
-      instrStatus7: 0,
+      instrStatus2: 0,
       instrStatus3: 0,
-      instrStatus8: 0,
       instrStatus4: 0,
       instrStatus5: 0,
-      instrStatus51: 0,
+      instrStatus6: 0,
+      instrStatus7: 0,
+      instrStatus8: 0,
       instrStatusEnd: 0,
       instrStatusAll: 0
     }
@@ -67,14 +67,15 @@ const instruction = { // 通用滴
             const data = response.returnData
             const info = {
               instrStatus1: 0,
-              instrStatus12: 0,
-              instrStatus7: 0,
+              instrStatus2: 0,
               instrStatus3: 0,
-              instrStatus8: 0,
               instrStatus4: 0,
               instrStatus5: 0,
-              instrStatus51: 0,
-              instrStatusEnd: 0
+              instrStatus6: 0,
+              instrStatus7: 0,
+              instrStatus8: 0,
+              instrStatusEnd: 0,
+              instrStatusAll: 0
             }
             /**
              * 指令书处理状态
@@ -87,17 +88,11 @@ const instruction = { // 通用滴
                 case '1':
                   info.instrStatus1 = element.total
                   break
-                case '12':
-                  info.instrStatus12 = element.total
-                  break
-                case '7':
-                  info.instrStatus7 = element.total
+                case '2':
+                  info.instrStatus2 = element.total
                   break
                 case '3':
                   info.instrStatus3 = element.total
-                  break
-                case '8':
-                  info.instrStatus8 = element.total
                   break
                 case '4':
                   info.instrStatus4 = element.total
@@ -105,8 +100,14 @@ const instruction = { // 通用滴
                 case '5':
                   info.instrStatus5 = element.total
                   break
-                case '51':
-                  info.instrStatus51 = element.total
+                case '6':
+                  info.instrStatus6 = element.total
+                  break
+                case '7':
+                  info.instrStatus7 = element.total
+                  break
+                case '8':
+                  info.instrStatus8 = element.total
                   break
               }
             })
@@ -114,7 +115,7 @@ const instruction = { // 通用滴
               return tatol + item.total
             }, 0)
             info.instrStatusAll = instrStatusAll
-            info.instrStatusEnd = info.instrStatus5 + info.instrStatus51
+            info.instrStatusEnd = info.instrStatus3 + info.instrStatus8
             // console.log(info)
             commit('SET_INSTRCOUNT', info)
           }

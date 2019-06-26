@@ -42,10 +42,10 @@
           <div class="stl_01" style="left:14.7458em;top: 27.6154em; "><span class="stl_15 stl_11 stl_27">安全监督检查情况或发现的主要问题（可另附续页） &nbsp;</span></div>
           <div class="stl_01" style="left:6.745em;top: 29.258em; "><span class="stl_18 stl_11 stl_09">{{ info.checkProblem }}</span></div>
           <!-- <div class="stl_01" style="left:10.259em;top: 46.2218em; z-index:359; "><span class="stl_13 stl_14 stl_09">✔</span></div> -->
-          <div class="stl_01" style="left:5.582em;top: 45.9613em; z-index:280; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.2611em;">处理措施：<span v-if="info.checkResulTreatmentId == '1'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span> 下达监察指令书 &nbsp;</span></div>
-          <div class="stl_01" style="left:20.0483em;top: 45.9613em; z-index:285; "><span class="stl_15 stl_11 stl_29"><span v-if="info.checkResulTreatmentId == '2'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>实施查封 &nbsp;</span></div>
-          <div class="stl_01" style="left:27.03em;top: 45.9613em; z-index:290; "><span class="stl_15 stl_11 stl_30"><span v-if="info.checkResulTreatmentId == '3'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>实施扣押 &nbsp;</span></div>
-          <div class="stl_01" style="left:9.9642em;top: 47.2613em; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.4629em;"><span v-if="info.checkResulTreatmentId == '4'"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span> 其他：（选择打勾，单选） &nbsp;</span></div>
+          <div class="stl_01" style="left:5.582em;top: 45.9613em; z-index:280; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.2611em;">处理措施：<span v-if="info.checkResulTreatmentId.some(item => item == '1')"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span> 下达监察指令书  &nbsp;</span></div>
+          <div class="stl_01" style="left:20.0483em;top: 45.9613em; z-index:285; "><span class="stl_15 stl_11 stl_29"><span v-if="info.checkResulTreatmentId.some(item => item == '2')"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>实施查封 &nbsp;</span></div>
+          <div class="stl_01" style="left:27.03em;top: 45.9613em; z-index:290; "><span class="stl_15 stl_11 stl_30"><span v-if="info.checkResulTreatmentId.some(item => item == '3')"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span>实施扣押 &nbsp;</span></div>
+          <div class="stl_01" style="left:9.9642em;top: 47.2613em; "><span class="stl_15 stl_11 stl_28" style="word-spacing:0.4629em;"><span v-if="info.checkResulTreatmentId.some(item => item == '4')"><img :src="img" alt="" style="width:.6em;height:.6em;"></span><span v-else> □</span> 其他：（选择打勾，单选） &nbsp;</span></div>
           <div class="stl_01" style="left:7.3017em;top: 48.1055em; "><span class="stl_18 stl_11 stl_09">{{ info.checkOpinion }}</span></div>
           <div class="stl_01" style="left:5.582em;top: 53.8429em; z-index:322; "><span class="stl_15 stl_11 stl_27">被检查单位对检查记录的意见： &nbsp;</span></div>
           <div class="stl_01" style="left:28.35em;top: 56.4429em; z-index:325; "><span class="stl_15 stl_11 stl_09">签名： &nbsp;</span></div>
@@ -79,7 +79,9 @@ export default {
     return {
       sv,
       img,
-      info: {}
+      info: {
+        checkResulTreatmentId: []
+      }
     }
   },
   watch: {
@@ -99,6 +101,7 @@ export default {
       info.dateM = dateM
       info.dateD = dateD
       this.info = info
+      console.log(this.info)
     }
   }
 }

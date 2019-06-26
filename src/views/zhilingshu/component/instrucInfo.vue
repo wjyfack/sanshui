@@ -60,7 +60,7 @@ export default {
         id,
         commandExecTaskApproveAuditStatus: `${this.taskStatus}`,
         commandExecTaskApproveConfirmDesc: taskDesc,
-        commandExecTaskStatus: '3',
+        commandExecTaskStatus: '5',
         commandTransferDate: this.taskAddTime,
         operateName: '审核移交',
         checkNo: check.checkNo

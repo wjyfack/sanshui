@@ -72,6 +72,7 @@
             <el-button type="primary" @click="downloadOpt(1)">检查记录表下载</el-button>
             <el-button type="primary" @click="downloadOpt(2)">指令书下载</el-button>
             <el-button type="primary" @click="downloadOpt(3)">指+检下载</el-button>
+            <el-button type="primary" @click="dialogDownloadPicVisible = true">图片下载</el-button>
           </el-col>
         </el-row>
         <el-row type="flex" justify="center" class="row">
@@ -285,11 +286,11 @@
       <div class="imgLists" >
         <div class="imgLists-item">
           <span>检查记录：</span>
-          <img-loadc v-if="dialogEndVisible" :imgurl="imgUrlRe" :imgshow="baseImgUrlRe" :limit="1" @sendimg="sendImgLoad"/>
+          <img-loadc v-if="dialogEndVisible" :list="editTask.taskPhotoList" :imgurl="imgUrlRe" :imgshow="baseImgUrlRe" :limit="1" @sendimg="sendImgLoad"/>
         </div>
         <div v-if="dialogEndVisible && editTask.command && editTask.command.id" class="imgLists-item">
           <span>指令书：</span>
-          <img-loadi :imgurl="imgUrlCom" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
+          <img-loadi :imgurl="imgUrlCom" :list="editTask.taskCommandPhotoList" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -311,7 +312,7 @@
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogExcelVisible = false">取 消</el-button>
-        <el-button type="primary" @click="toMakeExcel">确 定</el-button>
+        <el-button :loading="isExcelLoading" type="primary" @click="toMakeExcel">确 定</el-button>
       </span>
     </el-dialog>
     <!-- excel -->
@@ -328,7 +329,33 @@
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogDownloadVisible = false">取 消</el-button>
-        <el-button type="primary" @click="toMakeDownload">确 定</el-button>
+        <el-button :loading="isDownloading" type="primary" @click="toMakeDownload">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="dialogDownloadPicVisible"
+      :before-close="handleClose"
+      width="30%"
+      title="提示">
+      <span>
+        <el-form>
+          <el-form-item>
+            <el-radio-group v-model="isDownloadPic">
+              <el-radio :label="1">勾选项导出</el-radio>
+              <el-radio :label="2">全部导出</el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <el-checkbox-group v-model="isDownloadType">
+            <el-checkbox :label="1">指令书图片</el-checkbox>
+            <el-checkbox :label="2">检查记录表图片</el-checkbox>
+            <el-checkbox :label="3">整改图片</el-checkbox>
+          </el-checkbox-group>
+        </el-form>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogDownloadPicVisible = false">取 消</el-button>
+        <el-button :loading="isDownloadingPic" type="primary" @click="toMakeDownloadPic">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -345,7 +372,7 @@ import taskDetail from '@/components/taskDetail/taskDetail'
 import comInfo from '@/components/comInfo/comInfo'
 import { taskType, status, townSearchType, handleType, baseUrl } from '@/utils/config'
 import { mapGetters } from 'vuex'
-import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask, fecthResultPhotoList, fetchExcelTask, fetchImportExcel } from '@/api/task'
+import { fetchBeforeDistribute, fetchtaskDetail, fetchtaskOpt, fecthBeforeEdit, fectLookTask, fecthResultPhotoList, fetchExcelTask, fetchImportExcel, fetchTaskPic } from '@/api/task'
 import { fetchDeviceDetail } from '@/api/shebei'
 import { opLoading } from '@/mixins/loading'
 import authorization from '@/mixins/authorization'
@@ -369,6 +396,12 @@ export default {
   mixins: [opLoading, authorization],
   data() {
     return {
+      isDownloadPic: 1,
+      isDownloadType: [1],
+      isDownloadingPic: false,
+      dialogDownloadPicVisible: false,
+      isExcelLoading: false,
+      isDownloading: false,
       dialogDownloadVisible: false,
       isDownload: 1,
       optDownload: 1,
@@ -460,6 +493,92 @@ export default {
     // }
   },
   methods: {
+    toMakeDownloadPic() {
+      // fetchTaskPic
+      let data = {}
+      if (this.isDownload === 1) {
+        // 勾选
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message.warning('请勾选任务')
+          return ''
+        }
+        data = {
+          id: multipleSelection.map(item => item.id).join(',')
+        }
+
+        // console.log(data)
+      } else {
+        // 全部
+        const {
+          checkNo, // 任务编号
+          taskStatus, // 任务状态
+          taskStatusName,
+          companyUseName, // 使用单位
+          commandNo, // 指令书编号
+          deviceCertNo, // 使用登记证
+          dateChecked, // 年检日期
+          checkTypeId, // 状态
+          checkAddDeptName, // 任务派发部门
+          checkStatus, // 检查任务状态
+          isRecovery, // 回搜站 1
+          cont // 所属镇街 deviceAreaName4
+        } = this.search
+        let dateCheckeds = []
+        if (!dateChecked) {
+          dateCheckeds = []
+        } else {
+          dateCheckeds = dateChecked
+        }
+        const [nameValue] = townSearchType.filter(item => {
+          return item.value === cont
+        })
+        data = {
+          checkNo, // 任务编号
+          taskStatus, // 任务状态
+          taskStatusName,
+          companyUseName, // 使用单位
+          commandNo, // 指令书编号
+          deviceCertNo, // 使用登记证
+          updateTime: dateCheckeds[0] ? dateCheckeds[0] : '',
+          commandAddDate: dateCheckeds[1] ? dateCheckeds[1] : '',
+          checkTypeId, // 状态
+          checkAddDeptName, // 任务派发部门
+          checkStatus, // 检查任务状态
+          isRecovery, // 回搜站 1
+          // orderType: '1', // 升序
+          deviceAreaName4: nameValue ? nameValue.name : '' // 所属镇街 deviceAreaName4
+        }
+      }
+      const isDownloadType = this.isDownloadType
+      if (isDownloadType.some(item => item === 1)) { // 指令书
+        data.taskCommandPhotoList = '1'
+      }
+      if (isDownloadType.some(item => item === 2)) { // 检查记录表
+        data.taskPhotoList = '1'
+      }
+      if (isDownloadType.some(item => item === 3)) { // 整改图片
+        data.rectifyImg = '1'
+      }
+      this.isDownloadingPic = true
+      fetchTaskPic(data).then(res => {
+        const blob = new Blob([res], { type: 'application/pdf' })
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        let name = ''
+        link.style.display = 'none'
+        link.href = objectUrl
+        name = `${new Date().getTime()}图片.pdf`
+        link.download = name
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(objectUrl)
+      }).then(() => {
+        this.dialogDownloadVisible = false
+        this.isDownloadingPic = false
+      })
+    },
     sendImgLoad(event) {
       // console.log(event)
       this.recordListString = event
@@ -604,6 +723,7 @@ export default {
         }
       }
       console.log(data)
+      this.isDownloading = true
       fetchTaskDownload({ url, data }).then(res => {
         const blob = new Blob([res], { type: 'application/pdf' })
         const objectUrl = URL.createObjectURL(blob)
@@ -629,6 +749,7 @@ export default {
         window.URL.revokeObjectURL(objectUrl)
       }).then(() => {
         this.dialogDownloadVisible = false
+        this.isDownloading = false
       })
       // this.dialogDownloadVisible = false
     },
@@ -715,7 +836,9 @@ export default {
           orderType: '1'
         }
       }
+      this.isExcelLoading = true
       fetchExcelTask(data).then(res => {
+        this.isExcelLoading = false
         const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
         const objectUrl = URL.createObjectURL(blob)
         const link = document.createElement('a')
@@ -811,6 +934,16 @@ export default {
       fecthBeforeEdit(row.id).then(res => {
         if (res.resultCode === '0000000') {
           const data = res.returnData
+          let taskPhotoList = ''
+          let taskCommandPhotoList = ''
+          if (data.taskPhotoList) {
+            taskPhotoList = data.taskPhotoList
+          }
+          if (data.taskCommandPhotoList) {
+            taskCommandPhotoList = data.taskCommandPhotoList
+          }
+          data.taskPhotoList = taskPhotoList
+          data.taskCommandPhotoList = taskCommandPhotoList
           this.editTask = data
           this.dialogEndVisible = true
           let commandPhotoList = []

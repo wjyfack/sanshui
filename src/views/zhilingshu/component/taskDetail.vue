@@ -15,17 +15,18 @@
         <span class="name">备注：</span> <div class="info">{{ transfe.dangerDescription }}</div>
       </div>
       <div class="">
-        <el-button type="text" @click="look">详情</el-button>
+        <el-button type="text" @click="forEdit">详情</el-button>
       </div>
     </div>
     <div class="btn-group">
-      <el-button type="warning" size="small" @click="preview(1)">检查记录预览</el-button>
-      <el-button type="warning" size="small" @click="preview(2)">指令书预览</el-button>
+      <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
+      <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(3)">关联设备预览</el-button>
+      <el-button v-if="command.id" size="mini" type="warning" @click="preview(2)">指令书预览</el-button>
     </div>
     <el-dialog
       :visible.sync="dialogVisible"
       append-to-body>
-      <taskXiangxi :transfe="transfe"/>
+      <taskXiangxi :task="editData"/>
     </el-dialog>
     <!-- 图片预览 -->
     <el-dialog
@@ -42,6 +43,7 @@
 import taskXiangxi from '@/components/taskXiangxi/index'
 import { baseUrl } from '@/utils/config'
 import { toViewer } from '@/utils/common'
+import { fecthBeforeEdit } from '@/api/task'
 export default {
   components: {
     taskXiangxi
@@ -56,11 +58,25 @@ export default {
     return {
       lookPic: false,
       imgDialog: '',
+      editData: {},
       printUrl: `${baseUrl}/file/show/img/create/`,
       dialogVisible: false
     }
   },
   methods: {
+    forEdit() {
+      // const data = {
+      //   id: this.transfe.id
+      // }
+      fecthBeforeEdit(this.transfe.check.id).then(res => {
+        if (res.resultCode === '0000000') {
+          this.editData = res.returnData
+          this.look()
+        } else {
+          this.$message.error(res.resultDesc)
+        }
+      })
+    },
     preview(opt) { // 预览图片
       const {
         commandNo
@@ -75,6 +91,9 @@ export default {
           break
         case 2:
           url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
+          break
+        case 3:
+          url = encodeURI(`${this.printUrl}（三水）检查记录关联设备${checkNo}.jpg`)
           break
       }
       // this.lookPic = true

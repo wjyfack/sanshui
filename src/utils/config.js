@@ -1,8 +1,39 @@
 
 export const baseUrl = 'http://192.168.0.142:8607' // 'http://47.112.211.171/sanshui_app-api' //
-export const refiyUrl = 'http://192.168.0.142:8507' // 'https://www.xiangua.net/customer_app-api' //
+export const refiyUrl = 'https://www.xiangua.net/customer_app-api' // 'http://192.168.0.142:8507' //
 export const systemKey = 'dgrl44212haoakkewicenwwhnsja443'
 export const systemSign = 'sanshuiSafetyServer'
+export const userRole = [ // 角色
+  {
+    value: '2',
+    label: '镇街领导'
+  },
+  {
+    value: '3',
+    label: '镇街职员'
+  },
+  {
+    value: '4',
+    label: '区局职员'
+  },
+  {
+    value: '5',
+    label: '区局科长'
+  },
+  {
+    value: '6',
+    label: '区局局长'
+  },
+  {
+    value: '7',
+    label: '稽查职员'
+  },
+  {
+    value: '8',
+    label: '稽查队长'
+  }
+]
+
 export const equipmentType = [ // 设备种类 一级分类
   {
     value: 1,
@@ -581,6 +612,11 @@ export const townSearchType = [
     value: '50',
     label: '芦苞',
     name: '芦苞'
+  },
+  {
+    value: '53',
+    label: '云东海',
+    name: '云东海'
   }
 ]
 export const townType = [ // 镇街
@@ -659,6 +695,11 @@ export const townType = [ // 镇街
   {
     value: '60',
     label: '南山'
+  },
+  {
+    value: '53',
+    label: '云东海',
+    name: '云东海'
   }
 ]
 

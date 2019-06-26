@@ -94,7 +94,7 @@ export default {
         commandReplyDate: getFormatDate(),
         commandExecIsFiling: '1', // 立案
         commandExecTaskReplyIntro: '', // 任务移交描述
-        commandExecTaskStatus: '8'
+        commandExecTaskStatus: '7'
       },
       commandExecTaskReplyIntroPhotoList: [], // 任务回复相册
       dialogVisible: false,

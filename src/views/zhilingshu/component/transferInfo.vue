@@ -1,7 +1,7 @@
 <template>
   <div class="task-detail">
     <div class="bianhao"><label for="">移交信息</label></div>
-    <div v-if="instructionStatus == 12">
+    <div v-if="instructionStatus == 2">
       <el-row class="row">
         <el-col :span="12" type="flex" class="col">
           <span class="label"><span class="red">*</span>移交书编号</span>
@@ -102,7 +102,7 @@ export default {
         commandTransferDate,
         commandTransferDesc
       }
-      if (~~this.instructionStatus === 12) {
+      if (~~this.instructionStatus === 1) {
         this.isShow = false
       } else {
         this.isShow = true
@@ -144,7 +144,7 @@ export default {
       }
     },
     get2Tranfer(opt) { // 处理 1 保存,2 移交
-      // 镇街移交传值12 待移交传值7
+      // 镇街移交传值1 待移交传值2
       const {
         id,
         commandTransferNo, // 移交书编号
@@ -161,7 +161,7 @@ export default {
             return ''
           }
           data = { id, commandExecTaskAddReason, checkNo: this.checkNo, operateName: '镇街移交' }
-          data.commandExecTaskStatus = '12'
+          data.commandExecTaskStatus = '2'
         } else { // 移交
           data = {
             id,
@@ -173,7 +173,7 @@ export default {
             companyUseNewName: this.transfe.companyUseNewName,
             operateName: '区局移交'
           }
-          data.commandExecTaskStatus = '7'
+          data.commandExecTaskStatus = '4'
         }
       } else { // 确认镇街移交 确认
         if (~~this.instructionStatus === 1) { // 镇街移交传值
@@ -186,6 +186,7 @@ export default {
             checkNo: this.checkNo,
             operateName: '镇街移交'
           }
+          data.commandExecTaskStatus = '2'
           // data.commandExecTaskStatus = '7'
         }
       }

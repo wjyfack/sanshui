@@ -17,8 +17,9 @@
       <div class="btn-item">
         <el-button size="mini" type="text" @click="look">详情</el-button>
         <div>
-          <el-button v-if="transfe.checkNo" size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
-          <el-button v-if="transfe.checkNo" size="mini" type="primary" @click="daying(1)">检查记录下载</el-button>
+          <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
+          <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(3)">关联设备预览</el-button>
+          <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="primary" @click="daying(1)">检查记录下载</el-button>
           <el-button v-if="command.id" size="mini" type="warning" @click="preview(2)">指令书预览</el-button>
           <el-button v-if="command.id" size="mini" type="primary" @click="daying(2)">指令书下载</el-button>
         </div>
@@ -36,7 +37,7 @@
     <el-dialog
       :visible.sync="dialogVisible"
       append-to-body>
-      <taskXiangxi :transfe="transfe"/>
+      <taskXiangxi :task="transfe"/>
     </el-dialog>
     <el-dialog
       :visible.sync="lookPic"
@@ -52,6 +53,7 @@
 import taskXiangxi from '@/components/taskXiangxi/index'
 import { baseUrl } from '@/utils/config'
 import { toViewer } from '@/utils/common'
+import { fetchTaskDownload } from '@/api/common'
 export default {
   components: {
     taskXiangxi
@@ -103,6 +105,27 @@ export default {
       } = this.transfe.command
       let url = ''
       let name = ''
+      if (opt === 1) {
+        const data = {
+          no: checkNo
+        }
+        const url = '/file/downloadPDFs/create/1'
+        fetchTaskDownload({ url, data }).then(res => {
+          const blob = new Blob([res], { type: 'application/pdf' })
+          const objectUrl = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          let name = ''
+          link.style.display = 'none'
+          link.href = objectUrl
+          name = `（三水）检查记录表${checkNo}.pdf`
+          link.download = name
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(objectUrl)
+        })
+        return ''
+      }
       switch (opt) { // 打印图片
         case 1:
           url = encodeURI(`${this.downloadUrl}（三水）检查记录表${checkNo}.pdf`)
@@ -134,6 +157,9 @@ export default {
           break
         case 2:
           url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
+          break
+        case 3:
+          url = encodeURI(`${this.printUrl}（三水）检查记录关联设备${checkNo}.jpg`)
           break
       }
       // this.lookPic = true

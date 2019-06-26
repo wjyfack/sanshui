@@ -59,16 +59,16 @@ export default {
       } = this.transfe
       const data = {
         id: id,
-        commandExecTaskReplyAuditStatus: this.taskStatus,
-        commandExecTaskReplyConfirmDesc: this.taskDesc,
+        commandExecTaskApproveAuditStatus: this.taskStatus,
+        commandExecTaskApproveConfirmDesc: this.taskDesc,
         commandExecTaskStatus: `${this.status}`,
         commandTransferDate: this.$store.getters.taskAddTime,
         checkNo: check.checkNo
       }
-      if (this.status === 4) {
-        data.operateName = '回复审核'
+      if (this.status === 6) {
+        data.operateName = '确认移交'
       } else {
-        data.operateName = '回复确认'
+        data.operateName = '回复确认' // 8
       }
       // console.log(data)
       // return ''

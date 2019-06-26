@@ -1,7 +1,7 @@
 // import {fetchMohuCom} from '@/api/shebei'
 import { fetchDeviceType, fetchIntructionModel, fetchDtName } from '@/api/common'
 // import { getTree } from '@/utils/common'
-
+import { fetchTaskIllegalList } from '@/api/admin'
 const common = { // 通用滴
   state: {
     comlist: [],
@@ -13,7 +13,8 @@ const common = { // 通用滴
     measures: [], // 整改措施
     deptNames: [], // 接收任务部门
     taskAddTime: '', // 移交书日期
-    localAddr: {} // 设备地址
+    localAddr: {}, // 设备地址
+    taskIllegal: [] // 违规模板
   },
   mutations: {
     SET_COMPANYLIST: (state, comlist) => {
@@ -42,6 +43,9 @@ const common = { // 通用滴
     },
     SET_TASKADDTIME: (state, taskAddTime) => {
       state.taskAddTime = taskAddTime
+    },
+    SET_TASKILLEGAL: (state, taskIllegal) => {
+      state.taskIllegal = taskIllegal
     },
     SET_LOCALADDR: (state, localAddr) => {
       state.localAddr = localAddr
@@ -80,6 +84,7 @@ const common = { // 通用滴
       return new Promise((resolve, reject) => {
         fetchDeviceType().then(response => {
           const data = response.returnData
+          // const filterData = data.filter(item => )
           commit('SET_DEVICETYPE', data)
           resolve()
         }).catch(error => reject(error))
@@ -108,6 +113,25 @@ const common = { // 通用滴
     },
     actionsLocalAddr({ commit }, data) {
       commit('SET_LOCALADDR', data)
+    },
+    actionsTaskIllegal({ commit }) {
+      return new Promise((resolve, reject) => {
+        const data = {
+          pageNum: '1',
+          pageSize: '50',
+          is_lock: '0'
+        }
+        fetchTaskIllegalList(data).then(response => {
+          const data = response.returnData.list.map(item => {
+            item.value = item.id
+            item.label = item.illegalName
+            return item
+          })
+          // const filterData = data.filter(item => )
+          commit('SET_TASKILLEGAL', data)
+          resolve()
+        }).catch(error => reject(error))
+      })
     }
   }
 }

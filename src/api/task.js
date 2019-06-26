@@ -166,3 +166,12 @@ export function fetchTaskCount(deviceArea3 = '7') {
     data: { deviceArea3 }
   })
 }
+/** 导出图片 */
+export function fetchTaskPic(data) {
+  return request({
+    url: '/file/downloadPictureForPDF/CheckRecord',
+    method: 'post',
+    responseType: 'blob',
+    data: data
+  })
+}

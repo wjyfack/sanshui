@@ -58,7 +58,7 @@
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
-            <el-form-item label="违反模板" >
+            <el-form-item label="隐患模板" >
               <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择违反条例">
                 <el-option
                   v-for="item in IrregularitiesType"
@@ -82,7 +82,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="违反模板" >
+          <el-form-item label="隐患模板" >
             <el-select v-model="item.illegalCountId" placeholder="请选择违反条例">
               <el-option
                 v-for="item in options"
@@ -181,12 +181,12 @@
       </el-row>
       <el-row class="row">
         <el-form-item label="处理措施" required>
-          <el-radio-group v-model="record.checkResulTreatmentId" @change="onCheckbox">
-            <el-radio :label="'1'">下达指令书</el-radio>
-            <el-radio :label="'2'">直接封查</el-radio>
-            <el-radio :label="'3'">实施扣押</el-radio>
-            <el-radio :label="'4'">其他</el-radio>
-          </el-radio-group>
+          <el-checkbox-group v-model="checkBoxValue" @change="onCheckboxT">
+            <el-checkbox :label="'1'">下达指令书</el-checkbox>
+            <el-checkbox :label="'2'">直接封查</el-checkbox>
+            <el-checkbox :label="'3'">实施扣押</el-checkbox>
+            <el-checkbox :label="'4'">其他</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
       </el-row>
       <el-row class="row">
@@ -334,7 +334,7 @@
       :visible.sync="DialogAddDevice"
       title=""
       append-to-body>
-      <add-device :device="device" @closed="changeDevice"/>
+      <add-device v-if="DialogAddDevice" :device="device" @closed="changeDevice"/>
     </el-dialog>
     <el-dialog
       :visible.sync="previewRecordDialog"
@@ -363,7 +363,7 @@ import taskCheck from '@/components/taskCheck/index'
 import { fectEditTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/common'
-import { danWeiType, taskType, inspectionType, IrregularitiesType, baseUrl } from '@/utils/config'
+import { danWeiType, taskType, inspectionType, baseUrl } from '@/utils/config'
 import addDevice from '@/components/addDevice/index'
 import previewRecord from '@/components/previewRecord/index'
 import previewInstruction from '@/components/previewInstruction/index'
@@ -384,9 +384,10 @@ export default {
   },
   data() {
     return {
+      checkBoxValue: [],
       baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
       imgUrl: `${baseUrl}/file/upload/ScenePictures`,
-      IrregularitiesType,
+      // IrregularitiesType,
       taskType,
       danWeiType,
       inspectionType,
@@ -433,7 +434,7 @@ export default {
       recordpv: {},
       pInstruction: {},
       deviceList: [],
-      illegalCount: [], // 违反模板ids
+      illegalCount: [], // 隐患模板ids
       info: {
         taskCheckId: '', // 任务id
         taskCheckCheckNo: '', // 任务编号
@@ -499,7 +500,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'instructionModels'
+      'instructionModels',
+      'IrregularitiesType'
     ])
   },
   watch: {
@@ -510,6 +512,9 @@ export default {
   mounted() {
     if (this.instructionModels.length === 0) {
       this.$store.dispatch('actionsInstructionModels')
+    }
+    if (this.IrregularitiesType.length === 0) {
+      this.$store.dispatch('actionsTaskIllegal')
     }
     this.tackCheck()
   },
@@ -565,9 +570,9 @@ export default {
         checkUseTypeNames, // 单位类型
         checkDate,
         checkProblem,
-        checkResulTreatmentId,
         checkOpinion
       } = this.record
+      const checkResulTreatmentId = this.checkBoxValue ? this.checkBoxValue : []
       // if (!checkUseTypeNames) {
       //   this.$message.error('请选择单位类别')
       //   return ''
@@ -698,7 +703,11 @@ export default {
         record.checkDate = getFormatDate()
       }
       // console.log(record)
-      if (record.checkResulTreatmentId === '1') { this.isShow = true }
+      if (record.checkResulTreatmentId !== null) {
+        const checkBoxValue = record.checkResulTreatmentId ? record.checkResulTreatmentId.split(',') : []
+        this.isShow = record.checkResulTreatmentId.split(',').some(item => item === '1')
+        this.checkBoxValue = checkBoxValue
+      }
       const {
         deviceType1Count,
         deviceType2Count,
@@ -739,10 +748,10 @@ export default {
       const {
         id,
         name,
-        templateRulesTitel,
-        templateProblemTitel,
-        templatePenaltyTitel,
-        templateMeasureTitel,
+        // templateRulesTitel,
+        // templateProblemTitel,
+        // templatePenaltyTitel,
+        // templateMeasureTitel,
         // problem_dspt,
         rules_dspt,
         penalty_dspt,
@@ -752,6 +761,16 @@ export default {
         penalty,
         measure
       } = this.instructionModels[event]
+      let {
+        templateRulesTitel,
+        templateProblemTitel,
+        templatePenaltyTitel,
+        templateMeasureTitel
+      } = this.instructionModels[event]
+      templateRulesTitel = !templateRulesTitel ? '' : templateRulesTitel
+      templateProblemTitel = !templateProblemTitel ? '' : templateProblemTitel
+      templatePenaltyTitel = !templatePenaltyTitel ? '' : templatePenaltyTitel
+      templateMeasureTitel = !templateMeasureTitel ? '' : templateMeasureTitel
       this.command.commandAgainstRulesIds = rules
       this.command.commandCcordingRulesIds = penalty
       this.command.commandChangedIds = measure
@@ -904,7 +923,7 @@ export default {
         this.$message.error('请输入检查意见')
         return ''
       }
-      if (checkResulTreatmentId === '1') {
+      if (this.checkBoxValue.some(item => item === '1')) {
         if (!commandModel) {
           this.$message.error('请选择指令书模板')
           return ''
@@ -912,7 +931,7 @@ export default {
       }
       // 设备ids
       const deviceIds = this.deviceList.map(item => item.id).join(',')
-      // 违反模板ids
+      // 隐患模板ids
       const illegalCountIds = this.deviceList.map(item => item.illegalCountId.join(',')).join(';')
       // checkDate 检查日期
       // const [checkDateStart, checkDateEnd] = checkDate
@@ -949,11 +968,11 @@ export default {
         // checkDateStart: checkDate,
         checkDate,
         checkProblem,
-        checkResulTreatmentId,
+        checkResulTreatmentId: this.checkBoxValue.join(','),
         checkResulTreatmentName,
         checkOpinion,
         checkRecordId,
-        checkStatus: '5',
+        checkStatus: '6',
         commandId,
         commandNo,
         commandModel,
@@ -979,17 +998,18 @@ export default {
         deviceAreaName4: this.task.deviceAreaName4,
         checkResultPhotoList: this.phoneListString
       }
-      console.log(data, 11)
+      // console.log(data, 11)
+      // return ''
       this.subLoading = true
       // return
       fectEditTask(data).then(res => {
         // console.log(res)
+        this.subLoading = false
         if (res.resultCode === '0000000') {
           this.$message({
             message: res.resultDesc,
             type: 'success'
           })
-          this.subLoading = false
           this.closed()
         } else {
           this.$message({
@@ -1027,17 +1047,20 @@ export default {
       })
       return arrName.join(',')
     },
-    onCheckbox(event) {
-      // this.isShow = event
-      console.log(event)
-      switch (~~event) {
-        case 1:
-          this.isShow = true
-          break
-        default:
-          this.isShow = false
-          break
-      }
+    onCheckboxT(value) {
+      // this.isShow = value
+      console.log(value)
+      console.log(this.record.checkResulTreatmentId)
+      const isShow = this.checkBoxValue.some(item => item === '1')
+      this.isShow = isShow
+      // switch (~~event) {
+      //   case 1:
+      //     this.isShow = true
+      //     break
+      //   default:
+      //     this.isShow = false
+      //     break
+      // }
     },
     closed() {
       this.$emit('closed')

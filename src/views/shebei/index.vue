@@ -31,7 +31,7 @@
     <div class="shebeiTable">
       <div class="btn-group">
         <el-button icon="el-icon-plus" type="primary" @click="() => {dialogAddVisible = true;infoTitle = '新增'}">新增</el-button>
-        <el-button v-if="auths.sys_device_create_comand" @click="makeTask">生成任务</el-button>
+        <el-button v-if="auths.sys_device_create_task" @click="makeTask">生成任务</el-button>
         <el-button @click="dialogExcelVisible = true">导出Excel</el-button>
       </div>
       <div class="notice"><span>已选择</span><span class="col">{{ multipleSelection.length }}</span><span>项   服务调用总计：{{ deviceTotal }} <el-button type="text" @click="clearing">清空</el-button></span></div>
@@ -381,7 +381,7 @@
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogExcelVisible = false">取 消</el-button>
-        <el-button type="primary" @click="toMakeExcel">确 定</el-button>
+        <el-button :loading="isDownloading" type="primary" @click="toMakeExcel">确 定</el-button>
       </span>
     </el-dialog>
     <!-- 生成任务 -->
@@ -419,6 +419,7 @@ export default {
   mixins: [authorization],
   data() {
     return {
+      isDownloading: false,
       baseImgUrl: `${baseUrl}/file/show/Device/`,
       imgUrl: `${baseUrl}/file/upload/Device`,
       townSearchType,
@@ -607,7 +608,7 @@ export default {
           isOverdue: `${isOverdue}` // 是否超期  0否1是
         }
       }
-
+      this.isDownloading = true
       fetchExcelDevice(data).then(res => {
         const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         const objectUrl = URL.createObjectURL(blob)
@@ -621,6 +622,7 @@ export default {
         window.URL.revokeObjectURL(objectUrl)
       }).then(() => {
         this.dialogExcelVisible = false
+        this.isDownloading = false
       })
     },
     sureMap() {
@@ -848,13 +850,13 @@ export default {
           const changeMethod = (data, id) => {
             if (this.infoTitle === '新增') {
               data.devicePhotos = this.phoneListString.split(',').map(item => {
-                return `/file/upload/Device/${item}`
+                return `/file/show/Device/${item}`
               }).join(',')
               return fetchAddDevice(data)
             } else {
               data.id = id
               data.devicePhotos = this.phoneListString !== '' ? this.phoneListString.split(',').map(item => {
-                return `/file/upload/Device/${item}`
+                return `/file/show/Device/${item}`
               }).join(',') : devicePhotos
               return fetchUpdateDevice(data)
             }

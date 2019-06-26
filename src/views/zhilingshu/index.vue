@@ -50,14 +50,14 @@
       </div>
       <div class="table">
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane :label="`镇街移交(${instrCount.instrStatus1})`" name="first"/>
-          <el-tab-pane :label="`待移交(${instrCount.instrStatus12})`" name="second"/>
-          <el-tab-pane :label="`确认批准(${instrCount.instrStatus4})`" name="sixth"/>
-          <el-tab-pane :label="`批准移交(${instrCount.instrStatus7})`" name="third"/>
-          <el-tab-pane :label="`待处理(${instrCount.instrStatus3})`" name="fourth"/>
-          <el-tab-pane :label="`回复审核(${instrCount.instrStatus8})`" name="fifth"/>
-          <el-tab-pane :label="`已完成(${instrCount.instrStatusEnd})`" name="seventh"/>
-          <el-tab-pane :label="`全部(${instrCount.instrStatusAll})`" name="eight"/>
+          <el-tab-pane :label="`镇街移交(${instrCount.instrStatus1})`" name="1"/>
+          <el-tab-pane :label="`待移交(${instrCount.instrStatus2})`" name="2"/>
+          <el-tab-pane :label="`批准移交(${instrCount.instrStatus4})`" name="4"/>
+          <el-tab-pane :label="`确认批准(${instrCount.instrStatus5})`" name="5"/>
+          <el-tab-pane :label="`待处理(${instrCount.instrStatus6})`" name="6"/>
+          <el-tab-pane :label="`回复审核(${instrCount.instrStatus7})`" name="7"/>
+          <el-tab-pane :label="`已完成(${instrCount.instrStatusEnd})`" name="8"/>
+          <el-tab-pane :label="`全部(${instrCount.instrStatusAll})`" name="9"/>
           <!-- auths.sys_command_all -->
         </el-tabs>
         <el-table
@@ -66,66 +66,89 @@
           border
           style="width: 100%">
           <el-table-column
-            v-if="activeName != 'eight'"
-            key="options"
-            fixed
+            v-if="activeName == '1' && auths.sys_command_town_remove"
             label="操作">
             <template slot-scope="scope">
-              <div v-if="activeName == 'first' && auths.sys_command_town_remove">
-                <el-button
-                  :type="getOverTime(scope.row.commandChangedEndDate)"
-                  size="mini"
-                  @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
-                <el-button
-                  size="mini"
-                  @click="yijiaoDialog(scope.row, 6)">移交</el-button>
-                <el-button
-                  size="mini"
-                  @click="closedLoopDialog(scope.row)">闭环</el-button>
-                <el-button
-                  size="mini"
-                  @click="reviewDialog(scope.row)">复查</el-button>
-              </div>
-              <div v-else-if="activeName == 'second' && auths.sys_command_stay_remove">
-                <el-button
-                  :type="getOverTime(scope.row.commandChangedEndDate)"
-                  size="mini"
-                  @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
-                <el-button
-                  size="mini"
-                  @click="yijiaoDialog(scope.row)">移交</el-button>
-                <el-button
-                  size="mini"
-                  @click="closedLoopDialog(scope.row)">闭环</el-button>
-                <el-button
-                  size="mini"
-                  @click="reviewDialog(scope.row)">复查</el-button>
-              </div>
               <el-button
-                v-else-if="activeName == 'third' && auths.sys_command_approval_remove"
+                :type="getOverTime(scope.row.commandChangedEndDate)"
+                size="mini"
+                @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
+              <el-button
+                size="mini"
+                @click="yijiaoDialog(scope.row, 6)">移交</el-button>
+              <el-button
+                size="mini"
+                @click="closedLoopDialog(scope.row)">闭环</el-button>
+              <el-button
+                size="mini"
+                @click="reviewDialog(scope.row)">复查</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="activeName == '2' && auths.sys_command_stay_remove"
+            label="操作">
+            <template slot-scope="scope">
+              <el-button
+                :type="getOverTime(scope.row.commandChangedEndDate)"
+                size="mini"
+                @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
+              <el-button
+                size="mini"
+                @click="yijiaoDialog(scope.row)">移交</el-button>
+              <el-button
+                size="mini"
+                @click="closedLoopDialog(scope.row)">闭环</el-button>
+              <el-button
+                size="mini"
+                @click="reviewDialog(scope.row)">复查</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="activeName == '4' && auths.sys_command_approval_remove"
+            label="操作">
+            <template slot-scope="scope">
+              <el-button
                 size="mini"
                 @click="yijiaoDialog(scope.row,2)">审核移交</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="activeName == '5' && auths.sys_command__confirm_ratify"
+            label="操作">
+            <template slot-scope="scope">
               <el-button
-                v-else-if="activeName == 'fourth' && auths.sys_command_stay_deal"
-                size="mini"
-                @click="yijiaoDialog(scope.row,3)">处理</el-button>
-              <el-button
-                v-else-if="activeName == 'fifth' && auths.sys_command_reply_audit"
-                size="mini"
-                @click="yijiaoDialog(scope.row,4)">审核</el-button>
-              <el-button
-                v-else-if="activeName == 'sixth' && auths.sys_command_stay_ok"
                 size="mini"
                 @click="yijiaoDialog(scope.row,7)">确认</el-button>
-              <div v-else-if="activeName == 'seventh' && auths.sys_command_finish">
-                <el-button
-                  size="mini"
-                  @click="yijiaoDownload(scope.row)">下载</el-button>
-                <el-button
-                  size="mini"
-                  @click="yijiaoDialog(scope.row,5)">查看</el-button>
-              </div>
-              <div v-else-if="activeName == 'nine' && auths.sys_task_confirm_ratify">1123</div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="activeName == '6' && auths.sys_command_stay_deal"
+            label="操作">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="yijiaoDialog(scope.row,3)">处理</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="activeName == '7' && auths.sys_command_reply_audit"
+            label="操作">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="yijiaoDialog(scope.row,4)">审核</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="activeName == '8' && auths.sys_command_finish"
+            label="操作">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="yijiaoDownload(scope.row)">下载</el-button>
+              <el-button
+                size="mini"
+                @click="yijiaoDialog(scope.row,5)">查看</el-button>
             </template>
           </el-table-column>
           <el-table-column
@@ -142,7 +165,7 @@
             prop="commandDeviceProblem"
             label="问题描述"/>
           <el-table-column
-            v-if="activeName != 'first' && activeName != 'second'"
+            v-if="activeName != '1' && activeName != '2'"
             key="commandTransferNo"
             prop="commandTransferNo"
             label="移交书编号"/>
@@ -272,7 +295,7 @@
       :visible.sync="dialogShenHeVisible"
       :before-close="handleClose"
       width="50%"
-      title="处理">
+      title="审核">
       <!-- 任务信息 -->
       <taskDetail :transfe="transfe"/>
       <statusRecord :status="transfe.taskCheckLogList"/>
@@ -282,20 +305,18 @@
       <yijiaoInfo :transfe="transfe"/>
       <!-- 回复书信息 -->
       <replyLetterInfo :transfe="transfe"/>
-      <examineSub :transfe="transfe" :status="4" @closed="closedYiJiao"/>
+      <examineSub :transfe="transfe" :status="8" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 确认 -->
     <el-dialog
       :visible.sync="dialogSureVisible"
       :before-close="handleClose"
-      width="50%"
-      title="处理">
+      width="50%">
       <taskDetail :transfe="transfe"/>
       <statusRecord :status="transfe.taskCheckLogList"/>
       <comInfo :transfe="transfe"/>
       <yijiaoInfo :transfe="transfe"/>
-      <replyLetterInfo :transfe="transfe"/>
-      <examineSub :transfe="transfe" :status="5" @closed="closedYiJiao"/>
+      <examineSub :transfe="transfe" :status="6" @closed="closedYiJiao"/>
     </el-dialog>
     <!-- 查看 -->
     <el-dialog
@@ -383,7 +404,7 @@ export default {
       dialogLookVisible: false,
       dialogVisible: false,
       dialogPreviewVisible: false,
-      activeName: 'first',
+      activeName: '1',
       transfe: {}, // 移交前查的数据
       radio2: '',
       value1: '', // 后期删除
@@ -406,33 +427,37 @@ export default {
       * 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理
        8回复审核 4 待确认  5:完成
        */
-      let status = ''
-      switch (newValue) {
-        case 'first':
-          status = '1'
-          break
-        case 'second':
-          status = '12'
-          break
-        case 'third':
-          status = '7'
-          break
-        case 'fourth':
-          status = '3'
-          break
-        case 'fifth':
-          status = '8'
-          break
-        case 'sixth':
-          status = '4'
-          break
-        case 'seventh':
-          status = '5'
-          break
-        case 'eight':
-          status = ''
-          break
+      let status = newValue
+      if (status === '9') {
+        status = ''
       }
+      // switch (newValue) {
+      //   case 'first':
+      //     status = '1'
+      //     break
+      //   case 'second':
+      //     status = '12'
+      //     break
+      //   case 'third':
+      //     status = '7'
+      //     break
+      //   case 'fourth':
+      //     status = '3'
+      //     break
+      //   case 'fifth':
+      //     status = '8'
+      //     break
+      //   case 'sixth':
+      //     status = '4'
+      //     break
+      //   case 'seventh':
+      //     status = '5'
+      //     break
+      //   case 'eight':
+      //     status = ''
+      //     break
+      // }
+      console.log(status)
       this.$store.dispatch('changeStatus', status)
       this.search.commandExecTaskStatus = status
       this.fecthData()
@@ -582,7 +607,7 @@ export default {
       }).then(() => {
         const info = {
           id: row.id,
-          commandExecTaskStatus: '51',
+          commandExecTaskStatus: '3',
           checkNo: row.checkNo,
           operateName: '指令书闭环'
         }
@@ -674,7 +699,7 @@ export default {
         if (!data || !data.rectifyImg || data.rectifyImg === null) {
           data.rectifyImg = []
         } else {
-          data.rectifyImg = data.rectifyImg.split(',')
+          data.rectifyImg = data.rectifyImg.split('&').filter(item => item)
         }
         data.id = row.id
         this.recitfy = data
@@ -714,7 +739,7 @@ export default {
           return item.response.returnData
         })
       }
-      imgs = [...rectifyImg, ...addImgUrl].join(',')
+      imgs = [...rectifyImg, ...addImgUrl].join('&')
       const data = {
         sourceCommandId: id,
         rectifyStatus,

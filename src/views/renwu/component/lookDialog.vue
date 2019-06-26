@@ -58,7 +58,7 @@
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
-            <el-form-item label="违反模板" >
+            <el-form-item label="隐患模板" >
               <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择违反条例">
                 <el-option
                   v-for="item in IrregularitiesType"
@@ -281,7 +281,7 @@
       width="45%"
       title=""
       append-to-body>
-      <add-device :device="device" @closed="changeDevice"/>
+      <add-device v-if="DialogAddDevice" :device="device" @closed="changeDevice"/>
     </el-dialog>
     <!-- 图片预览 -->
     <el-dialog
@@ -787,7 +787,7 @@ export default {
       } = this.command
       // 设备ids
       const deviceIds = this.deviceList.map(item => item.id).join(',')
-      // 违反模板ids
+      // 隐患模板ids
       const illegalCountIds = this.deviceList.map(item => item.illegalCountId.join(',')).join(';')
       // checkDate 检查日期
       // const [checkDateStart, checkDateEnd] = checkDate
