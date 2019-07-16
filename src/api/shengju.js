@@ -77,7 +77,7 @@ export function fetchExcelDeviceChange(data) {
   }
   fromData.area_code = '440607'
   return request({
-    url: `/excel/export/province_deviceBase/${data.fileType}`,
+    url: `/excel/export/province_deviceChange/${data.fileType}`,
     method: 'post',
     responseType: 'blob',
     data: fromData

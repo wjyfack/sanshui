@@ -36,63 +36,6 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <div class="title"><span>关联设备</span> <el-button icon="el-icon-plus" size="mini" type="primary" @click="addDvice">添加设备</el-button></div>
-      <el-table
-        :data="deviceList"
-        :show-header="false"
-        max-height="200"
-        style="width: 100%">
-        <el-table-column>
-          <template slot-scope="scope">
-            <el-form-item label="使用登记证" >
-              <el-input v-model="scope.row.deviceCertNo" placeholder="请输入使用登记证"/>
-            </el-form-item>
-          </template>
-        </el-table-column>
-        <el-table-column>
-          <template slot-scope="scope">
-            <el-form-item label="出厂编号" >
-              <el-input v-model="scope.row.deviceProduceNo" placeholder="请输入出厂编号"/>
-            </el-form-item>
-          </template>
-        </el-table-column>
-        <el-table-column>
-          <template slot-scope="scope">
-            <el-form-item label="隐患模板" >
-              <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择违反条例">
-                <el-option
-                  v-for="item in IrregularitiesType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"/>
-              </el-select>
-            </el-form-item>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- <el-row v-for="(item, index) in deviceList" :key="index" class="row">
-        <el-col :span="8">
-          <el-form-item label="使用登记证" >
-            <el-input v-model="item.deviceCertNo" placeholder="请输入使用登记证"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="出厂编号" >
-            <el-input v-model="item.deviceCertNo" placeholder="请输入出厂编号"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="隐患模板" >
-            <el-select v-model="item.illegalCountId" placeholder="请选择违反条例">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row> -->
 
       <div class="title">关联设备数量</div>
       <el-row class="row">
@@ -126,6 +69,11 @@
         <el-col :span="8">
           <el-form-item label="压力管道">
             <el-input v-model="record.deviceType5Count" placeholder="请输入压力管道"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="游乐设施">
+            <el-input v-model="record.deviceType4Count" placeholder="请输入压力管道"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -195,22 +143,57 @@
         </el-form-item>
       </el-row>
       <el-row class="row">
-        <el-form-item label="现场图片" >
-          <div class="imgLists" >
-            <ul class="el-upload-list el-upload-list--picture-card">
-              <li v-for="(item, index) in commandPhotoList" :key="index" class="el-upload-list__item is-success">
-                <img :src="baseImgUrl+item" alt="" class="el-upload-list__item-thumbnail">
-                <i class="el-icon-close"/>
-                <span class="el-upload-list__item-actions">
-                  <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseImgUrl+item)">
-                    <i class="el-icon-zoom-in"/>
-                  </span>
-                </span>
-              </li>
-            </ul>
-          </div>
+        <el-form-item label="现场图片">
+          <img-load v-if="imgUrl" :imgurl="imgUrl" :imgshow="baseImgUrl" :time="`${new Date().getTime()}`" @sendimg="sendImgLoad"/>
         </el-form-item>
       </el-row>
+      <div v-show="isShow" class="title">
+        <span>关联设备</span>
+        <div class="flex-all">
+          <el-select v-model="IllegalCountIds" multiple class="select" placeholder="请选择指令书模板" @change="changeAlldevice">
+            <el-option
+              v-for="item in instructionModels"
+              :key="item.id"
+              :label="item.problemTitle"
+              :value="item.id"/>
+          </el-select>
+          <el-button icon="el-icon-plus" size="mini" type="primary" @click="addDvice">添加设备</el-button>
+        </div>
+      </div>
+      <el-table
+        v-show="isShow"
+        :data="deviceList"
+        :show-header="false"
+        max-height="200"
+        style="width: 100%">
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-form-item label="使用登记证" >
+              <el-input v-model="scope.row.deviceCertNo" disabled placeholder="请输入使用登记证"/>
+            </el-form-item>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-form-item label="出厂编号" >
+              <el-input v-model="scope.row.deviceProduceNo" disabled placeholder="请输入出厂编号"/>
+            </el-form-item>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-form-item label="隐患模板" >
+              <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择指令书模板" @change="changeOnlyDevice">
+                <el-option
+                  v-for="item in instructionModels"
+                  :key="item.id"
+                  :label="item.problemTitle"
+                  :value="item.id"/>
+              </el-select>
+            </el-form-item>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-form>
     <div v-show="isShow" class="zhilingshu-info">
       <div class="title">指令书信息</div>
@@ -225,7 +208,7 @@
             <el-input class="input" placeholder="请输入指令书流水号"/>
           </el-form-item>
         </el-row> -->
-        <el-row class="row">
+        <!-- <el-row class="row">
           <el-form-item label="指令书模板" required>
             <el-select :value="command.commandModel" placeholder="请选择指令书模板" @change="changeCommandMode">
               <el-option
@@ -235,58 +218,58 @@
                 :value="index"/>
             </el-select>
           </el-form-item>
-        </el-row>
+        </el-row> -->
         <el-row class="row">
           <el-form-item label="设备描述">
-            <el-input v-model="command.commandDeviceProblem" type="textarea" placeholder="请输入设备描述"/>
+            <el-input v-model="command.commandDeviceProblem" :rows="2" type="textarea" placeholder="请输入设备描述"/>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="隐患描述">
             <div class="cont">
-              <el-input v-model="command.dangerDescription" type="input" class="area" style="flex:1"/>
+              <el-input v-model="command.dangerDescription" :rows="4" type="textarea" class="area" style="flex:1"/>
             </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="违反条例">
             <div class="cont">
-              <el-select v-model="command.commandAgainstRulesNames" disabled multiple placeholder="请选择" class="select">
+              <!-- <el-select v-model="command.commandAgainstRulesNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
-              </el-select>
-              <el-input v-model="command.commandAgainstRulesInfo" type="textarea" class="area"/>
+              </el-select> -->
+              <el-input v-model="command.commandAgainstRulesInfo" :rows="4" type="textarea" class="area"/>
             </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="处罚依据条例">
             <div class="cont">
-              <el-select v-model="command.commandCcordingRulesNames" disabled multiple placeholder="请选择" class="select">
+              <!--  <el-select v-model="command.commandCcordingRulesNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
-              </el-select>
-              <el-input v-model="command.commandCcordingRulesInfo" type="textarea" class="area"/>
+              </el-select> -->
+              <el-input v-model="command.commandCcordingRulesInfo" :rows="4" type="textarea" class="area"/>
             </div>
           </el-form-item>
         </el-row>
         <el-row class="row">
           <el-form-item label="整改措施">
             <div class="cont">
-              <el-select v-model="command.commandChangedNames" disabled multiple placeholder="请选择" class="select">
+              <!--  <el-select v-model="command.commandChangedNames" disabled multiple placeholder="请选择" class="select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"/>
-              </el-select>
-              <el-input v-model="command.commandChangedInfo" type="textarea" class="area"/>
+              </el-select> -->
+              <el-input v-model="command.commandChangedInfo" :rows="4" type="textarea" class="area"/>
             </div>
           </el-form-item>
         </el-row>
@@ -329,8 +312,9 @@
         </el-row>
       </el-form>
     </div>
-    <!-- <span slot="footer" class="dialog-footer">
-      <div style="padding-left: 30px;">
+    <span slot="footer" class="dialog-footer">
+      <!-- <el-button v-if="!isShow" type="warning">检查记录打印</el-button>-->
+      <!--  <div style="padding-left: 30px;">
         <el-button type="warning" @click="recordPreview">检查记录预览</el-button>
         <el-button v-if="isShow" type="warning" @click="instructionPreview">指令书预览</el-button>
       </div>
@@ -338,7 +322,8 @@
         <el-button :loading="subLoading" type="primary" @click="sure">确定</el-button>
         <el-button @click="closed">取消</el-button>
       </div>
-    </span> -->
+      -->
+    </span>
     <!-- 添加设备 -->
     <el-dialog
       :visible.sync="DialogAddDevice"
@@ -393,6 +378,7 @@ export default {
   },
   data() {
     return {
+      IllegalCountIds: [],
       checkBoxValue: [],
       baseImgUrl: `${baseUrl}/file/show/ScenePictures/`,
       imgUrl: `${baseUrl}/file/upload/ScenePictures`,
@@ -529,6 +515,139 @@ export default {
     this.tackCheck()
   },
   methods: {
+    changeAlldevice(event) { // 全部指令书模板
+      // console.log(event)
+      const deviceList = this.deviceList
+      deviceList.map(item => { // 遍历添加到每一个设备
+        item.illegalCountId = event
+        return item
+      })
+      this.deviceList = deviceList
+      this.autoCommand()
+    },
+    changeOnlyDevice(event) {
+      this.autoCommand()
+    },
+    autoCommand() { // 自动填充内容
+      const info = { // 最后结果
+        commandAgainstRulesIds: [],
+        commandCcordingRulesIds: [],
+        commandChangedIds: [],
+        commandCcordingRulesInfo: [],
+        commandAgainstRulesInfo: [],
+        commandChangedInfo: [],
+        commandModelId: [],
+        commandModel: [],
+        dangerDescription: [],
+        templateRulesTitel: [],
+        templateProblemTitel: [],
+        templatePenaltyTitel: [],
+        templateMeasureTitel: []
+      }
+      const commandDeviceProblem = [] // 设备描述
+      // 选择的隐患模板 不重复的
+      let illegalSelect = []
+      this.deviceList.forEach(item => {
+        // let illSelect = `在用的【${item.deviceCertNo}】` // 拼接
+        illegalSelect = [...illegalSelect, ...item.illegalCountId] // 要去重的
+        // const deviceCertNo = item.deviceCertNo // 编号
+        let nameArr = [] // 设备描述
+        this.instructionModels.map(model => {
+          if (item.illegalCountId.some(s => s === model.id)) {
+            nameArr = [...nameArr, model.problemTitle]
+          }
+        })
+        commandDeviceProblem.push(`【${item.deviceCertNo}】${nameArr.join('、')}`)
+      })
+      const illegalCountIds = Array.from(new Set(illegalSelect)) // 模板的id
+      this.instructionModels.map(item => {
+        if (illegalCountIds.some(id => id === item.id)) {
+          // console.log(item)
+          info.commandAgainstRulesIds.push(item.rules)
+          info.commandCcordingRulesIds.push(item.penalty)
+          info.commandChangedIds.push(item.measure)
+          // Info
+          info.commandCcordingRulesInfo = info.commandCcordingRulesInfo.concat(item.penalty_dspt.split('；'))
+          info.commandAgainstRulesInfo = info.commandAgainstRulesInfo.concat(item.rules_dspt.split('；'))
+          info.commandChangedInfo = info.commandChangedInfo.concat(item.measure_dspt.split('；'))
+          info.dangerDescription = info.dangerDescription.concat(item.problem_dspt.split('；')) // 隐患描述
+          // Info
+          info.commandModelId.push(item.id)
+          info.commandModel.push(item.name)
+          info.templateRulesTitel.push(item.templateRulesTitel)
+          info.templateProblemTitel.push(item.templateProblemTitel)
+          info.templatePenaltyTitel.push(item.templatePenaltyTitel)
+          info.templateMeasureTitel.push(item.templateMeasureTitel)
+          info.templateMeasureTitel.push(item.templateMeasureTitel)
+          // if (info.commandModelId) {
+          //   info.commandModelId += `,${item.id}`
+          //   info.commandModel += `,${item.name}`
+          //   info.commandAgainstRulesIds += `,${item.rules}`
+          //   info.commandCcordingRulesIds += `,${item.penalty}`
+          //   info.commandChangedIds += `,${item.measure}`
+          //   info.commandCcordingRulesInfo += `${item.penalty_dspt}`
+          //   info.commandAgainstRulesInfo += `${item.rules_dspt}`
+          //   info.commandCcordingRulesIds += `,${item.penalty}`
+          //   info.commandChangedInfo += `${item.measure_dspt}`
+          //   info.dangerDescription += `,${item.problem_dspt}`
+          //   info.templateProblemTitel = `,${item.templateProblemTitel}`
+          //   info.templatePenaltyTitel = `,${item.templatePenaltyTitel}`
+          //   info.templateMeasureTitel = `,${item.templateMeasureTitel}`
+          //   info.templateRulesTitel = `,${item.templateRulesTitel}`
+          // } else {
+          //   info.commandModelId = `${item.id}`
+          //   info.commandModel = `${item.name}`
+          //   info.commandAgainstRulesIds = `${item.rules}`
+          //   info.commandCcordingRulesIds = `${item.penalty}`
+          //   info.commandChangedIds = `${item.measure}`
+          //   info.commandCcordingRulesInfo = `${item.penalty_dspt}`
+          //   info.commandAgainstRulesInfo = `${item.rules_dspt}`
+          //   info.commandCcordingRulesIds = `${item.penalty}`
+          //   info.commandChangedInfo = `${item.measure_dspt}`
+          //   info.dangerDescription = `${item.problem_dspt}`
+          //   info.templateProblemTitel = `${item.templateProblemTitel}`
+          //   info.templatePenaltyTitel = `${item.templatePenaltyTitel}`
+          //   info.templateMeasureTitel = `${item.templateMeasureTitel}`
+          //   info.templateRulesTitel = `${item.templateRulesTitel}`
+          // }
+        }
+      })
+      // console.log(info)
+      // 显示
+      this.command.commandAgainstRulesIds = Array.from(new Set(info.commandAgainstRulesIds)).join(',')
+      this.command.commandCcordingRulesIds = Array.from(new Set(info.commandCcordingRulesIds)).join(',')
+      this.command.commandChangedIds = Array.from(new Set(info.commandChangedIds)).join(',')
+      // Info
+      const commandCcordingRulesInfo = Array.from(new Set(info.commandCcordingRulesInfo)).map((item, index) => {
+        return `${index + 1}、${item}`
+      }).join('；')
+      this.command.commandCcordingRulesInfo = commandCcordingRulesInfo ? commandCcordingRulesInfo + '。' : ''
+      const commandAgainstRulesInfo = Array.from(new Set(info.commandAgainstRulesInfo)).map((item, index) => {
+        return `${index + 1}、${item}`
+      }).join('；')
+      this.command.commandAgainstRulesInfo = commandAgainstRulesInfo ? commandAgainstRulesInfo + '。' : ''
+      const commandChangedInfo = Array.from(new Set(info.commandChangedInfo)).map((item, index) => {
+        return `${index + 1}、${item}`
+      }).join('；')
+      this.command.commandChangedInfo = commandChangedInfo ? commandChangedInfo + '。' : ''
+      const dangerDescription = Array.from(new Set(info.dangerDescription)).map((item, index) => {
+        return `${index + 1}、${item}`
+      }).join('；')
+      this.command.dangerDescription = dangerDescription ? dangerDescription + '。' : ''
+      // Info
+      this.command.commandModelId = info.commandModelId.join(',')
+      this.command.commandModel = info.commandModel.join(',')
+      this.command.commandAgainstRulesNames = info.templateRulesTitel.filter(item => { return item !== '' }) // 违反条例名称
+      this.command.commandChangedNames = info.templateMeasureTitel.filter(item => { return item !== '' }) // 整改措施名称
+      this.command.commandCcordingRulesNames = info.templatePenaltyTitel.filter(item => { return item !== '' }) // 处罚依据条例名称
+      this.record.checkProblem = this.command.commandDeviceProblem = '在用的' + commandDeviceProblem.join('；') + '。'
+      /** 设备描述 */
+      // console.log(this.deviceList)
+      // const deviceNoString = this.deviceList.map(item => {
+      //   return item.deviceCertNo
+      // }).join('、')
+      // this.command.commandDeviceProblem = `在用的【${deviceNoString}】${templateProblemTitel}`
+    },
     onCheckboxT(value) {
       // this.isShow = value
       console.log(value)
@@ -770,6 +889,7 @@ export default {
         return data
       })
       // this.illegalCount = this.deviceList.map(item => item.illegalCountId)
+      this.autoCommand()
     },
     changeCommandMode(event) {
       // console.log(event)

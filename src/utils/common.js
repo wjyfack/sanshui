@@ -43,6 +43,13 @@ export function getFormatDate(val = '') {
 export function getFormatDate30() {
   const date1 = new Date()
   const date2 = new Date(date1)
+  date2.setDate(date1.getDate() + 15)
+  return `${date2.getFullYear()}-${date2.getMonth() + 1}-${date2.getDate()}`
+}
+/** 时间+30天后 */
+export function getFormatDates30() {
+  const date1 = new Date()
+  const date2 = new Date(date1)
   date2.setDate(date1.getDate() + 30)
   return `${date2.getFullYear()}-${date2.getMonth() + 1}-${date2.getDate()}`
 }

@@ -136,7 +136,7 @@ import { status, addrCasc, taskType, inspectionType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fetchAddTask, fecthHandleTask } from '@/api/task'
-import { getFormatDate } from '@/utils/common'
+import { getFormatDate, getFormatDates30 } from '@/utils/common'
 import addDevice from '@/components/addDevice/index'
 import unitInfo from '@/components/unitInfo/index'
 import moHuSearch from '@/mixins/moHuSearch'
@@ -439,7 +439,8 @@ export default {
         deviceUseContactMan: useContactMan,
         deviceUseAddress: useAddress,
         deviceUseContactManTel: useContactManTel,
-        checkResultDate: checkDate
+        checkResultDate: checkDate,
+        checkResultEndDate: getFormatDates30()
       }
       // console.log(data)
       // console.log(listDevice, deviceIds)

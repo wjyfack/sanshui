@@ -92,10 +92,10 @@ export default {
       const [dateEndY, dateEndM, dateEndD] = info.commandChangedEndDate.split('-')
       info.dateY = dateY
       info.dateM = dateM
-      info.dateD = dateD
+      info.dateD = dateD.substring(0, 2)
       info.dateEndY = dateEndY
       info.dateEndM = dateEndM
-      info.dateEndD = dateEndD
+      info.dateEndD = dateEndD.substring(0, 2)
       // const lenght = info.commandChangedInfo.lenght
       info.commandDeviceProblem1 = info.commandDeviceProblem.substr(0, 36)
       info.commandDeviceProblem2 = info.commandDeviceProblem.substr(36, 36)

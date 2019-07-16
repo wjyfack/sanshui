@@ -44,6 +44,10 @@ export default {
     limit: {
       type: Number,
       default: 3
+    },
+    spit: {
+      type: String,
+      default: ','
     }
   },
   data() {
@@ -61,7 +65,7 @@ export default {
   },
   methods: {
     changeD() {
-      this.commandPhotoList = this.list ? this.list.split(',').map(item => {
+      this.commandPhotoList = this.list ? this.list.split(this.spit).map(item => {
         const spl = item.split('/')
         return spl[spl.length - 1]
       }) : []
@@ -97,7 +101,7 @@ export default {
       this.$message.error('文件超出个数限')
     },
     send() {
-      this.$emit('sendimg', this.commandPhotoList.join(','))
+      this.$emit('sendimg', this.commandPhotoList.join(this.spit))
     }
   }
 }

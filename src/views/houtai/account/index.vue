@@ -243,6 +243,20 @@ export default {
     add() {
       this.addForm.id = ''
       this.dialogVisible = true
+      this.addForm = {
+        userEmail: '',
+        userName: '',
+        userNickName: '',
+        userRoleId: '',
+        userRoleType: '2',
+        userPhone: '',
+        userDeptId: '',
+        userStatus: true,
+        userIsApp: true,
+        userIsSystem: '0',
+        userSign: '',
+        userSignImg: ''
+      }
     },
     userDeptIdChange(event) {
       // console.log(event)
@@ -355,6 +369,20 @@ export default {
                 this.$message.error(res.resultDesc)
               }
             })
+          }
+          this.addForm = {
+            userEmail: '',
+            userName: '',
+            userNickName: '',
+            userRoleId: '',
+            userRoleType: '2',
+            userPhone: '',
+            userDeptId: '',
+            userStatus: true,
+            userIsApp: true,
+            userIsSystem: '0',
+            userSign: '',
+            userSignImg: ''
           }
         } else {
           console.log('error submit!!')

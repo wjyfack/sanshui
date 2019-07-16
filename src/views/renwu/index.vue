@@ -286,11 +286,11 @@
       <div class="imgLists" >
         <div class="imgLists-item">
           <span>检查记录：</span>
-          <img-loadc v-if="dialogEndVisible" :list="editTask.taskPhotoList" :imgurl="imgUrlRe" :imgshow="baseImgUrlRe" :limit="1" @sendimg="sendImgLoad"/>
+          <img-loadc v-if="dialogEndVisible" :spit="'&'" :list="editTask.taskPhotoList" :imgurl="imgUrlRe" :imgshow="baseImgUrlRe" :limit="1" @sendimg="sendImgLoad"/>
         </div>
         <div v-if="dialogEndVisible && editTask.command && editTask.command.id" class="imgLists-item">
           <span>指令书：</span>
-          <img-loadi :imgurl="imgUrlCom" :list="editTask.taskCommandPhotoList" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
+          <img-loadi :imgurl="imgUrlCom" :spit="'&'" :list="editTask.taskCommandPhotoList" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -869,8 +869,8 @@ export default {
           id,
           checkNo,
           // checkResultPhotoList,
-          taskCommandPhotoList: this.recordListString,
-          taskPhotoList: this.inStucListString,
+          taskCommandPhotoList: this.inStucListString,
+          taskPhotoList: this.recordListString,
           operateName: '上传签名图片'
         }
 
@@ -1457,6 +1457,7 @@ export default {
 .table {
   width: 100%;
   padding-left: 1px;
+  padding-top: 1px;
 }
 #files {
   filter:alpha(opacity=0);opacity:0;width: 0;height: 0;

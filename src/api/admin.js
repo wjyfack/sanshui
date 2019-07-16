@@ -80,3 +80,28 @@ export function fetchEditTaskIllegal(data) {
     data: data
   })
 }
+
+// 分页查指令书基础
+export function fetchGetLetterBaseList(data) {
+  return request({
+    url: '/letterBase/getLetterBaseList',
+    method: 'post',
+    data: data
+  })
+}
+// 新增指令书基础信息
+export function fetchAddLetterBaseList(data) {
+  return request({
+    url: '/letterBase/addLetterBase',
+    method: 'post',
+    data: data
+  })
+}
+// 编辑指令书基础信息
+export function fetchEditLetterBaseList(data) {
+  return request({
+    url: '/letterBase/editLetterBase',
+    method: 'post',
+    data: data
+  })
+}

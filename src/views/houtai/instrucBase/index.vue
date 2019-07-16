@@ -1,18 +1,29 @@
 <template>
   <div class="account">
     <div class="shebeiSearch">
-      <el-row :gutter="20">
+      <el-row>
         <div class="search">
-          <label for="" class="label">模板名称：</label>
+          <label for="" class="label">基础信息名称：</label>
           <el-input v-model="info.name" class="input" placeholder="" />
+          <label for="" class="label">基础信息描述：</label>
+          <el-input v-model="info.desc" class="input" placeholder="" />
           <el-button type="primary" style="margin-left: 16px;" @click="searchQuery">查询</el-button>
           <el-button icon="el-icon-plus" @click="add">新增</el-button>
         </div>
       </el-row>
+      <el-row style="display:felx;align-items:center;">
+        <label for="" class="label">基础信息类型：</label>
+        <el-radio-group v-model="tabPosition" style="padding-top: 15px;" @change="searchQuery">
+          <el-radio-button label="1">指令书-主要问题</el-radio-button>
+          <el-radio-button label="2">指令书-整改措施</el-radio-button>
+          <el-radio-button label="3">指令书-违反条例</el-radio-button>
+          <el-radio-button label="4">指令书-处罚依据条例</el-radio-button>
+        </el-radio-group>
+      </el-row>
     </div>
     <div class="table">
       <el-table
-        ref="multipleAccountsTables"
+        ref="multipleAccountsTable"
         :data="tableData"
         tooltip-effect="dark"
         border
@@ -22,19 +33,26 @@
           type="selection"
           width="55"/>
         <el-table-column
-          label="模板名称">
-          <template slot-scope="scope">{{ scope.row.illegalName }}</template>
+          prop="baseTypeName"
+          width="150"
+          label="类型"/>
+        <el-table-column
+          label="名称"
+          width="180">
+          <template slot-scope="scope">{{ scope.row.baseName }}</template>
         </el-table-column>
         <el-table-column
-          label="状态">
-          <template slot-scope="scope">{{ scope.row.is_lock === '0' ? '启用' : '禁用' }}</template>
-        </el-table-column>
-        <!-- <el-table-column
-          prop="remark"
-          label="备注"/> -->
+          prop="baseIntro"
+          label="描述"/>
         <el-table-column
-          prop="illlegalAddTime"
-          label="添加日期"/>
+          prop="baseUpdateDate"
+          width="160"
+          label="编辑时间"/>
+        <el-table-column
+          label="状态"
+          width="120">
+          <template slot-scope="scope">{{ scope.row.baseStatus == '0' ? '启用' : '禁用' }}</template>
+        </el-table-column>
         <el-table-column
           label="操作"
           width="120">
@@ -57,17 +75,31 @@
       <div class="dialogVisible">
         <el-form ref="formAddInfo" :model="formInline" :rules="rules" label-width="130px" class="demo-form-inline">
           <el-row>
-            <el-form-item label="模板名称" prop="name">
-              <el-input v-model="formInline.name" class="input" placeholder="请输入模板名称"/>
+            <el-form-item label="类型" prop="name">
+              <el-select v-model="formInline.name" :disabled="isEdit" placeholder="请选择">
+                <el-option
+                  v-for="item in instrucBaseType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
             </el-form-item>
           </el-row>
+          <el-form-item label="名称" prop="remark">
+            <el-input v-model="formInline.remark" type="textarea" class="input" placeholder=""/>
+          </el-form-item>
+          <el-form-item label="描述" prop="problem_dspt">
+            <div>
+              <el-input v-model="formInline.problem_dspt" type="textarea" placeholder=""/>
+            </div>
+          </el-form-item>
           <el-form-item label="状态" prop="is_lock">
             <el-switch
               v-model="formInline.is_lock"/>
           </el-form-item>
-          <!-- <el-form-item label="排序" prop="templateOrder">
+          <el-form-item label="排序" prop="templateOrder">
             <el-input v-model="formInline.templateOrder" class="input"/>
-          </el-form-item> -->
+          </el-form-item>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -79,21 +111,34 @@
 </template>
 
 <script>
-import { fetchTaskIllegalList, fetchAddTaskIllegal, fetchEditTaskIllegal } from '@/api/admin'
+import { fetchGetLetterBaseList, fetchAddLetterBaseList, fetchEditLetterBaseList } from '@/api/admin'
+import { instrucBaseType } from '@/utils/config'
 export default {
+
   data() {
     return {
+      tabPosition: '1',
       dialogVisible: false,
       isEdit: false,
+      instrucBaseType,
       formInline: {
         name: '',
         remark: '',
+        problem_dspt: '',
+        rules_dspt: '',
+        penalty_dspt: '',
+        measure_dspt: '',
         is_lock: true,
         templateOrder: ''
       },
       rules: {
-        name: [{ required: true, trigger: 'blur', message: '请输入模板名称' }]
-        // templateOrder: [{ required: true, trigger: 'blur', message: '排序' }]
+        name: [{ required: true, trigger: 'blur', message: '请选择类型' }],
+        problem_dspt: [{ required: true, trigger: 'blur', message: '请输入描述' }],
+        remark: [{ required: true, trigger: 'blur', message: '请输入名称' }],
+        rules_dspt: [{ required: true, trigger: 'blur', message: '违反条例' }],
+        penalty_dspt: [{ required: true, trigger: 'blur', message: '处罚依据条例' }],
+        measure_dspt: [{ required: true, trigger: 'blur', message: '整改措施' }],
+        templateOrder: [{ required: true, trigger: 'blur', message: '排序' }]
       },
       info: {
         name: '',
@@ -114,9 +159,14 @@ export default {
     add() {
       this.formInline.id = ''
       this.dialogVisible = true
+      this.isEdit = false
       this.formInline = {
         name: '',
         remark: '',
+        problem_dspt: '',
+        rules_dspt: '',
+        penalty_dspt: '',
+        measure_dspt: '',
         is_lock: true,
         templateOrder: ''
       }
@@ -126,33 +176,49 @@ export default {
       console.log(row)
       const {
         id,
-        illegalName,
-        is_lock
+        baseTypeId,
+        baseName,
+        baseIntro,
+        baseStatus,
+        baseOrder
       } = row
       this.formInline = {
         id,
-        name: illegalName,
-        is_lock: !~~is_lock // is_lock === '0' ? true : false,
+        name: baseTypeId,
+        remark: baseName,
+        problem_dspt: baseIntro,
+        is_lock: !~~baseStatus, // is_lock === '0' ? true : false,
+        templateOrder: baseOrder
       }
       this.dialogVisible = true
     },
     formSub() {
       this.$refs.formAddInfo.validate(valid => {
         if (valid) {
-          console.log(this.formInline)
+          // console.log(this.formInline)
           const {
             name,
-            is_lock
+            remark,
+            problem_dspt,
+            // rules_dspt,
+            // penalty_dspt,
+            // measure_dspt,
+            is_lock,
+            templateOrder
           } = this.formInline
           const data = {
-            illegalName: name,
-            is_lock: is_lock ? '0' : '1'
+            baseTypeId: name,
+            baseName: remark,
+            baseIntro: problem_dspt,
+            // rules_dspt,
+            baseStatus: is_lock ? '0' : '1',
+            baseOrder: templateOrder
           }
           console.log(data)
           // return ''
           if (this.isEdit) {
             data.id = this.formInline.id
-            fetchEditTaskIllegal(data).then(res => {
+            fetchEditLetterBaseList(data).then(res => {
               if (res.resultCode === '0000000') {
                 this.isEdit = false
                 this.$message.success(res.resultDesc)
@@ -163,7 +229,7 @@ export default {
               }
             })
           } else {
-            fetchAddTaskIllegal(data).then(res => {
+            fetchAddLetterBaseList(data).then(res => {
               if (res.resultCode === '0000000') {
                 this.$message.success(res.resultDesc)
                 this.dialogVisible = false
@@ -176,6 +242,10 @@ export default {
           this.formInline = {
             name: '',
             remark: '',
+            problem_dspt: '',
+            rules_dspt: '',
+            penalty_dspt: '',
+            measure_dspt: '',
             is_lock: true,
             templateOrder: ''
           }
@@ -191,15 +261,19 @@ export default {
     fecthData() {
       const {
         name,
+        desc,
         pageNum,
         pageSize
       } = this.info
       const data = {
-        illegalName: name,
+        baseName: name,
+        baseIntro: desc,
+        baseTypeId: this.tabPosition,
         pageNum,
-        pageSize
+        pageSize,
+        isAll: '0'
       }
-      fetchTaskIllegalList(data).then(res => {
+      fetchGetLetterBaseList(data).then(res => {
         console.log(res)
         if (res.resultCode === '0000000') {
           const { list, total } = res.returnData
@@ -223,10 +297,10 @@ export default {
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {
-          this.$refs.multipleAccountsTables.toggleRowSelection(row)
+          this.$refs.multipleAccountsTable.toggleRowSelection(row)
         })
       } else {
-        this.$refs.multipleAccountsTables.clearSelection()
+        this.$refs.multipleAccountsTable.clearSelection()
       }
     },
     handleSelectionChange(val) {
@@ -263,6 +337,11 @@ export default {
       padding: 0 15px;
       padding-bottom: 15px;
     }
+  }
+  .ppp {
+    background: #fff;
+    padding-left: 15px;
+    padding-bottom: 10px;
   }
   .dialogVisible {
     .input {

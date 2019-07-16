@@ -110,21 +110,31 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/houtai',
     name: 'sys_bg_manage',
-    alwaysShow: true,
+    // alwaysShow: true,
     meta: { title: '后台管理', icon: 'houtai' },
     children: [{
+      name: 'sys_acount',
       path: 'account',
       meta: { title: '用户管理' },
       component: () => import('@/views/houtai/account/index')
     }, {
+      name: 'sys_commandBase_mode',
+      path: 'instrucBase',
+      meta: { title: '指令书基础管理' },
+      component: () => import('@/views/houtai/instrucBase/index')
+    }, {
+      name: 'sys_command_mode',
       path: 'instruc',
       meta: { title: '指令书模板管理' },
       component: () => import('@/views/houtai/instrucTemp/index')
-    }, {
-      path: 'weigui',
-      meta: { title: '违规模板管理' },
-      component: () => import('@/views/houtai/weigui/weigui')
-    }]
+    }
+    // , {
+    //   hidden: true,
+    //   path: 'weigui',
+    //   meta: { title: '违规模板管理' },
+    //   component: () => import('@/views/houtai/weigui/weigui')
+    // }
+    ]
   },
   {
     path: '/units',

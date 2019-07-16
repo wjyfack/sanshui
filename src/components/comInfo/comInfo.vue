@@ -42,17 +42,18 @@
       width="40%"
       title="设备"
       append-to-body>
-      <deviceDetails :info="info"/>
+      <device v-if="innerVisible" :info="info" name="deviceDetails"/>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import deviceDetails from '@/components/deviceDetail/index'
+import device from '@/components/deviceDetails/index'
 import { fetchDeviceDetail } from '@/api/shebei'
 export default {
+  name: 'Cominfo',
   components: {
-    deviceDetails
+    device
   },
   props: {
     transfe: {

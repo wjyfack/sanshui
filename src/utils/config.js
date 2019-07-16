@@ -3,6 +3,21 @@ export const baseUrl = 'http://192.168.0.142:8607' // 'http://47.112.211.171/san
 export const refiyUrl = 'https://www.xiangua.net/customer_app-api' // 'http://192.168.0.142:8507' //
 export const systemKey = 'dgrl44212haoakkewicenwwhnsja443'
 export const systemSign = 'sanshuiSafetyServer'
+export const instrucBaseType = [
+  {
+    value: '1',
+    label: '指令书-主要问题'
+  }, {
+    value: '2',
+    label: '指令书-整改措施'
+  }, {
+    value: '3',
+    label: '指令书-违反条例'
+  }, {
+    value: '4',
+    label: '指令书-处罚依据条例'
+  }
+]
 export const userRole = [ // 角色
   {
     value: '2',

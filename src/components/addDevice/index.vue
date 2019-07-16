@@ -4,6 +4,17 @@
       <div class="device-info">
         <div class="info">
           <span>系统导入关联设备</span>
+          <div class="info-search">
+            <el-input v-model="search.deviceCertNo" clearable placeholder="请输入使用登记证号" style="width:auto;"/>
+            <el-select v-model="search.deviceType1" clearable placeholder="请选择设备类型">
+              <el-option
+                v-for="item in equipmentAllType"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"/>
+            </el-select>
+            <el-button type="primary" size="mini" @click="clickSearch">搜索</el-button>
+          </div>
         </div>
         <el-table
           v-loading="loading"
@@ -154,6 +165,10 @@ export default {
       devList: [],
       company: {},
       phoneListString: '',
+      search: {
+        deviceType1: '',
+        deviceCertNo: ''
+      },
       info: {
         useEque: '',
         status: '01',
@@ -194,6 +209,9 @@ export default {
     this.chageData()
   },
   methods: {
+    clickSearch() { // 搜索
+      this.getDeviceList(this.device.company.id, this.search)
+    },
     sendImgLoad(event) {
       // console.log(event)
       this.phoneListString = event
@@ -213,9 +231,9 @@ export default {
       this.info.installAddr = local.area
       this.info.detailAddr = local.useAddress
     },
-    getDeviceList(id) { // 获取设备列表
+    getDeviceList(id, data = {}) { // 获取设备列表
       this.loading = true
-      fetchBeforeTask(id).then(response => {
+      fetchBeforeTask(id, data).then(response => {
         const data = response
         if (data.resultCode === '0000000') {
           const returnData = data.returnData
@@ -402,5 +420,9 @@ export default {
     }
   }
 }
-
+.info-search {
+  display: felx;
+  align-items:center;
+  justify-content:center;
+}
 </style>

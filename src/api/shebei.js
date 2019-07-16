@@ -60,10 +60,10 @@ export function fetchDeviceType() { // 设备类型
   })
 }
 
-export function fetchBeforeTask(deviceUseID) { // 生成任务钱设备查询
+export function fetchBeforeTask(deviceUseID, data = {}) { // 生成任务钱设备查询
   return request({
     url: '/device/ss/getDeviceForTask',
     method: 'post',
-    data: { deviceUseID, deviceArea3: '7' } // 只查三水的设备
+    data: { deviceUseID, deviceArea3: '7', ...data } // 只查三水的设备
   })
 }

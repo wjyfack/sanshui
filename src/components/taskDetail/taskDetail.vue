@@ -12,7 +12,7 @@
       </div>
       <div class="item">
         <span class="name">指令书日期：</span> <div class="info">{{ command.commandDate }}</div>
-        <span class="name">备注：</span> <div class="info">{{ command.dangerDescription }}</div>
+        <span class="name">备注：</span> <div class="info">{{ command.remark }}</div>
       </div>
       <div class="btn-item">
         <el-button size="mini" type="text" @click="look">详情</el-button>
