@@ -3,7 +3,7 @@
     <div class="title">单位信息</div>
     <el-row>
       <el-form-item label="使用单位名称" required>
-        <el-input v-model="com.useName" disabled placeholder="请输入使用单位名称" style="width:100%" class="input-with-select">
+        <el-input v-model="company.useName" disabled placeholder="请输入使用单位名称" style="width:100%" class="input-with-select">
           <el-button slot="append" icon="el-icon-search" @click="chageSearch"/>
         </el-input>
       </el-form-item>
@@ -11,18 +11,18 @@
     <el-row>
       <el-col :span="12">
         <el-form-item label="使用单位联系人">
-          <el-input v-model="com.useContactMan" disabled placeholder="使用单位联系人"/>
+          <el-input v-model="company.useContactMan" :disabled="edit" placeholder="使用单位联系人"/>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="单位联系方式">
-          <el-input v-model="com.useContactManTel" disabled placeholder="单位联系方式"/>
+          <el-input v-model="company.useContactManTel" :disabled="edit" placeholder="单位联系方式"/>
         </el-form-item>
       </el-col>
     </el-row>
     <el-row>
       <el-form-item label="使用单位地址">
-        <el-input v-model="com.useAddress" disabled placeholder="使用单位地址" />
+        <el-input v-model="company.useAddress" :disabled="edit" placeholder="使用单位地址" />
       </el-form-item>
     </el-row>
     <el-dialog :visible.sync="dialogFormVisible" append-to-body title="使用单位">
@@ -80,14 +80,20 @@
 import { fetchCompanyBase } from '@/api/units'
 export default {
   props: {
+    edit: {
+      type: Boolean,
+      default: true
+    },
     com: {
       type: Object,
       default: () => {}
     }
   },
   data() {
+    const company = this.com || {}
     return {
       // com: {},
+      company,
       units: {},
       dialogFormVisible: false,
       unitData: [],
@@ -98,16 +104,28 @@ export default {
       multipleSelection: []
     }
   },
+  watch: {
+    com(newVal, oldVal) {
+      // console.log(newVal, oldVal)
+      if (newVal) {
+        this.company = newVal
+      }
+    }
+  },
+  mounted() {
+    this.company = this.com || {}
+  },
   methods: {
     sure() {
       const multipleSelection = this.multipleSelection
       if (multipleSelection.length !== 0) {
         const data = multipleSelection[0]
         data.useContactManTel = data.useTel
-        this.com.useName = data.useName
-        this.com.useContactMan = data.useContactMan
-        this.com.useContactManTel = data.useTel
-        this.com.useAddress = data.useAddress
+        this.company.useName = data.useName
+        this.company.useContactMan = data.useContactMan
+        this.company.useContactManTel = data.useTel
+        this.company.useAddress = data.useAddress
+        this.company.contactManTel = data.useContactManTel
         const useArea2 = data.useArea2 ? data.useArea2 : ''
         const useArea3 = data.useArea3 ? data.useArea3 : ''
         const useArea4 = data.useArea4 ? data.useArea4 : ''

@@ -15,12 +15,14 @@ const getters = {
   instructionList: state => state.instruction.list,
   instructionStatus: state => state.instruction.status,
   instrCount: state => state.instruction.instrCount,
+  checkCount: state => state.instruction.checkCount,
   companyList: state => state.common.comlist, // 公司名称
   equipmentAllType: state => state.common.deviceType, // 设备类型
   instructionModels: state => state.common.instructionModels, // 指令书模板
   deptNames: state => state.common.deptNames, // 接收任务部门
   taskAddTime: state => state.common.taskAddTime, // 指令书日期
   localAddr: state => state.common.localAddr, // 设备地址
+  inspectionType: state => state.common.checkType, // 专项任务类型
   IrregularitiesType: state => state.common.taskIllegal,
   addRouters: state => state.permission.addRouters
 }

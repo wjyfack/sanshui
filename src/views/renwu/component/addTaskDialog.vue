@@ -79,7 +79,7 @@
                     :label="item.label"
                     :value="item.value"/>
                 </el-select>
-                <el-select v-model="com.tasktwo" placeholder="请选择" style="width: 200px;">
+                <el-select v-model="com.tasktwo" multiple filterable allow-create placeholder="请选择" style="width: 200px;">
                   <el-option
                     v-for="item in taksTypeSecond"
                     :key="item.value"
@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import { status, addrCasc, taskType, inspectionType } from '@/utils/config'
+import { status, addrCasc, taskType } from '@/utils/config'
 import { mapGetters } from 'vuex'
 import { fetchBeforeTask, fetchAddDevice } from '@/api/shebei'
 import { fetchAddTask, fecthHandleTask } from '@/api/task'
@@ -162,11 +162,12 @@ export default {
       status,
       addrCasc,
       taskType,
-      inspectionType,
+      // inspectionType,
       taksTypeSecond: [],
       DialogAddDevice: false,
       DialogAgain: false,
       loading: false,
+      multiple: false,
       deviceList: [],
       noDeviceList: [],
       multipleSelection: [],
@@ -183,13 +184,14 @@ export default {
         requi: '',
         checkDate: getFormatDate(),
         taskone: '',
-        tasktwo: ''
+        tasktwo: []
       }
     }
   },
   computed: {
     ...mapGetters([
-      'equipmentAllType'
+      'equipmentAllType',
+      'inspectionType'
     ])
   },
   watch: {
@@ -261,9 +263,11 @@ export default {
           this.com.taskone = this.infos.taskStatus
         }
         if (this.infos.taskStatusName) {
-          this.taksTypeSecond = inspectionType
-          this.com.tasktwo = this.infos.taskStatusName
+          // this.multiple = true
+          this.taksTypeSecond = this.inspectionType
+          this.com.tasktwo = this.infos.taskStatusName.split(',')
         } else {
+          // this.multiple = false
           this.taksTypeSecond = []
         }
         const list = this.infos.list
@@ -291,11 +295,13 @@ export default {
       switch (~~value) {
         case 2:
         case 1:
-          this.com.tasktwo = ''
-          this.taksTypeSecond = inspectionType
+          // this.multiple = true
+          this.com.tasktwo = []
+          this.taksTypeSecond = this.inspectionType
           break
         default:
-          this.com.tasktwo = ''
+          // this.multiple = false
+          this.com.tasktwo = []
           this.taksTypeSecond = []
       }
     },
@@ -449,7 +455,7 @@ export default {
         data.listDevice = listDevice
         data.taskStatus = taskone
         data.checkStatus = '4'
-        data.taskStatusName = tasktwo
+        data.taskStatusName = tasktwo.join(',')
         data.operateName = '新增任务'
         fetchAddTask(data).then(response => {
           const data = response
@@ -472,7 +478,7 @@ export default {
         data.deviceIds = deviceIds
         data.taskCheckId = this.task.id
         data.checkType = taskone
-        data.checkType2 = tasktwo
+        data.checkType2 = tasktwo.join(',')
         data.operateName = '处理任务'
         data.checkNo = this.task.checkNo
         fecthHandleTask(data).then(response => {

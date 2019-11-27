@@ -84,7 +84,7 @@
     </div>
     <el-dialog
       :visible.sync="dialogVisible"
-      title="新增">
+      :title="title">
       <div class="dialogVisible">
         <el-form ref="addLoginForm" :inline="true" :model="addForm" :rules="rules" class="demo-form-inline">
           <el-row>
@@ -93,8 +93,12 @@
                 <el-input v-model="addForm.userName" placeholder="请输入帐号"/>
               </el-form-item>
             </el-col>
-            <el-col v-if="!isEdit" :span="12">
-              <el-form-item label="密码" prop="userPwd">
+            <el-col :span="12">
+              <el-form-item v-if="isEdit" label="是否初始化密码" prop="initPwd">
+                <el-switch
+                  v-model="addForm.initPwd"/>
+              </el-form-item>
+              <el-form-item v-else label="密码" prop="userPwd">
                 <el-input v-model="addForm.userPwd" placeholder="请输入密码"/>
               </el-form-item>
             </el-col>
@@ -141,6 +145,11 @@
                 <el-input v-model="addForm.userEmail" placeholder="请输入邮箱"/>
               </el-form-item>
             </el-col>
+            <el-col :span="12">
+              <el-form-item label="职位" prop="position">
+                <el-input v-model="addForm.position" placeholder="请输入职位"/>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
@@ -156,6 +165,14 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <!--  <el-row>
+            <el-col :span="12">
+              <el-form-item label="是否可登录app" prop="userIsSend">
+                <el-switch
+                  v-model="addForm.userIsSend"/>
+              </el-form-item>
+            </el-col>
+          </el-row> -->
           <el-row>
             <el-form-item label="电子签名" prop="userSign">
               <imgLoad :list="addForm.userSign" :imgurl="imgurl" :imgshow="imgshow" @sendimg="getSendImg" />
@@ -182,6 +199,7 @@ export default {
   },
   data() {
     return {
+      title: '新增',
       userRole,
       userRoleShow: [],
       imgurl: `${baseUrl}/file/upload/userSign`,
@@ -197,6 +215,7 @@ export default {
         pageSize: '10'
       },
       addForm: {
+        initPwd: false,
         userEmail: '',
         userName: '',
         userNickName: '',
@@ -208,7 +227,8 @@ export default {
         userIsApp: true,
         userIsSystem: '0',
         userSign: '',
-        userSignImg: ''
+        userSignImg: '',
+        position: ''
       },
       rules: {
         userName: [{ required: true, trigger: 'blur', message: '请输入帐号' }],
@@ -217,8 +237,8 @@ export default {
         userNickName: [{ required: true, trigger: 'blur', message: '请输入姓名' }],
         userRoleId: [{ required: true, trigger: 'blur', message: '请选择角色' }],
         userPhone: [{ required: true, trigger: 'blur', message: '请输入手机号' }],
-        userDeptId: [{ required: true, trigger: 'blur', message: '请选择部门' }]
-        // userSignImg: [{ required: true, trigger: 'blur', message: '电子签名' }],
+        userDeptId: [{ required: true, trigger: 'blur', message: '请选择部门' }],
+        position: [{ required: true, trigger: 'blur', message: '请输入职位' }]
       },
       total: 0,
       value: '',
@@ -241,6 +261,8 @@ export default {
   },
   methods: {
     add() {
+      this.title = '新增'
+      this.isEdit = false
       this.addForm.id = ''
       this.dialogVisible = true
       this.addForm = {
@@ -255,7 +277,9 @@ export default {
         userIsApp: true,
         userIsSystem: '0',
         userSign: '',
-        userSignImg: ''
+        userSignImg: '',
+        userIsSend: false,
+        position: ''
       }
     },
     userDeptIdChange(event) {
@@ -275,10 +299,14 @@ export default {
         case 10:
           this.userRoleShow = this.userRole.slice(5)
           break
+        case 11:
+          this.userRoleShow = this.userRole.slice(7)
+          break
       }
       this.addForm.userRoleId = ''
     },
     edit(row) {
+      this.title = '编辑'
       this.isEdit = true
       console.log(row)
       const {
@@ -294,7 +322,9 @@ export default {
         userSign,
         userEmail,
         userPwd,
-        userDeptId
+        userDeptId,
+        userIsSend,
+        position
       } = row
       this.addForm = {
         id,
@@ -305,10 +335,12 @@ export default {
         userPhone,
         userStatus: !~~userStatus, // userStatus === '0' ? true : false,
         userIsApp: !!~~userIsApp, // userIsApp === '1' ? true : false,
+        userIsSend: !!~~userIsSend,
         userIsSystem,
         userSign,
         userEmail,
         userPwd,
+        position,
         userDeptId,
         userSignImg: userSign
       }
@@ -330,9 +362,12 @@ export default {
             userEmail,
             userPwd,
             userDeptId,
-            userSignImg
+            userSignImg,
+            userIsSend,
+            position
           } = this.addForm
           const data = {
+            position,
             userName,
             userNickName,
             userRoleId,
@@ -343,14 +378,19 @@ export default {
             userDeptId,
             userStatus: userStatus ? '0' : '1',
             userIsApp: userIsApp ? '1' : '0',
+            userIsSend: userIsSend ? '1' : '0',
             userIsSystem,
             userSign: userSignImg
           }
+          // console.log(data)
+          // return ''
           if (this.isEdit) {
             data.id = this.addForm.id
             fetchUserUpdate(data).then(res => {
               if (res.resultCode === '0000000') {
-                fetchinitPwd({ id: this.addForm.id })
+                if (this.addForm.initPwd) {
+                  fetchinitPwd({ id: this.addForm.id })
+                }
                 this.isEdit = false
                 this.$message.success(res.resultDesc)
                 this.dialogVisible = false

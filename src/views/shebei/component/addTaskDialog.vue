@@ -2,7 +2,7 @@
 
   <div class="task">
     <el-form ref="form" label-width="150px">
-      <unitInfo :com="{}" @closed="unitClose"/>
+      <unitInfo @closed="unitClose"/>
       <!-- <div class="title">单位信息</div>
       <el-row>
         <el-form-item label="使用单位名称" required>
@@ -183,6 +183,7 @@ export default {
       this.com.useContactMan = useContactMan
       this.com.useContactManTel = useTel
       this.com.useAddress = useAddress
+      this.deviceList = []
     },
     changeDevice(event) {
       if (event.length !== 0) {
@@ -250,6 +251,9 @@ export default {
         return ''
       } else if (!checkDate) {
         this.$message('请输入检查日期')
+        return ''
+      } else if (this.deviceList.length === 0) {
+        this.$message('请添加设备')
         return ''
       }
       const data = {

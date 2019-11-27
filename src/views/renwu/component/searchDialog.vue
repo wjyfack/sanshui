@@ -88,6 +88,9 @@ export default {
       }
     }
   },
+  mounted() {
+    console.log(this.$parent)
+  },
   methods: {
     taskCheckNative() {
       this.$refs.taskCheckNativeRef.clear()

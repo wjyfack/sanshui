@@ -89,7 +89,7 @@
                   :label="item.label"
                   :value="item.value"/>
               </el-select>
-              <el-select v-model="record.checkType2" placeholder="请选择">
+              <el-select v-model="record.checkType2" filterable allow-create placeholder="请选择">
                 <el-option
                   v-for="item in insprcType"
                   :key="item.value"

@@ -7,7 +7,7 @@
         :label="item.label"
         :value="index"/>
     </el-select>
-    <el-select v-model="instructionStatus" placeholder="请选择" @change="instrucSelect">
+    <el-select v-model="instructionStatus" multiple filterable allow-create placeholder="请选择" @change="instrucSelect">
       <el-option
         v-for="item in insprcType"
         :key="item.value"
@@ -18,7 +18,8 @@
 </template>
 
 <script>
-import { taskType, inspectionType } from '@/utils/config'
+import { taskType } from '@/utils/config'
+import { mapGetters } from 'vuex'
 // 任务状态 专项任务
 export default {
   props: {
@@ -30,24 +31,30 @@ export default {
   data() {
     return {
       taskType,
-      inspectionType,
+      // inspectionType,
       insprcType: [],
       taskStatus: '',
-      instructionStatus: ''
+      instructionStatus: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'inspectionType'
+    ])
+  },
   mounted() {
+    // console.log(this.arr, 1111111)
     if (this.arr[0]) { this.taskStatus = ~~this.arr[0] }
     if (this.arr[1]) {
-      this.insprcType = inspectionType
-      this.instructionStatus = this.arr[1]
+      this.insprcType = this.inspectionType
+      this.instructionStatus = this.arr[1].split(',')
     }
     // console.log(this.taskStatus, this.instructionStatus, 123)
   },
   methods: {
     clear() {
       this.taskStatus = ''
-      this.instructionStatus = ''
+      this.instructionStatus = []
       this.insprcType
       console.log('clear')
     },
@@ -56,13 +63,13 @@ export default {
       switch (~~this.taskStatus) {
         case 2:
         case 1:
-          this.insprcType = inspectionType
+          this.insprcType = this.inspectionType
           break
         default:
-          this.instructionStatus = ''
+          this.instructionStatus = []
           this.insprcType = []
       }
-      this.instructionStatus = ''
+      this.instructionStatus = []
       this.change()
     },
     instrucSelect(event) {
@@ -72,13 +79,13 @@ export default {
     },
     change() {
       const { value } = taskType[this.taskStatus]
-      console.log({
-        taskStatus: value,
-        instructionStatus: this.instructionStatus
-      })
+      // console.log({
+      //   taskStatus: value,
+      //   instructionStatus: this.instructionStatus
+      // })
       this.$emit('send', {
         taskStatus: value,
-        instructionStatus: this.instructionStatus
+        instructionStatus: this.instructionStatus.join()
       })
     }
   }

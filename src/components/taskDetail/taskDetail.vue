@@ -17,6 +17,7 @@
       <div class="btn-item">
         <el-button size="mini" type="text" @click="look">详情</el-button>
         <div>
+          <el-button v-if="transfe.command && transfe.command.commandNo " size="mini" type="warning" @click="preview(4)">回执预览</el-button>
           <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
           <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(3)">关联设备预览</el-button>
           <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="primary" @click="daying(1)">检查记录下载</el-button>
@@ -160,6 +161,9 @@ export default {
           break
         case 3:
           url = encodeURI(`${this.printUrl}（三水）检查记录关联设备${checkNo}.jpg`)
+          break
+        case 4:
+          url = encodeURI(`${this.printUrl}${commandNo}.jpg`)
           break
       }
       // this.lookPic = true

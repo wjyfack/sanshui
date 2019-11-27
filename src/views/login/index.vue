@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-      <h3 class="title">三水区特种设备企业后台管理</h3>
+      <h3 class="title">三水区特种设备信息系统</h3>
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -29,6 +29,7 @@
         </el-button>
       </el-form-item>
     </el-form>
+    <el-footer class="bottom">Copyright © 2018-2019 备案号：粤ICP备19011800号 &nbsp; 佛山市珂莎巴科技有限公司版权所有</el-footer>
   </div>
 </template>
 
@@ -153,6 +154,15 @@ $light_gray:#eee;
 $bg:#2d3a4b;
 $dark_gray:#889aa4;
 $light_gray:#eee;
+.bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .login-container {
   position: fixed;
   height: 100%;

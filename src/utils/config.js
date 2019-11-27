@@ -1,8 +1,112 @@
 
-export const baseUrl = 'http://192.168.0.142:8607' // 'http://47.112.211.171/sanshui_app-api' //
-export const refiyUrl = 'https://www.xiangua.net/customer_app-api' // 'http://192.168.0.142:8507' //
+export const baseUrl = 'https://www.casaba.top/sanshui_app-api' //'http://192.168.0.142:8607' //
+export const refiyUrl = 'https://www.casaba.top/customer_app-api' // 'http://192.168.0.142:8507' //
 export const systemKey = 'dgrl44212haoakkewicenwwhnsja443'
 export const systemSign = 'sanshuiSafetyServer'
+
+// export const deptTypeName = {
+//   '1': '里水质监站',
+//   '2': '西樵质监站',
+//   '3': '罗村质监站',
+//   '4': '大沥质监站',
+//   '5': '九江质监站',
+//   '6': '桂城质监站',
+//   '7': '丹灶质监站',
+//   '8': '锅炉科',
+//   '9': '机电科',
+//   '10': '稽查队',
+//   '11': '质监局',
+//   '12': '狮山质监站'
+// }
+// export const deptType = [
+//   {
+//     value: '1',
+//     label: '里水质监站'
+//   },
+//   {
+//     value: '2',
+//     label: '西樵质监站'
+//   },
+//   {
+//     value: '3',
+//     label: '罗村质监站'
+//   },
+//   {
+//     value: '4',
+//     label: '大沥质监站'
+//   },
+//    {
+//     value: '5',
+//     label: '九江质监站'
+//   },
+//   {
+//     value: '6',
+//     label: '桂城质监站'
+//   },
+//   {
+//     value: '7',
+//     label: '丹灶质监站'
+//   },
+//   {
+//     value: '8',
+//     label: '锅炉科'
+//   },
+//   {
+//     value: '9',
+//     label: '机电科'
+//   },
+//   {
+//     value: '10',
+//     label: '稽查队'
+//   },
+//   {
+//     value: '11',
+//     label: '质监局'
+//   },
+//   {
+//     value: '12',
+//     label: '狮山质监站'
+//   }
+// ]
+export const inspectionTypeNames = [
+  {
+    value: '不合格项整改',
+    label: '不合格项整改'
+  },
+  {
+    value: '复检不合格',
+    label: '复检不合格'
+  },
+  {
+    value: '不合格',
+    label: '不合格'
+  }
+]
+export const commandReceiptType = [
+  // 1:直接送达 2:留置送达 3:邮寄送达 4:公告送达
+  {
+    value: '1',
+    label: '直接送达'
+  },
+  {
+    value: '2',
+    label: '邮件送达'
+  },
+  {
+    value: '3',
+    label: '邮寄送达'
+  }
+]
+export const commandAgainstRules = [
+  {
+    value: '1',
+    label: '定位地址'
+  },
+  {
+    value: '2',
+    label: '单位地址'
+  }
+]
 export const instrucBaseType = [
   {
     value: '1',
@@ -46,6 +150,10 @@ export const userRole = [ // 角色
   {
     value: '8',
     label: '稽查队长'
+  },
+  {
+    value: '9',
+    label: '检验所'
   }
 ]
 
@@ -491,43 +599,63 @@ export const status = [
   }, {
     value: '01',
     label: '在用'
-  }, {
-    value: '02',
+  },
+  // {
+  //   value: '02',
+  //   label: '停用'
+  // },
+  //  {
+  //   value: '03',
+  //   label: '检测中'
+  // }, {
+  //   value: '04',
+  //   label: '整改中'
+  // },
+  // {
+  //   value: '05',
+  //   label: '停电话'
+  // },
+  // {
+  //   value: '06',
+  //   label: '停目录停用'
+  // }, {
+  //   value: '07',
+  //   label: '停检测员'
+  // },
+  {
+    value: '02,06,07,08',
     label: '停用'
-  }, {
-    value: '03',
-    label: '检测中'
-  }, {
-    value: '04',
-    label: '整改中'
-  }, {
-    value: '05',
-    label: '停电话'
-  }, {
-    value: '06',
-    label: '停目录停用'
-  }, {
-    value: '07',
-    label: '停检测员'
-  }, {
-    value: '08',
-    label: '停'
-  }, {
+  },
+  {
     value: '09',
     label: '拆除'
   }, {
     value: '10',
     label: '注销'
-  }, {
-    value: '11',
-    label: '已移装改造'
-  }, {
-    value: '12',
-    label: '简单容器'
-  }, {
-    value: '13',
-    label: '待核实'
+  },
+  {
+    value: '11,12,13,14,18,19',
+    label: '其他'
   }
+  // {
+  //   value: '11',
+  //   label: '已移装改造'
+  // }, {
+  //   value: '11',
+  //   label: '简单容器'
+  // }, {
+  //   value: '13',
+  //   label: '待核实'
+  // }, {
+  //   value: '14',
+  //   label: '报废'
+  // }, {
+  //   value: '18',
+  //   label: '安装改造维修中'
+  // }, {
+  //   value: '19',
+  //   label: '目录外'
+  // }
 ]
 
 export const checkStatus = [ // 设备检查状态
@@ -561,17 +689,25 @@ export const taskType = [ // 任务状态
     label: '日常任务+专项任务'
   }
 ]
+// 改动, 不要了
 export const inspectionType = [ // 专项任务
   {
     value: '1',
-    label: '节后复查'
-  }, {
-    value: '2',
     label: '检验所任务'
   }, {
-    value: '3',
-    label: '节后复查+检验所任务'
+    value: '2',
+    label: '奋战50天全年保平安'
   }
+  // {
+  //   value: '1',
+  //   label: '节后复查'
+  // }, {
+  //   value: '2',
+  //   label: '检验所任务'
+  // }, {
+  //   value: '3',
+  //   label: '节后复查+检验所任务'
+  // }
 ]
 export const unitType = [
   {
@@ -599,12 +735,17 @@ export const unitType = [
 ]
 export const townSearchType = [
   {
+    value: '',
+    label: '所有镇街',
+    name: ''
+  },
+  {
     value: '52,42,47,48',
     label: '西南',
     name: '河口,金本,青岐,西南'
   },
   {
-    value: '44,43,53,45',
+    value: '44,43,45',
     label: '乐平',
     name: '范湖,南边,云东海,乐平'
   },
@@ -727,30 +868,30 @@ export const addrCasc = [
         value: '7',
         label: '三水区',
         children: [
-          {
-            value: '42',
-            label: '金本'
-          },
-          {
-            value: '43',
-            label: '南边'
-          },
-          {
-            value: '44',
-            label: '范湖'
-          },
+          // {
+          //   value: '42',
+          //   label: '金本'
+          // },
+          // {
+          //   value: '43',
+          //   label: '南边'
+          // },
+          // {
+          //   value: '44',
+          //   label: '范湖'
+          // },
           {
             value: '45',
             label: '乐平'
           },
-          {
-            value: '46',
-            label: '六和'
-          },
-          {
-            value: '47',
-            label: '青岐'
-          },
+          // {
+          //   value: '46',
+          //   label: '六和'
+          // },
+          // {
+          //   value: '47',
+          //   label: '青岐'
+          // },
           {
             value: '48',
             label: '西南'
@@ -767,10 +908,10 @@ export const addrCasc = [
           //   value: '51',
           //   label: '广州军区三水农场'
           // },
-          {
-            value: '52',
-            label: '河口'
-          },
+          // {
+          //   value: '52',
+          //   label: '河口'
+          // },
           {
             value: '53',
             label: '云东海'
@@ -795,10 +936,10 @@ export const addrCasc = [
           //   value: '58',
           //   label: '省三水劳教所'
           // },
-          {
-            value: '59',
-            label: '迳口'
-          },
+          // {
+          //   value: '59',
+          //   label: '迳口'
+          // },
           {
             value: '60',
             label: '南山'

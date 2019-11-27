@@ -49,9 +49,9 @@ const task = { // 通用滴
         }).catch(error => reject(error))
       })
     },
-    actionsTaskCount({ commit }) {
+    actionsTaskCount({ commit }, data) {
       return new Promise((resolve, reject) => {
-        fetchTaskCount().then(response => {
+        fetchTaskCount(data).then(response => {
           console.log(response)
           if (response.resultCode === '0000000') {
             const data = response.returnData

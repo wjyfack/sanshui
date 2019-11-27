@@ -94,7 +94,7 @@
                   :label="item.label"
                   :value="item.value"/>
               </el-select>
-              <el-select v-model="record.checkType2" placeholder="请选择">
+              <el-select v-model="record.checkType2" multiple filterable allow-create placeholder="请选择">
                 <el-option
                   v-for="item in insprcType"
                   :key="item.value"
@@ -152,10 +152,22 @@
           <img-load :imgurl="imgUrl" :imgshow="baseImgUrl" :time="`${new Date().getTime()}`" @sendimg="sendImgLoad"/>
         </el-form-item>
       </el-row>
+      <el-row class="row">
+        <el-col :span="12">
+          <el-form-item label="司机">
+            <el-input v-model="record.driver" placeholder="司机"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="检查人员" required>
+            <el-input v-model="record.checkPeopleName" placeholder="检查人员"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
       <div class="title">
         <span>关联设备</span>
         <div class="flex-all">
-          <el-select v-model="IllegalCountIds" multiple class="select" placeholder="请选择指令书模板" @change="changeAlldevice">
+          <el-select v-model="IllegalCountIds" multiple class="select" placeholder="请选择指令书模板" style="overflow: hidden;margin-right: 5px;" @change="changeAlldevice">
             <el-option
               v-for="item in instructionModels"
               :key="item.id"
@@ -187,7 +199,7 @@
         <el-table-column>
           <template slot-scope="scope">
             <el-form-item label="隐患模板" >
-              <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择指令书模板" @change="changeOnlyDevice">
+              <el-select v-model="deviceList[scope.$index].illegalCountId" multiple placeholder="请选择指令书模板" style="overflow: hidden;" @change="changeOnlyDevice">
                 <el-option
                   v-for="item in instructionModels"
                   :key="item.id"
@@ -314,6 +326,35 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row class="row">
+          <el-col :span="12">
+            <el-form-item label="送达方式">
+              <el-select v-model="command.commandReceiptTypeId" placeholder="请选择" class="select">
+                <el-option
+                  v-for="item in commandReceiptType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="回证打印">
+              <el-select v-model="command.printAdress" placeholder="请选择" class="select">
+                <el-option
+                  v-for="item in commandAgainstRules"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row class="row">
+          <el-form-item label="指令书接收地址">
+            <el-input v-model="command.commandReceiptAddress" placeholder="" style="width:100%"/>
+          </el-form-item>
+        </el-row>
       </el-form>
     </div>
     <span slot="footer" class="dialog-footer">
@@ -362,7 +403,7 @@ import taskCheck from '@/components/taskCheck/index'
 import { fectEditTask } from '@/api/task'
 import { mapGetters } from 'vuex'
 import { getFormatDate, getFormatDate30, autoDeviceCountConcat } from '@/utils/common'
-import { danWeiType, taskType, inspectionType, baseUrl } from '@/utils/config'
+import { danWeiType, taskType, baseUrl, commandReceiptType, commandAgainstRules } from '@/utils/config'
 import addDevice from '@/components/addDevice/index'
 import previewRecord from '@/components/previewRecord/index'
 import previewInstruction from '@/components/previewInstruction/index'
@@ -389,7 +430,9 @@ export default {
       // IrregularitiesType,
       taskType,
       danWeiType,
-      inspectionType,
+      // inspectionType,
+      commandReceiptType,
+      commandAgainstRules,
       subLoading: false,
       DialogAddDevice: false,
       previewRecordDialog: false,
@@ -458,7 +501,7 @@ export default {
         deviceType9Count: '', // 管道元件数量
         deviceType10Count: '', // 安全附件及安全保护装置数量
         checkType: '', // 检查类别1
-        checkType2: '', // 检查类别2
+        checkType2: [], // 检查类别2
         checkUseTypes: '', // 单位类别id
         checkUseTypeNames: '', // 单位类别名称
         checkProblem: '', // 检查问题
@@ -501,7 +544,9 @@ export default {
   computed: {
     ...mapGetters([
       'instructionModels',
-      'IrregularitiesType'
+      'IrregularitiesType',
+      'name',
+      'inspectionType'
     ])
   },
   watch: {
@@ -535,15 +580,15 @@ export default {
     },
     autoCommand() { // 自动填充内容
       const info = { // 最后结果
-        commandAgainstRulesIds: [],
-        commandCcordingRulesIds: [],
-        commandChangedIds: [],
-        commandCcordingRulesInfo: [],
-        commandAgainstRulesInfo: [],
-        commandChangedInfo: [],
-        commandModelId: [],
-        commandModel: [],
-        dangerDescription: [],
+        commandAgainstRulesIds: [], // 违反条例
+        commandCcordingRulesIds: [], // 处罚依据条例id
+        commandChangedIds: [], // 整改措施id
+        commandCcordingRulesInfo: [], // 处罚依据条例描述
+        commandAgainstRulesInfo: [], // 违反条例描述
+        commandChangedInfo: [], // 整改措施描述
+        commandModelId: [], // 指令书模板id
+        commandModel: [], // 指令书模板名称
+        dangerDescription: [], // 隐患描述
         templateRulesTitel: [],
         templateProblemTitel: [],
         templatePenaltyTitel: [],
@@ -552,71 +597,100 @@ export default {
       const commandDeviceProblem = [] // 设备描述
       // 选择的隐患模板 不重复的
       let illegalSelect = []
+
       this.deviceList.forEach(item => {
+        console.log(item)
         // let illSelect = `在用的【${item.deviceCertNo}】` // 拼接
         illegalSelect = [...illegalSelect, ...item.illegalCountId] // 要去重的
         // const deviceCertNo = item.deviceCertNo // 编号
         let nameArr = [] // 设备描述
+
+        // 标题，使用登记证,如果没有， 就使用出厂编号
+        const title = `【${item.deviceCertNo || item.deviceRegNo}】`
+        // 隐患描述
+        let dangerDescription = []
+        // 整改措施描述
+        let commandChangedInfo = []
+        let commandAgainstRulesInfo = []
+        let commandCcordingRulesInfo = []
         this.instructionModels.map(model => {
           if (item.illegalCountId.some(s => s === model.id)) {
             nameArr = [...nameArr, model.problemTitle]
+            // 隐患描述
+            dangerDescription = [...dangerDescription, model.problem_dspt.replace(/\$/g, title)]
+            commandChangedInfo = [...commandChangedInfo, model.measure_dspt.replace(/\$/g, title)]
+            commandCcordingRulesInfo = [...commandCcordingRulesInfo, model.penalty_dspt.replace(/\$/g, title)]
+            commandAgainstRulesInfo = [...commandAgainstRulesInfo, model.rules_dspt.replace(/\$/g, title)]
+            info.commandModelId.push(model.id)
+            info.commandModel.push(model.name)
+            info.templateRulesTitel.push(model.templateRulesTitel)
+            info.templateProblemTitel.push(model.templateProblemTitel)
+            info.templatePenaltyTitel.push(model.templatePenaltyTitel)
+            info.templateMeasureTitel.push(model.templateMeasureTitel)
+            // info.templateMeasureTitel.push(model.templateMeasureTitel)
           }
         })
-        commandDeviceProblem.push(`【${item.deviceCertNo}】${nameArr.join('、')}`)
+
+        info.commandChangedInfo = info.commandChangedInfo.concat(commandChangedInfo)
+        info.commandAgainstRulesInfo = info.commandAgainstRulesInfo.concat(commandAgainstRulesInfo)
+        info.dangerDescription = info.dangerDescription.concat(dangerDescription)
+        info.commandCcordingRulesInfo = info.commandCcordingRulesInfo.concat(commandCcordingRulesInfo)
+        commandDeviceProblem.push(`${title}${nameArr.join('、')}`)
       })
-      const illegalCountIds = Array.from(new Set(illegalSelect)) // 模板的id
-      this.instructionModels.map(item => {
-        if (illegalCountIds.some(id => id === item.id)) {
-          // console.log(item)
-          info.commandAgainstRulesIds.push(item.rules)
-          info.commandCcordingRulesIds.push(item.penalty)
-          info.commandChangedIds.push(item.measure)
-          // Info
-          info.commandCcordingRulesInfo = info.commandCcordingRulesInfo.concat(item.penalty_dspt ? item.penalty_dspt.split('；') : [])
-          info.commandAgainstRulesInfo = info.commandAgainstRulesInfo.concat(item.rules_dspt ? item.rules_dspt.split('；') : [])
-          info.commandChangedInfo = info.commandChangedInfo.concat(item.measure_dspt ? item.measure_dspt.split('；') : [])
-          info.dangerDescription = info.dangerDescription.concat(item.problem_dspt ? item.problem_dspt.split('；') : []) // 隐患描述
-          // Info
-          info.commandModelId.push(item.id)
-          info.commandModel.push(item.name)
-          info.templateRulesTitel.push(item.templateRulesTitel)
-          info.templateProblemTitel.push(item.templateProblemTitel)
-          info.templatePenaltyTitel.push(item.templatePenaltyTitel)
-          info.templateMeasureTitel.push(item.templateMeasureTitel)
-          info.templateMeasureTitel.push(item.templateMeasureTitel)
-          // if (info.commandModelId) {
-          //   info.commandModelId += `,${item.id}`
-          //   info.commandModel += `,${item.name}`
-          //   info.commandAgainstRulesIds += `,${item.rules}`
-          //   info.commandCcordingRulesIds += `,${item.penalty}`
-          //   info.commandChangedIds += `,${item.measure}`
-          //   info.commandCcordingRulesInfo += `${item.penalty_dspt}`
-          //   info.commandAgainstRulesInfo += `${item.rules_dspt}`
-          //   info.commandCcordingRulesIds += `,${item.penalty}`
-          //   info.commandChangedInfo += `${item.measure_dspt}`
-          //   info.dangerDescription += `,${item.problem_dspt}`
-          //   info.templateProblemTitel = `,${item.templateProblemTitel}`
-          //   info.templatePenaltyTitel = `,${item.templatePenaltyTitel}`
-          //   info.templateMeasureTitel = `,${item.templateMeasureTitel}`
-          //   info.templateRulesTitel = `,${item.templateRulesTitel}`
-          // } else {
-          //   info.commandModelId = `${item.id}`
-          //   info.commandModel = `${item.name}`
-          //   info.commandAgainstRulesIds = `${item.rules}`
-          //   info.commandCcordingRulesIds = `${item.penalty}`
-          //   info.commandChangedIds = `${item.measure}`
-          //   info.commandCcordingRulesInfo = `${item.penalty_dspt}`
-          //   info.commandAgainstRulesInfo = `${item.rules_dspt}`
-          //   info.commandCcordingRulesIds = `${item.penalty}`
-          //   info.commandChangedInfo = `${item.measure_dspt}`
-          //   info.dangerDescription = `${item.problem_dspt}`
-          //   info.templateProblemTitel = `${item.templateProblemTitel}`
-          //   info.templatePenaltyTitel = `${item.templatePenaltyTitel}`
-          //   info.templateMeasureTitel = `${item.templateMeasureTitel}`
-          //   info.templateRulesTitel = `${item.templateRulesTitel}`
-          // }
-        }
-      })
+      // const illegalCountIds = Array.from(new Set(illegalSelect)) // 模板的id
+      // this.instructionModels.map(item => {
+      //   if (illegalCountIds.some(id => id === item.id)) {
+      //     // console.log(item)
+      //     info.commandAgainstRulesIds.push(item.rules)
+      //     info.commandCcordingRulesIds.push(item.penalty)
+      //     info.commandChangedIds.push(item.measure)
+      //     // Info
+      //     info.commandCcordingRulesInfo = info.commandCcordingRulesInfo.concat(item.penalty_dspt ? item.penalty_dspt.split('；') : [])
+      //     info.commandAgainstRulesInfo = info.commandAgainstRulesInfo.concat(item.rules_dspt ? item.rules_dspt.split('；') : [])
+      //     info.commandChangedInfo = info.commandChangedInfo.concat(item.measure_dspt ? item.measure_dspt.split('；') : [])
+      //     info.dangerDescription = info.dangerDescription.concat(item.problem_dspt ? item.problem_dspt.split('；') : []) // 隐患描述
+      //     // Info
+      //     info.commandModelId.push(item.id)
+      //     info.commandModel.push(item.name)
+      //     info.templateRulesTitel.push(item.templateRulesTitel)
+      //     info.templateProblemTitel.push(item.templateProblemTitel)
+      //     info.templatePenaltyTitel.push(item.templatePenaltyTitel)
+      //     info.templateMeasureTitel.push(item.templateMeasureTitel)
+      //     info.templateMeasureTitel.push(item.templateMeasureTitel)
+      /*
+          if (info.commandModelId) {
+            info.commandModelId += `,${item.id}`
+            info.commandModel += `,${item.name}`
+            info.commandAgainstRulesIds += `,${item.rules}`
+            info.commandCcordingRulesIds += `,${item.penalty}`
+            info.commandChangedIds += `,${item.measure}`
+            info.commandCcordingRulesInfo += `${item.penalty_dspt}`
+            info.commandAgainstRulesInfo += `${item.rules_dspt}`
+            info.commandCcordingRulesIds += `,${item.penalty}`
+            info.commandChangedInfo += `${item.measure_dspt}`
+            info.dangerDescription += `,${item.problem_dspt}`
+            info.templateProblemTitel = `,${item.templateProblemTitel}`
+            info.templatePenaltyTitel = `,${item.templatePenaltyTitel}`
+            info.templateMeasureTitel = `,${item.templateMeasureTitel}`
+            info.templateRulesTitel = `,${item.templateRulesTitel}`
+          } else {
+            info.commandModelId = `${item.id}`
+            info.commandModel = `${item.name}`
+            info.commandAgainstRulesIds = `${item.rules}`
+            info.commandCcordingRulesIds = `${item.penalty}`
+            info.commandChangedIds = `${item.measure}`
+            info.commandCcordingRulesInfo = `${item.penalty_dspt}`
+            info.commandAgainstRulesInfo = `${item.rules_dspt}`
+            info.commandCcordingRulesIds = `${item.penalty}`
+            info.commandChangedInfo = `${item.measure_dspt}`
+            info.dangerDescription = `${item.problem_dspt}`
+            info.templateProblemTitel = `${item.templateProblemTitel}`
+            info.templatePenaltyTitel = `${item.templatePenaltyTitel}`
+            info.templateMeasureTitel = `${item.templateMeasureTitel}`
+            info.templateRulesTitel = `${item.templateRulesTitel}`
+          }*/
+      //   }
+      // })
       // console.log(info)
       // 显示
       this.command.commandAgainstRulesIds = Array.from(new Set(info.commandAgainstRulesIds)).join(',')
@@ -801,6 +875,12 @@ export default {
         record.checkUseTypes = 6
         record.checkUseTypeNames = '使用'
       }
+      // 检查人员填充
+      if (task.checkPeopleName) {
+        record.checkPeopleName = task.checkPeopleName
+      } else {
+        record.checkPeopleName = this.name
+      }
       const command = task.command
       if (command && command.commandNo) {
         // console.log(command.commandAgainstRulesIds, 111231)
@@ -818,11 +898,10 @@ export default {
       if (!this.company.checkUseContactPosition) {
         this.company.checkUseContactPosition = '主管负责人'
       }
-
       // 编辑前 检查类别
       if (task.taskStatusName) {
-        this.insprcType = inspectionType
-        record.checkType2 = task.taskStatusName
+        this.insprcType = this.inspectionType
+        record.checkType2 = task.taskStatusName.split(',')
       }
       if (task.taskStatus) {
         record.checkType = task.taskStatus
@@ -936,9 +1015,9 @@ export default {
           this.insprcType = []
           break
         default:
-          this.insprcType = inspectionType
+          this.insprcType = this.inspectionType
       }
-      this.record.checkType2 = ''
+      this.record.checkType2 = []
     },
     // 前判断添加设备
     addDvice() {
@@ -993,12 +1072,13 @@ export default {
       this.record.checkUseTypes = danWeiType[index].value // 单位类别id
       this.record.checkUseTypeNames = danWeiType[index].label // 单位类别名称
     },
-    getTaskCheck(event) { // 检查类别
-      // console.log(event)
-      const { taskStatus, instructionStatus } = event
-      this.info.checkType = taskStatus // 检查类别1
-      this.info.checkType2 = instructionStatus // 检查类别2
-    },
+    // 不要
+    // getTaskCheck(event) { // 检查类别
+    //   // console.log(event)
+    //   const { taskStatus, instructionStatus } = event
+    //   this.info.checkType = taskStatus // 检查类别1
+    //   this.info.checkType2 = instructionStatus // 检查类别2
+    // },
     sure() { // 确定
       const { id, checkNo } = this.task
       const checkUseId = this.company.id // 使用单位id
@@ -1027,7 +1107,9 @@ export default {
         checkUseTypeNames,
         checkDate,
         checkProblem,
-        checkResulTreatmentId,
+        driver,
+        checkPeopleName,
+        // checkResulTreatmentId,
         checkOpinion
       } = this.record
       const {
@@ -1050,7 +1132,12 @@ export default {
         commandModel,
         remark, // 注明情况
         companyUseConfirmMan,
-        companyUseConfirmManPhone
+        companyUseConfirmManPhone,
+        commandReceiptAddress, // 新增字段
+        commandReceiptLat,
+        commandReceiptLng,
+        commandReceiptTypeId,
+        printAdress
       } = this.command
       if (!checkUseTypeNames) {
         this.$message.error('请选择单位类别')
@@ -1072,10 +1159,14 @@ export default {
       // checkDate 检查日期
       // const [checkDateStart, checkDateEnd] = checkDate
       // 处理措施
-      const checkResulTreatmentName = this.getCheckResulTreatment(checkResulTreatmentId)
+      const checkResulTreatmentName = this.getCheckResulTreatment(this.checkBoxValue)
       const checkRecordId = this.record.id
       const commandId = this.command.id
+      const commandReceiptTypeName = commandReceiptTypeId ? commandReceiptType.filter(item => item.value === commandReceiptTypeId).pop().label : '' // 送达方式名称
+      const printAdressName = printAdress ? commandAgainstRules.filter(item => item.value === printAdress).pop().label : ''
       const data = {
+        driver,
+        checkPeopleName,
         taskCheckId: id, // 任务id
         taskCheckCheckNo: checkNo, // 任务编号
         checkUseId, // 使用单位id
@@ -1098,7 +1189,7 @@ export default {
         deviceType9Count: `${deviceType9Count}`,
         deviceType10Count: `${deviceType10Count}`,
         checkType,
-        checkType2,
+        checkType2: checkType2.join(','),
         checkUseTypes: '' + checkUseTypes,
         checkUseTypeNames,
         // checkDateStart: checkDate,
@@ -1132,7 +1223,14 @@ export default {
         operateName: '编辑任务', // operate
         checkNo: checkNo,
         deviceAreaName4: this.task.deviceAreaName4,
-        checkResultPhotoList: this.phoneListString
+        checkResultPhotoList: this.phoneListString,
+        commandReceiptAddress, // 新增字段
+        commandReceiptLat,
+        commandReceiptLng,
+        commandReceiptTypeId,
+        printAdress,
+        commandReceiptTypeName,
+        printAdressName
       }
       // console.log(data, 11)
       // return ''
@@ -1155,23 +1253,25 @@ export default {
         }
       })
     },
-    getCheckResulTreatment(id) {
-      let name = ''
-      switch (~~id) {
-        case 1:
-          name = '下达指令书'
-          break
-        case 2:
-          name = '直接封查'
-          break
-        case 3:
-          name = '实施扣押'
-          break
-        case 4:
-          name = '其他'
-          break
-      }
-      return name
+    getCheckResulTreatment(item) {
+      const name = []
+      item.forEach(item => {
+        switch (~~item) {
+          case 1:
+            name.push('下达指令书')
+            break
+          case 2:
+            name.push('直接封查')
+            break
+          case 3:
+            name.push('实施扣押')
+            break
+          case 4:
+            name.push('其他')
+            break
+        }
+      })
+      return name.join(',')
     },
     getMoreSelect(arr, types) {
       if (!arr) { return '' }

@@ -2,191 +2,78 @@
   <div class="zhilingshu">
     <div class="zhilingshuMg">
       <div class="search">
-        <el-row class="row">
-          <el-col :span="8">
-            <label for="" class="label">任务编号：</label>
-            <el-input v-model="search.checkNo" class="input" placeholder="请输入任务编号"/>
-          </el-col>
-          <el-col :span="8">
-            <label for="" class="label">使用单位：</label>
-            <el-input v-model="search.companyUseNewName" class="input" placeholder="请输入使用单位"/>
-          </el-col>
-          <el-col :span="8">
-            <label for="" class="label">使用登记证：</label>
-            <el-input v-model="search.deviceCertNo" class="input" placeholder="请输入使用登记证"/>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="8">
-            <label for="" class="label">指令书编号：</label>
-            <el-input v-model="search.commandNo" class="input" placeholder="请输入指令书编号"/>
-          </el-col>
-          <el-col :span="8">
-            <label for="" class="label">所属镇街：</label>
-            <el-select v-model="search.deviceAreaName4" placeholder="请选择" clearable>
-              <el-option
-                v-for="item in townSearchType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.name"/>
-            </el-select>
-          </el-col>
-        </el-row>
-        <el-row class="row">
-          <el-col :span="8">
-            <label for="" class="label">移交书编号：</label>
-            <el-input v-model="search.instructionNo" class="input" placeholder="请输入移交书编号"/>
-          </el-col>
-          <el-col :span="8">
-            <label for="" class="label">回复书编号：</label>
-            <el-input v-model="search.commandReplyNo" class="input" placeholder="请输入回复书编号"/>
-          </el-col>
-          <el-col :span="8">
-            <el-button type="primary" @click="toSearch">查询</el-button>
-            <el-button @click="resetSearch">重置</el-button>
-            <el-button @click="dialogExcelVisible = true">excel导出指令书</el-button>
-          </el-col>
-        </el-row>
+        <el-button-group>
+          <el-button type="primary" icon="el-icon-edit-outline" @click="mutilEditDailog">编辑</el-button>
+          <el-button v-if="activeName == '0,1'" type="primary" icon="el-icon-circle-close" @click="taskShenhe(1,scope.row)">审核</el-button>
+          <el-button v-else type="primary" icon="el-icon-circle-close" @click="taskShenhe(2,scope.row)">反审核</el-button>
+          <el-button v-if="activeName == '0,1'" type="danger" icon="el-icon-delete" @click="delTask">删除</el-button>
+        </el-button-group>
+        <el-button-group>
+          <el-button type="primary" icon="el-icon-search" @click="multiTaskDetail">详情</el-button>
+          <el-button type="primary" icon="el-icon-download" @click="dialogExcelVisible = true">下载</el-button>
+          <!-- <el-button type="primary" icon="el-icon-arrow-down">展开搜索</el-button> -->
+        </el-button-group>
       </div>
       <div class="table">
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane :label="`镇街移交(${instrCount.instrStatus1})`" name="1"/>
-          <el-tab-pane :label="`待移交(${instrCount.instrStatus2})`" name="2"/>
-          <el-tab-pane :label="`审核移交(${instrCount.instrStatus4})`" name="4"/>
-          <el-tab-pane :label="`批准移交(${instrCount.instrStatus5})`" name="5"/>
-          <el-tab-pane :label="`执法三科待处理(${instrCount.instrStatus6})`" name="6"/>
-          <el-tab-pane :label="`执法三科审核(${instrCount.instrStatus7})`" name="7"/>
-          <el-tab-pane :label="`已完成(${instrCount.instrStatusEnd})`" name="8"/>
-          <el-tab-pane :label="`全部(${instrCount.instrStatusAll})`" name="9"/>
-          <!-- auths.sys_command_all -->
+          <el-tab-pane :label="`待审核(${checkCount.checkStatus0+checkCount.checkStatus1})`" name="0,1"/>
+          <el-tab-pane :label="`已审核(${checkCount.checkStatus2})`" name="2"/>
+          <el-tab-pane :label="`全部(${checkCount.checkStatusAll})`" name="3"/>
         </el-tabs>
         <el-table
           v-loading="loading"
           :data="instructionList"
-          :row-class-name="tableRowClassName"
           border
           style="width: 100%"
+          @row-dblclick="radirtaskDetail"
           @selection-change="handleSelectionChange">
           <el-table-column
-            type="selection"/>
+            type="selection"
+            width="55"/>
           <el-table-column
-            v-if="activeName == '1' && auths.sys_command_town_remove"
+            v-if="activeName !== '3'"
             label="操作"
-            width="350px">
+            width="300">
             <template slot-scope="scope">
-              <el-button
-                :type="getOverTime(scope.row.commandChangedEndDate)"
-                size="mini"
-                @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row, 6)">移交</el-button>
-              <el-button
-                size="mini"
-                @click="closedLoopDialog(scope.row)">闭环</el-button>
-              <el-button
-                size="mini"
-                @click="reviewDialog(scope.row)">复查</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="activeName == '2' && auths.sys_command_stay_remove"
-            label="操作"
-            width="350px">
-            <template slot-scope="scope">
-              <el-button
-                :type="getOverTime(scope.row.commandChangedEndDate)"
-                size="mini"
-                @click="recitfyDialog(scope.row)"><span v-if="scope.row['commandChangeStatus'] == 0">未整改</span><span v-else>整改查看</span></el-button>
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row)">移交</el-button>
-              <el-button
-                size="mini"
-                @click="closedLoopDialog(scope.row)">闭环</el-button>
-              <el-button
-                size="mini"
-                @click="reviewDialog(scope.row)">复查</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="activeName == '4' && auths.sys_command_approval_remove"
-            label="操作"
-            width="180px">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row,2)">审核移交</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="activeName == '5' && auths.sys_command__confirm_ratify"
-            label="操作"
-            width="180px">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row,7)">确认</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="activeName == '6' && auths.sys_command_stay_deal"
-            label="操作"
-            width="180px">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row,3)">处理</el-button>
-              <el-button
-                size="mini"
-                @click="backXZ(scope.row)">退回</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="activeName == '7' && auths.sys_command_reply_audit"
-            label="操作"
-            width="180px">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row,4)">审核</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="activeName == '8' && auths.sys_command_finish"
-            label="操作"
-            width="200px">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="yijiaoDownload(scope.row)">下载</el-button>
-              <el-button
-                size="mini"
-                @click="yijiaoDialog(scope.row,5)">查看</el-button>
+              <el-button-group>
+                <el-button size="mini" type="primary" icon="el-icon-edit-outline" @click="taskEdit(scope.row)">编辑</el-button>
+                <el-button v-if="activeName == '0,1'" size="mini" type="primary" icon="el-icon-circle-close" @click="taskShenhe(1,scope.row)">审核</el-button>
+                <el-button v-else size="mini" type="primary" icon="el-icon-circle-close" @click="taskShenhe(2,scope.row)">反审核</el-button>
+                <el-button size="mini" type="success" icon="el-icon-search" @click="preview(scope.row)">预览</el-button>
+              </el-button-group>
             </template>
           </el-table-column>
           <el-table-column
             prop="commandNo"
-            width="180"
+            width="170"
             label="指令书"/>
+          <el-table-column
+            prop="commandAddDeptName"
+            label="所属部门"
+            width="150"/>
+          <el-table-column
+            prop="companyUseConfirmMan"
+            label="单位联系人"
+            width="100"/>
+          <el-table-column
+            prop="companyUseConfirmManPhone"
+            label="单位联系电话"
+            width="150"/>
           <el-table-column
             prop="companyUseNewName"
             label="使用单位"
-            width="250"/>
+            width="180"/>
           <el-table-column
             prop="companyUseFullAddress"
             label="单位地址"
-            width="350"/>
+            width="250"/>
           <el-table-column
             prop="commandDeviceProblem"
             label="问题描述"
-            width="750"/>
-          <el-table-column
-            v-if="activeName != '1' && activeName != '2'"
-            key="commandTransferNo"
+            width="450"/>
+          <!-- <el-table-column
             prop="commandTransferNo"
-            label="移交书编号"
-            width="250"/>
+            label="移交书编号"/> -->
           <!-- <el-table-column
             key="commandReplyNo"
             prop="commandReplyNo"
@@ -194,6 +81,10 @@
           <el-table-column
             prop="commandDate"
             label="指令书日期"
+            width="180"/>
+          <el-table-column
+            prop="commandChangedEndDate"
+            label="整改截止日期"
             width="180"/>
         </el-table>
       </div>
@@ -206,149 +97,39 @@
           @size-change="pageSizeChange"/>
       </div>
     </div>
-    <!-- 整改信息 -->
-    <el-dialog
-      :visible.sync="dialogVisible"
-      :before-close="handleClose"
-      width="50%"
-      title="整改信息查看">
-      <el-form label-width="120px" class="dialog">
-        <el-row>
-          <el-form-item label="整改图片：" >
-            <div class="" style="display:flex;">
-              <ul class="el-upload-list el-upload-list--picture-card">
-                <li v-for="(item, index) in recitfy.rectifyImg" :key="index" class="el-upload-list__item is-success">
-                  <img :src="baseUrl+item" alt="" class="el-upload-list__item-thumbnail">
-                  <i class="el-icon-close"/>
-                  <span class="el-upload-list__item-actions">
-                    <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseUrl+item)">
-                      <i class="el-icon-zoom-in"/>
-                    </span>
-                    <span class="el-upload-list__item-delete" @click="hasHandelDelete(index)">
-                      <i class="el-icon-delete"/>
-                    </span>
-                  </span>
-                </li>
-              </ul>
-              <el-upload
-                :on-success="handleSuccess"
-                :before-upload="beforeAvatarUpload"
-                :action="imgUrl"
-                :headers="imgToken"
-                class="avatar-uploader">
-                <i class="el-icon-plus avatar-uploader-icon"/>
-              </el-upload>
-            </div>
-            <el-dialog :visible.sync="dialogPreviewVisible" width="30%" append-to-body>
-              <img :src="dialogImageUrl" width="100%" alt="">
-            </el-dialog>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="整改备注：">
-            <el-input v-model="recitfy.rectifyRemark" placeholder="企业编写文字说明（非必填）" class="textarea"/>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="审核动作：" required>
-            <el-radio-group v-model="recitfy.rectifyStatus">
-              <el-radio :label="'3'">通过</el-radio>
-              <el-radio :label="'2'">不通过</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="审核描述：" required>
-            <el-input v-model="recitfy.rectifyAuditInfo" type="textarea" placeholder="审核描述" class="textarea"/>
-          </el-form-item>
-        </el-row>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="recitfyInfo">确 定</el-button>
-      </span>
-    </el-dialog>
-    <!-- 指令书 -->
     <el-dialog
       :visible.sync="dialogYulanVisible"
       :before-close="handleClose"
       title="">
-      <vue-preview :slides="slides" />
+      <div>
+        <editDialog v-if="dialogYulanVisible" :task.sync="editTask" @closed="dialogYulanVisible = false"/>
+      </div>
     </el-dialog>
-    <!-- 移交 -->
     <el-dialog
-      :visible.sync="dialogYiJiaoVisible"
+      :visible.sync="dialogBackVisible"
       :before-close="handleClose"
-      title="移交">
-      <taskDetail :transfe="transfe"/>
-      <statusRecord :status="transfe.taskCheckLogList"/>
-      <comInfo :transfe="transfe"/>
-      <transferInfo :transfe="transfe" @closed="closedYiJiao"/>
+      :title="reason.title"
+      width="30%">
+      <span>
+        <el-input v-model="reason.text" type="textarea" placeholder=""/>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="taskSheheOpt">确定</el-button>
+        <el-button @click="dialogBackVisible = false">取消</el-button>
+      </span>
     </el-dialog>
-    <!-- 审核移交 -->
+    <!-- 完成时详情 -->
     <el-dialog
-      :visible.sync="dialogShenHeYiJiaoVisible"
-      :before-close="handleClose"
-      width="50%"
-      title="审核移交">
-      <taskDetail :transfe="transfe"/>
-      <statusRecord :status="transfe.taskCheckLogList"/>
-      <comInfo :transfe="transfe"/>
-      <yijiaoInfo :transfe="transfe"/>
-      <instrucInfo :transfe="transfe" @closed="closedYiJiao"/>
-    </el-dialog>
-    <!-- 处理 -->
-    <el-dialog
-      :visible.sync="dialogChuLiVisible"
+      :visible.sync="dialogEndVisible"
       :before-close="handleClose"
       width="50%"
-      title="处理">
-      <taskDetail :transfe="transfe"/>
-      <statusRecord :status="transfe.taskCheckLogList"/>
-      <comInfo :transfe="transfe"/>
-      <yijiaoInfo :transfe="transfe"/>
-      <replyLetterSub :transfe="transfe" @closed="closedYiJiao"/>
-    </el-dialog>
-    <!-- 审核 -->
-    <el-dialog
-      :visible.sync="dialogShenHeVisible"
-      :before-close="handleClose"
-      width="50%"
-      title="审核">
-      <!-- 任务信息 -->
-      <taskDetail :transfe="transfe"/>
-      <statusRecord :status="transfe.taskCheckLogList"/>
-      <!-- 企业信息 -->
-      <comInfo :transfe="transfe"/>
-      <!-- 移交信息 -->
-      <yijiaoInfo :transfe="transfe"/>
-      <!-- 回复书信息 -->
-      <replyLetterInfo :transfe="transfe"/>
-      <examineSub :transfe="transfe" :status="8" @closed="closedYiJiao"/>
-    </el-dialog>
-    <!-- 确认 -->
-    <el-dialog
-      :visible.sync="dialogSureVisible"
-      :before-close="handleClose"
-      width="50%">
-      <taskDetail :transfe="transfe"/>
-      <statusRecord :status="transfe.taskCheckLogList"/>
-      <comInfo :transfe="transfe"/>
-      <yijiaoInfo :transfe="transfe"/>
-      <examineSub :transfe="transfe" :status="6" @closed="closedYiJiao"/>
-    </el-dialog>
-    <!-- 查看 -->
-    <el-dialog
-      :visible.sync="dialogLookVisible"
-      :before-close="handleClose"
-      width="50%"
-      title="处理">
-      <taskDetail :transfe="transfe"/>
-      <statusRecord :status="transfe.taskCheckLogList"/>
-      <comInfo :transfe="transfe"/>
-      <zhilingshuInfo :transfe="transfe"/>
-      <yijiaoInfo :transfe="transfe"/>
-      <replyLetterInfo :transfe="transfe"/>
+      title="">
+      <taskDetail :transfe="editTask" />
+      <comInfo :transfe="editTask"/>
+      <statusRecord :status="editTask.taskCheckLogList"/>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogEndVisible = false">确认</el-button>
+      </span>
     </el-dialog>
     <el-dialog
       :visible.sync="dialogExcelVisible"
@@ -371,9 +152,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import comInfo from './component/comInfo'
+import comInfo from '@/components/comInfo/comInfo'
 import instrucInfo from './component/instrucInfo'
-import taskDetail from './component/taskDetail'
+import taskDetail from '@/components/taskDetail/taskDetail'
 import transferInfo from './component/transferInfo'
 import replyLetterInfo from './component/replyLetterInfo'
 import yijiaoInfo from './component/yijiaoInfo'
@@ -381,12 +162,14 @@ import replyLetterSub from './component/replyLetterSub'
 import examineSub from './component/examineSub'
 import zhilingshuInfo from './component/zhilingshuInfo'
 import statusRecord from '@/components/statusRecord/index'
-import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop, fetchBeforeReview, fetchExcelTaskCommand, fetchbackCommand } from '@/api/instruction'
-import { fetchIdRefiy } from '@/api/common'
-import { refiyUrl, townSearchType, baseUrl } from '@/utils/config'
+import editDialog from '@/views/renwu/component/editDialog'
+import { fetchBeforeRectify, fetchRectify, fetchBeforeTransfe, fetchClosedLoop, fetchBeforeReview, fetchTrialComm, fetchAuditComm, fetchDelComm } from '@/api/instruction'
+import { fecthBeforeEdit } from '@/api/task'
+import { fetchIdRefiy, fetchTaskDownload } from '@/api/common'
+import { refiyUrl, townType, baseUrl } from '@/utils/config'
 import authorization from '@/mixins/authorization'
-import { fetchTaskDownload } from '@/api/common'
 import { toViewer, beforeUpload } from '@/utils/common'
+import { opLoading } from '@/mixins/loading'
 export default {
   components: {
     transferInfo,
@@ -398,15 +181,17 @@ export default {
     replyLetterSub,
     zhilingshuInfo,
     statusRecord,
-    examineSub
+    examineSub,
+    editDialog
   },
-  mixins: [authorization],
+  mixins: [opLoading, authorization],
   data() {
     return {
       baseUrl: `${refiyUrl}/file/show/img/rectify/`,
       imgUrl: `${refiyUrl}/open/api/file/upload/rectify`,
       downloadUrl: `${baseUrl}/file/download/create/`,
-      townSearchType,
+      printUrl: `${baseUrl}/file/show/img/create/`,
+      townType,
       imgToken: '',
       loading: false,
       search: {
@@ -417,7 +202,8 @@ export default {
         deviceAreaName4: '', // 镇街
         instructionNo: '', // 移交书编号 (没)
         commandReplyNo: '', // 回复书编号
-        commandExecTaskStatus: '1' // 1 镇街待移交 12 区局待移交 7 审核移交 3 执法三科待处理 8执法三科审核 4 待确认  5:完成
+        commandExecTaskStatus: '', // 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理 8回复审核 4 待确认  5:完成
+        commandStatus: '0,1' // 0:审核退回 1:待审核 2:已审核 未审核传值：0，1 （app） web 必传 传值：2
       },
       pageSize: 10,
       pageNum: 1,
@@ -429,17 +215,21 @@ export default {
         rectifyStatus: '3', // 审核动作
         rectifyRemark: '' // 审核描述
       },
+      multipleSelection: [],
+      reason: {},
       // yuanshi
-      dialogShenHeVisible: false,
-      dialogChuLiVisible: false,
-      dialogShenHeYiJiaoVisible: false,
+      dialogBackVisible: false,
+      // dialogShenHeVisible: false,
+      // dialogChuLiVisible: false,
+      // dialogShenHeYiJiaoVisible: false,
+      dialogEndVisible: false,
       dialogYulanVisible: false,
       dialogYiJiaoVisible: false,
       dialogSureVisible: false,
       dialogLookVisible: false,
       dialogVisible: false,
       dialogPreviewVisible: false,
-      activeName: '1',
+      activeName: '0,1',
       transfe: {}, // 移交前查的数据
       radio2: '',
       value1: '', // 后期删除
@@ -447,60 +237,26 @@ export default {
       list: [
       ],
       slides: [],
-      multipleSelection: [],
+      editTask: {},
       dialogExcelVisible: false,
       isExcelLoading: false,
-      isExcel: 1,
-      row: {}
+      isExcel: 1
     }
   },
   computed: {
     ...mapGetters([
       'instructionTotal',
       'instructionList',
-      'instrCount'
-      // 'instructionStatus'
+      'checkCount'
     ])
   },
   watch: {
     activeName(newValue, oldValue) {
-      /**
-      * 1 镇街待移交 12 区局待移交 7 审核移交 3 执法三科待处理
-       8执法三科审核 4 待确认  5:完成
-       */
       let status = newValue
-      if (status === '9') {
+      if (status === '3') {
         status = ''
       }
-      // switch (newValue) {
-      //   case 'first':
-      //     status = '1'
-      //     break
-      //   case 'second':
-      //     status = '12'
-      //     break
-      //   case 'third':
-      //     status = '7'
-      //     break
-      //   case 'fourth':
-      //     status = '3'
-      //     break
-      //   case 'fifth':
-      //     status = '8'
-      //     break
-      //   case 'sixth':
-      //     status = '4'
-      //     break
-      //   case 'seventh':
-      //     status = '5'
-      //     break
-      //   case 'eight':
-      //     status = ''
-      //     break
-      // }
-      console.log(status)
-      this.$store.dispatch('changeStatus', status)
-      this.search.commandExecTaskStatus = status
+      this.search.commandStatus = status
       this.fecthData()
     }
   },
@@ -508,57 +264,226 @@ export default {
     this.fecthData()
   },
   methods: {
-    backXZ(row) {
-      const params = {
-        id: row.id
-      }
-      this.$prompt('请输入退回原因', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        // type: 'warning',
-        inputPattern: /\w+|[\u4e00-\u9fa5]+/,
-        inputErrorMessage: '不能为空'
-      }).then(({ value }) => {
-        params.rejectReason = value
-        params.operateName = '指令书退回'
-        // console.log(params)
-        // return
-        fetchbackCommand(params).then(res => {
-          const {
-            resultDesc
-          } = res
-          this.$message.success(resultDesc)
-          this.fecthData()
-        })
-      })
-    },
     toMakeExcel() {
-      const param = this.search
-      if (this.isExcel === 1) {
-        if (this.multipleSelection.length === 0) {
-          this.$message('请选择指令书')
-          return
+      let data = {}
+      let url = `/excel/export/taskCommand/`
+      if (this.isExcel === 1) { // 导出勾选的
+        const multipleSelection = this.multipleSelection
+        if (multipleSelection.length === 0) {
+          this.$message('请勾选要导出的指令书')
+          return ''
+        } else {
+          const arr = multipleSelection.map(item => {
+            const model = {}
+            model.commandNo = item.commandNo // .replace(/\[|\]/g, 'A')
+            model.companyUseNewName = item.companyUseNewName
+            model.companyUseFullAddress = item.companyUseFullAddress
+            model.companyUseConfirmMan = item.companyUseConfirmMan
+            model.companyUseConfirmManPhone = item.companyUseConfirmManPhone
+            model.commandDeviceProblem = item.commandDeviceProblem
+            model.commandDate = item.commandDate
+            model.commandChangedEndDate = item.commandChangedEndDate
+            model.commandStatus = this.search.commandStatus
+            return model
+          })
+          data = arr
         }
-        param.id = this.multipleSelection.map(item => {
-          return item.id
-        })
+        url = `${url}1`
+      } else { // 全部
+        // const arr = this.instructionList.map(item => {
+        //   const model = {}
+        //   model.commandNo = item.commandNo
+        //   model.companyUseNewName = item.companyUseNewName
+        //   model.companyUseFullAddress = item.companyUseFullAddress
+        //   model.companyUseConfirmMan = item.companyUseConfirmMan
+        //   model.companyUseConfirmManPhone = item.companyUseConfirmManPhone
+        //   model.commandDeviceProblem = item.commandDeviceProblem
+        //   model.commandDate = item.commandDate
+        //   model.commandChangedEndDate = item.commandChangedEndDate
+        //   model.commandStatus = this.search.commandStatus
+        //   return model
+        // })
+        // data = arr
+        data.commandStatus = this.search.commandStatus
+        url = `${url}2`
       }
-      param.commandStatus = '2'
       this.isExcelLoading = true
-      fetchExcelTaskCommand(param).then(res => {
+      console.log(JSON.stringify(data))
+      // return
+      fetchTaskDownload({ url, data }).then(res => {
+        this.isExcelLoading = false
         const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         const objectUrl = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.style.display = 'none'
         link.href = objectUrl
-        link.download = `${new Date().getTime()}指令书导出.xlsx`
+        link.download = `${new Date().getTime()}监察指令书导出.xlsx`
         document.body.appendChild(link)
         link.click()
-        this.isExcelLoading = false
-        this.dialogExcelVisible = false
         document.body.removeChild(link)
         window.URL.revokeObjectURL(objectUrl)
+      }).then(() => {
+        this.dialogExcelVisible = false
       })
+    },
+    multiTaskDetail() {
+      const multipleSelection = this.multipleSelection
+      if (multipleSelection.length === 0) {
+        this.$message({
+          message: '请选择指令书',
+          type: 'warning'
+        })
+        return ''
+      }
+      this.radirtaskDetail(multipleSelection[0])
+    },
+    /** 已完成查询 */
+    radirtaskDetail(row) {
+      this.opShowLoading()
+      fecthBeforeEdit(row.taskCheckId).then(res => {
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          let taskPhotoList = ''
+          let taskCommandPhotoList = ''
+          if (data.taskPhotoList) {
+            taskPhotoList = data.taskPhotoList
+          }
+          if (data.taskCommandPhotoList) {
+            taskCommandPhotoList = data.taskCommandPhotoList
+          }
+          data.taskPhotoList = taskPhotoList
+          data.taskCommandPhotoList = taskCommandPhotoList
+          this.editTask = data
+          this.dialogEndVisible = true
+        } else {
+          this.$message.error(res.resultDesc)
+        }
+      }).then(() => {
+        this.onCloseLoading()
+      })
+    },
+    /** 多选的编辑 */
+    mutilEditDailog() {
+      const multipleSelection = this.multipleSelection
+      if (multipleSelection.length === 0) {
+        this.$message({
+          message: '请选择指令书',
+          type: 'warning'
+        })
+        return ''
+      }
+      this.taskEdit(multipleSelection[0])
+    },
+    /** 编辑 */
+    taskEdit(row) {
+      this.opShowLoading()
+      fecthBeforeEdit(row.taskCheckId).then(res => {
+        if (res.resultCode === '0000000') {
+          const data = res.returnData
+          this.editTask = data
+          this.dialogYulanVisible = true
+        } else {
+          this.$message.error(res.resultDesc)
+        }
+      }).then(() => {
+        this.onCloseLoading()
+      })
+    },
+    delTask() {
+      if (this.multipleSelection.length === 0) {
+        this.$message.error('请选择指令书')
+        return
+      }
+      this.$confirm('此操作将删除指令书, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const id = this.multipleSelection[0].id
+        const data = {
+          id,
+          checkStatus: '4',
+          operateName: '删除监察指令书'
+        }
+        fetchDelComm(data).then(res => {
+          if (res.resultCode === '0000000') {
+            this.$message.success(res.resultDesc)
+            this.fecthData()
+          }
+        })
+      })
+    },
+    preview(row) {
+      const { commandNo } = row
+      const url = encodeURI(`${this.printUrl}（三水）质监特令${commandNo}.jpg`)
+      toViewer(url)
+    },
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
+        })
+      } else {
+        this.$refs.multipleTable.clearSelection()
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    taskSheheOpt() {
+      if (!this.reason.text) {
+        this.$message.error('请输入描述')
+        return
+      }
+      const { id, text } = this.reason
+      const data = {
+        id,
+        commandAuditIntro1: text
+      }
+      if (this.reason.opt === 1) {
+        // 审核
+        data.commandStatus = '2'
+        data.operateName = '监察指令书审核'
+        fetchTrialComm(data).then(res => {
+          if (res.resultCode === '0000000') {
+            this.dialogBackVisible = false
+            this.$message.success(res.resultDesc)
+            this.fecthData()
+          }
+        })
+      } else {
+        // 反审核
+        data.commandStatus = '0'
+        data.operateName = '监察指令书反审核'
+        fetchAuditComm(data).then(res => {
+          if (res.resultCode === '0000000') {
+            this.dialogBackVisible = false
+            this.$message.success(res.resultDesc)
+            this.fecthData()
+          }
+        })
+      }
+    },
+    taskShenhe(opt, row = {}) {
+      // let data = {}
+      if (~~opt === 1) {
+        this.reason.opt = 1
+        this.reason.title = '请填写审核的理由'
+      } else {
+        this.reason.title = '请填写反审核的理由'
+        this.reason.opt = 2
+      }
+      if (row.id) {
+        this.dialogBackVisible = true
+        this.reason.id = row.id
+      } else {
+        if (this.multipleSelection.length === 0) {
+          this.$message.error('请选择指令书')
+          return
+        }
+        this.dialogBackVisible = true
+        this.reason.id = this.multipleSelection[0].id
+      }
     },
     getOverTime(time) {
       const timeDate = new Date().getTime()
@@ -588,7 +513,7 @@ export default {
        *   回复书：回复书编号  三个用；隔开 不用加.pdf
       */
       const commandName = commandNo ? `（三水）质监特令${commandNo}` : null
-      const no = [commandName, commandName, commandName, commandNo, commandTransferNo, commandReplyNo].filter(item => {
+      const no = [commandName, commandTransferNo, commandReplyNo].filter(item => {
         return item != null
       }).join(';')
       const data = {
@@ -618,7 +543,7 @@ export default {
         deviceAreaName4: '', // 镇街
         instructionNo: '', // 移交书编号 (没)
         commandReplyNo: '', // 回复书编号
-        commandExecTaskStatus: commandExecTaskStatus // 1 镇街待移交 12 区局待移交 7 审核移交 3 执法三科待处理 8执法三科审核 4 待确认  5:完成
+        commandExecTaskStatus: commandExecTaskStatus // 1 镇街待移交 12 区局待移交 7 批准移交 3 待处理 8回复审核 4 待确认  5:完成
       }
       this.$message.success('重置成功')
       this.fecthData()
@@ -722,7 +647,6 @@ export default {
     },
     /** 移交 */
     yijiaoDialog(row, opt = 1) { // opt 1移交， 2审核移交 3 处理 7 确认
-      this.row = row
       const data = {
         id: row.id,
         taskCheckId: row.taskCheckId
@@ -768,13 +692,6 @@ export default {
           this.$message.error(res.resultDesc)
         }
       })
-    },
-    closedYiJiaoTo(event) {
-      // console.log(event)
-      this.dialogYiJiaoVisible = false
-      // if (event === 'end') {
-      //   this.yijiaoDialog(this.row)
-      // }
     },
     /** 关闭移交 */
     closedYiJiao() {
@@ -847,8 +764,7 @@ export default {
         rectifyRemark,
         rectifyImg: imgs,
         rectifyAuditInfo,
-        sourceSySign: 'sanshuiSafetyServer',
-        operateName: '监察指令书审核'
+        sourceSySign: 'sanshuiSafetyServer'
       }
       fetchRectify(data).then(res => {
         if (res.resultCode === '0000000') {
@@ -880,7 +796,8 @@ export default {
         deviceAreaName4, // 镇街
         instructionNo, // 移交书编号
         commandReplyNo, // 回复书编号
-        commandExecTaskStatus
+        commandExecTaskStatus,
+        commandStatus
       } = this.search
       const data = {
         checkNo, // 任务编号
@@ -890,16 +807,16 @@ export default {
         deviceAreaName4, // 镇街
         instructionNo, // 移交书编号
         commandReplyNo, // 回复书编号
-        commandExecTaskStatus
+        commandExecTaskStatus,
+        commandStatus
       }
       data.pageSize = `${this.pageSize}`
       data.pageNum = `${this.pageNum}`
       data.orderType = '1'
-      data.commandStatus = '2'
       // console.log(data)
       this.$store.dispatch('fetchInstructionList', data).then(() => {
         this.loading = false
-        this.$store.dispatch('actionsIntrcCount', data)
+        this.$store.dispatch('actionsCheckCount', data)
       })
     },
     pageSizeChange(event) {
@@ -920,29 +837,11 @@ export default {
     },
     handleClose(done) { // 弹窗关闭方法
       done()
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-    },
-    tableRowClassName({ row, rowIndex }) {
-      // console.log(row.rejectReason)
-      // console.log(this.activeName)
-      if (row.rejectReason && (~~this.activeName === 1 || ~~this.activeName === 2)) {
-        return 'warning-row'
-      }
-      return ''
     }
   }
 }
 </script>
-<style>
-.el-table .warning-row {
-  background: #ef9999;
-}
-.el-table .warning-row:hover {
-  background: #ef9999;
-}
-</style>
+
 <style rel="stylesheet/scss" lang="scss" scoped>
 .zhilingshu {
   background: #f2f2f2;

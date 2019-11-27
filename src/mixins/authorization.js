@@ -18,7 +18,7 @@ const authorization = {
         this.getNavName(this.roles)
         resolve()
       }).then(() => {
-        console.log(this.auths)
+        // console.log(this.auths)
       })
     },
     getNavName(list) {

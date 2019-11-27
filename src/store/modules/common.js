@@ -1,5 +1,5 @@
 // import {fetchMohuCom} from '@/api/shebei'
-import { fetchDeviceType, fetchIntructionModel, fetchDtName } from '@/api/common'
+import { fetchDeviceType, fetchIntructionModel, fetchDtName, getCheckType } from '@/api/common'
 // import { getTree } from '@/utils/common'
 import { fetchTaskIllegalList } from '@/api/admin'
 const common = { // 通用滴
@@ -14,7 +14,8 @@ const common = { // 通用滴
     deptNames: [], // 接收任务部门
     taskAddTime: '', // 移交书日期
     localAddr: {}, // 设备地址
-    taskIllegal: [] // 违规模板
+    taskIllegal: [], // 违规模板
+    checkType: [] // 专项任务类型
   },
   mutations: {
     SET_COMPANYLIST: (state, comlist) => {
@@ -49,9 +50,28 @@ const common = { // 通用滴
     },
     SET_LOCALADDR: (state, localAddr) => {
       state.localAddr = localAddr
+    },
+    SET_CHECKTYPE: (state, checkType) => {
+      state.checkType = checkType
     }
   },
   actions: {
+    actionsCheckType({ commit }) {
+      return new Promise((resolve, reject) => {
+        getCheckType().then(res => {
+          const {
+            returnData
+          } = res
+          const list = returnData.map(item => {
+            return {
+              value: item.id,
+              label: item.checkTypeName
+            }
+          })
+          commit('SET_CHECKTYPE', list)
+        })
+      })
+    },
     actionsMohuCom({ commit }) {
       return new Promise((resolve, reject) => {
         commit('SET_COMPANYLIST', [])

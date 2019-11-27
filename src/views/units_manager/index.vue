@@ -23,11 +23,18 @@
           <label for="" class="label">信用代码：</label>
           <el-input v-model="units.useCreditCode" class="input" placeholder="" />
           <label for="" class="label">镇街：</label>
-          <el-cascader
+          <!-- <el-cascader
             ref="deviceInstallArea"
             v-model="units.installAddr"
             :options="addrCasc"
-            clearable/>
+            clearable/> -->
+          <el-select v-model="units.useArea4" placeholder="请选择" clearable>
+            <el-option
+              v-for="item in townSearchType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
         </div>
       </el-row>
     </div>
@@ -127,7 +134,7 @@
 </template>
 
 <script>
-import { addrCasc } from '@/utils/config'
+import { addrCasc, townSearchType } from '@/utils/config'
 import addUnit from './component/edit'
 // import { status } from '@/utils/config'
 import { fetchCompanyBase, fetchCompanyForEdit, fetchExcelCom } from '@/api/units'
@@ -138,6 +145,7 @@ export default {
   },
   data() {
     return {
+      townSearchType,
       addrCasc,
       isExcel: 1,
       dialogExcelVisible: false,
@@ -184,11 +192,12 @@ export default {
           addTime, // 添加时间
           useLegalPerson, // 单位法人
           useCreditCode, // 信用代码
-          installAddr,
-          useArea3
+          // installAddr,
+          useArea3,
+          useArea4
         } = this.units
         // const useArea3 = installAddr[1] ? installAddr[1] : ''
-        const useArea4 = installAddr[2] ? installAddr[2] : ''
+        // const useArea4 = installAddr[2] ? installAddr[2] : ''
         data = {
           useName,
           useAddDate1: addTime[0],
@@ -217,7 +226,8 @@ export default {
     },
     addCom() {
       this.addDialog = true
-      this.infomation = null
+      this.infomation = {}
+      // this.$refs['unitForm'].resetFields()
     },
     editCom() {
       const multipleSelection = this.multipleSelection
@@ -240,11 +250,12 @@ export default {
         addTime, // 添加时间
         useLegalPerson, // 单位法人
         useCreditCode, // 信用代码
-        installAddr,
-        useArea3
+        // installAddr,
+        useArea3,
+        useArea4
       } = this.units
       // const useArea3 = installAddr[1] ? installAddr[1] : ''
-      const useArea4 = installAddr[2] ? installAddr[2] : ''
+      // const useArea4 = installAddr[2] ? installAddr[2] : ''
       const data = {
         useName,
         useAddDate1: addTime ? addTime[0] : '',
@@ -354,7 +365,8 @@ export default {
         useLegalPerson: '', // 单位法人
         useCreditCode: '', // 信用代码
         installAddr: [],
-        useArea3: '7'
+        useArea3: '7',
+        useArea4: ''
       }
     },
     toggleSelection(rows) {

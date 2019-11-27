@@ -84,6 +84,18 @@ export const asyncRouterMap = [
     }]
   },
   {
+    path: '/checkbook',
+    component: Layout,
+    redirect: '/checkbook',
+    name: 'sys_command_audit',
+    // name: 'sys_task',
+    children: [{
+      path: 'checkbook',
+      meta: { title: '监察指令书', icon: 'form' },
+      component: () => import('@/views/checkbook/index')
+    }]
+  },
+  {
     path: '/zhilingshu',
     component: Layout,
     redirect: '/zhilingshu',
@@ -145,6 +157,17 @@ export const asyncRouterMap = [
       path: 'units',
       meta: { title: '单位管理', icon: 'units' },
       component: () => import('@/views/units_manager/index')
+    }]
+  },
+  {
+    path: '/jiany',
+    component: Layout,
+    redirect: '/jiany',
+    name: 'sys_inspection_opinion_notice',
+    children: [{
+      path: 'jiany',
+      meta: { title: '检验意见', icon: 'eye-open' },
+      component: () => import('@/views/jianchayijian/index')
     }]
   }
 ]

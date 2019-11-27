@@ -4,7 +4,7 @@
       <el-select v-model="town" placeholder="请选择" clearable style="widht: 100px;margin-bottom: 16px;" @change="townChange">
         <el-option
           v-for="item in townType"
-          :key="item.value"
+          :key="item.label"
           :label="item.label"
           :value="item.value"/>
       </el-select>
@@ -72,14 +72,14 @@
             <div class="itemNum">{{ task.zhuangXiang }}</div>
           </div>
           <div class="taskItem">
-            <div class="itemTile">不合格任务</div>
+            <div class="itemTile">检查任务</div>
             <div class="itemNum">{{ command.commandTotal }}</div>
           </div>
         </div>
         <div ref="taskTotal" class="taskTotal"/>
       </div>
     </el-row>
-    <el-row v-if="false" :gutter="20">
+    <!-- <el-row v-if="false" :gutter="20">
       <el-col :span="12">
         <el-row :gutter="20">
           <el-form ref="form" label-width="80px">
@@ -159,11 +159,11 @@
                   <i class="el-icon-caret-bottom green" />
                   <span class="bi">{{ command.taskThanCommandpercentWeek }}</span>
                 </div>
-                <!-- <div class="tongbi-item">
+                <div class="tongbi-item">
                   <span>日环比</span>
                   <i class="el-icon-caret-top red" />
                   <span class="bi">11%</span>
-                </div> -->
+                </div>
               </div>
             </div>
           </el-col>
@@ -175,7 +175,7 @@
             <div class="title">
               <div class="tabs">
                 <div :class="{'act': checkIndex == 1}" class="tabs-item" @click="checkIndexChange(1)">任务量</div>
-                <!-- <div :class="{'act': checkIndex == 2}" class="tabs-item" @click="checkIndexChange(2)">访问量</div> -->
+                 <div :class="{'act': checkIndex == 2}" class="tabs-item" @click="checkIndexChange(2)">访问量</div>
               </div>
               <div class="time">
                 <span :class="{'act': checkDay == 1}" class="time-item" @click="checkDayChange(1)">今日</span>
@@ -223,7 +223,7 @@
           </div>
         </el-row>
       </el-col>
-    </el-row>
+    </el-row> -->
   </div>
 </template>
 
@@ -291,6 +291,7 @@ export default {
     if (this.$store.getters.deptNames.length === 0) {
       this.$store.dispatch('actionsDeptNames')
     }
+    this.$store.dispatch('actionsCheckType')
     this.fectData()
   },
   methods: {
@@ -407,7 +408,7 @@ export default {
       const deviceSrotName = this.deviceSrotName
       const deviceSrotList = this.deviceSrotList
       const zongleiChart = echarts.init(this.$refs.newZonglei)
-      const colors = ['#FF9F40', '#FFCB48', '#5584FF', '#46BC15', '#7C6AF2', '#C95FF2', '#FF6383']
+      const colors = ['#FF9F40', '#FFCB48', '#5584FF', '#46BC15', '#7C6AF2', '#C95FF2', '#FF6383', '#F58383', '#B49BC0', '#B4946B']
       const option = {
         color: colors,
         tooltip: {

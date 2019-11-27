@@ -25,6 +25,14 @@
         <div class="searchs">
           <label for="" class="label">使用登记证：</label>
           <el-input v-model="search.userReg" class="input" placeholder="" />
+          <label for="" class="label">设备镇街：</label>
+          <el-select v-model="search.addrCasc" placeholder="请选择">
+            <el-option
+              v-for="item in townSearchType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
         </div>
       </el-row>
     </div>
@@ -178,7 +186,7 @@
           </el-col>
         </el-row>
         <el-row class="row">
-          <label for="" class="label">设备地址选择：</label>
+          <label for="" class="label">设备镇街：</label>
           <el-select v-model="search.addrCasc" placeholder="请选择">
             <el-option
               v-for="item in townSearchType"
@@ -450,7 +458,7 @@ export default {
         useUnit: '', // 使用单位
         useEque: [], // 设备种类
         userReg: '', // 登记证
-        status: '', // 状态
+        status: '01', // 状态
         facNum: '', // 出厂编号
         maintUnit: '', // 维保单位
         equiStatus: '', // 设备检查状态
@@ -868,7 +876,7 @@ export default {
                 message: data.resultDesc,
                 type: 'success'
               })
-              this.resetForm(formName)
+              this.resetForm()
               // shuaxin
               this.fecthData()
             } else {
@@ -886,9 +894,9 @@ export default {
         }
       })
     },
-    resetForm(formName) {
+    resetForm() {
       this.dialogAddVisible = false
-      this.$refs[formName].resetFields()
+      this.$refs['addForm'].resetFields()
     },
     fecthData() { // get device
       this.loading = true
@@ -1086,7 +1094,7 @@ export default {
       .row {padding-bottom: 16px;}
       .input {max-width: 220px;}
       .label {
-        min-width: 120px;
+        min-width: 105px;
         display: inline-block;
         .red {color: red}
       }

@@ -46,6 +46,7 @@ const user = {
             commit('SET_TOKEN', data.token)
             // commit('SET_ROLES', data.roleNavList) // 获取角色
             commit('SET_USERINFO', data)
+            commit('SET_NAME', data.userNickName)
             if (data.deptArea4Ids && data.deptArea4Names) {
               const deptArea4Ids = data.deptArea4Ids.split(',')
               const deptArea4Names = data.deptArea4Names.split(',')

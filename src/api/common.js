@@ -67,3 +67,11 @@ export function fetchTaskDownload({ url, data }) {
     data: data
   })
 }
+/** 专项任务类型 */
+export function getCheckType(data) {
+  return request({
+    url: '/base/param/getCheckType',
+    method: 'post',
+    data: data
+  })
+}

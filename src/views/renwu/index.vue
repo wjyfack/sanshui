@@ -32,13 +32,13 @@
             <el-input v-model="search.commandNo" class="input" placeholder="请输入指令书编号"/>
           </el-col>
           <el-col :span="8">
-            <label class="label" for="">所属镇街：</label>
-            <el-select v-model="search.cont" clearable placeholder="请选择">
+            <label class="label" for="">所属部门：</label>
+            <el-select v-model="search.checkDeptID" clearable placeholder="请选择">
               <el-option
-                v-for="item in townSearchType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"/>
+                v-for="item in deptNames"
+                :key="item.id"
+                :label="item.deptName"
+                :value="item.id"/>
             </el-select>
           </el-col>
           <el-col v-if="activeName == '1'" :span="8">
@@ -69,6 +69,7 @@
             <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '6'" :span="8">
+            <el-button type="primary" @click="downloadOpt(4)">导出检查记录</el-button>
             <el-button type="primary" @click="downloadOpt(1)">检查记录表下载</el-button>
             <el-button type="primary" @click="downloadOpt(2)">指令书下载</el-button>
             <el-button type="primary" @click="downloadOpt(3)">指+检下载</el-button>
@@ -89,7 +90,8 @@
           border
           tooltip-effect="dark"
           style="width: 100%"
-          @selection-change="handleSelectionChange">
+          @selection-change="handleSelectionChange"
+          @cell-dblclick="hadeleSelectionBdclick">
           <el-table-column
             type="selection"/>
           <el-table-column
@@ -102,21 +104,18 @@
           <el-table-column
             prop="deviceUseAddress"
             label="使用地址"/>
-          <el-table-column
+          <!-- <el-table-column
             prop="deviceAreaName4"
             label="所属镇街"/>
-
+          -->
+          <el-table-column
+            prop="checkDeptName"
+            label="所属部门"/>
           <el-table-column
             v-if="activeStatus1"
             key="checkIntro"
             prop="checkIntro"
             label="任务要求"/>
-          <el-table-column
-            v-if="activeStatus1"
-            key="taskCreateTime"
-            prop="taskCreateTime"
-            label="任务生成日期"/>
-
           <el-table-column
             v-if="activeStatus2"
             key="taskStatus"
@@ -131,6 +130,12 @@
             key="checkResulTreatment"
             prop="checkResulTreatment"
             label="任务处理方式"/>
+          <el-table-column
+            v-if="activeStatus1 || activeStatus2"
+            key="taskCreateTime"
+            prop="taskCreateTime"
+            sortable
+            label="任务生成日期"/>
           <el-table-column
             v-if="activeName != 6 && activeName != 7"
             key="optionss"
@@ -440,6 +445,7 @@ export default {
         checkStatus: '1', // 检查任务状态
         checkAddDeptName: '', // 任务派发部门
         isRecovery: '0', // 回搜站 1
+        checkDeptID: '',
         cont: '' // 所属镇街
       },
       pageSize: 10,
@@ -483,10 +489,15 @@ export default {
       'companyList',
       'taskTotal',
       'taskList',
-      'taskCount'
+      'taskCount',
+      'deptNames',
+      'inspectionType'
     ])
   },
   mounted() {
+    if (this.deptNames.length === 0) {
+      this.$store.dispatch('actionsDeptNames')
+    }
     this.fecthData()
     // if (this.companyList.length === 0) {
     //   this.$store.dispatch('actionsMohuCom')
@@ -522,6 +533,7 @@ export default {
           checkAddDeptName, // 任务派发部门
           checkStatus, // 检查任务状态
           isRecovery, // 回搜站 1
+          checkDeptID,
           cont // 所属镇街 deviceAreaName4
         } = this.search
         let dateCheckeds = []
@@ -534,6 +546,7 @@ export default {
           return item.value === cont
         })
         data = {
+          checkDeptID,
           checkNo, // 任务编号
           taskStatus, // 任务状态
           taskStatusName,
@@ -576,6 +589,7 @@ export default {
         window.URL.revokeObjectURL(objectUrl)
       }).then(() => {
         this.dialogDownloadVisible = false
+        this.dialogDownloadPicVisible = false
         this.isDownloadingPic = false
       })
     },
@@ -661,11 +675,19 @@ export default {
             //   return item.commandNo
             // }).join(',')
             break
+            // 导出检查记录
+          case 4:
+            url = '/excel/excel/export/checkRecord'
+            data.id = multipleSelection.map(item => { // 传任务编号用，隔开
+              return item.id
+            }).join(',')
+            break
         }
         // console.log(data)
       } else {
         // 全部
         const {
+          checkDeptID,
           checkNo, // 任务编号
           taskStatus, // 任务状态
           taskStatusName,
@@ -689,6 +711,7 @@ export default {
           return item.value === cont
         })
         data = {
+          checkDeptID,
           checkNo, // 任务编号
           taskStatus, // 任务状态
           taskStatusName,
@@ -720,12 +743,21 @@ export default {
             // data.commandNos = ''
             url = `/file/downloadCmPDF/create`
             break
+          case 4:
+            url = '/excel/excel/export/checkRecord'
+            break
         }
       }
-      console.log(data)
+      // console.log(data)
       this.isDownloading = true
       fetchTaskDownload({ url, data }).then(res => {
-        const blob = new Blob([res], { type: 'application/pdf' })
+        let blob = null
+        if (this.optDownload === 4) {
+          blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        } else {
+          blob = new Blob([res], { type: 'application/pdf' })
+        }
+        // const blob = new Blob([res], { type: 'application/pdf' })
         const objectUrl = URL.createObjectURL(blob)
         const link = document.createElement('a')
         let name = ''
@@ -741,13 +773,15 @@ export default {
           case 3:
             name = `${new Date().getTime()}指令+检查.pdf`
             break
+          case 4:
+            name = `${new Date().getTime()}检查记录.xlsx`
         }
         link.download = name
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
         window.URL.revokeObjectURL(objectUrl)
-      }).then(() => {
+      }).finally(() => {
         this.dialogDownloadVisible = false
         this.isDownloading = false
       })
@@ -796,7 +830,8 @@ export default {
           isRecovery, // 回收站
           checkStatus, // 检查任务状态
           checkAddDeptName, // 任务派发部门
-          taskStatusName
+          taskStatusName,
+          checkDeptID
         } = this.search
         const [nameValue] = townSearchType.filter(item => {
           return item.value === cont
@@ -820,6 +855,7 @@ export default {
         任务状态2级 taskStatusName
         */
         data = {
+          checkDeptID,
           taskStatusName,
           isRecovery,
           checkTypeId,
@@ -972,7 +1008,19 @@ export default {
       })
     },
     getTaskStatus(row) {
-      return row && row.taskStatus ? taskType[~~row.taskStatus].label : ''
+      let label = row && row.taskStatus ? taskType[~~row.taskStatus].label : ''
+      if (row.taskStatusName) {
+        const status = row.taskStatusName.split(',')
+        const zName = this.inspectionType.map(item => {
+          if (status.includes(item.value)) {
+            return item.label
+          }
+        }).filter(i => i).join()
+        // console.log(zName)
+        label = `${label}/${zName}`
+      }
+      // console.log(label)
+      return label
     },
     /** 编辑 */
     taskEdit(row) {
@@ -1137,13 +1185,16 @@ export default {
         })
       })
     },
+    hadeleSelectionBdclick(row) {
+      this.taskDetail(row)
+    },
     /** 设备详情 */
     taskDetail(row) {
-      console.log(row.checkNo)
+      // console.log(row.checkNo)
       fetchtaskDetail(row.checkNo).then(data => {
         if (data.resultCode === '0000000') {
           const arr = data.returnData
-          console.log(arr)
+          // console.log(arr)
           if (arr.length === 0) {
             this.$message('没有该任务的设备详情')
           } else {
@@ -1214,6 +1265,7 @@ export default {
     fecthData() {
       this.loading = true
       const { // 搜索
+        checkDeptID,
         checkNo, // 任务编号
         companyUseName, // 使用单位
         deviceCertNo, // 使用登记证
@@ -1249,8 +1301,7 @@ export default {
       任务状态2级 taskStatusName
       */
       const data = {
-        pageSize: `${this.pageSize}`,
-        pageNum: `${this.pageNum}`,
+        checkDeptID,
         isRecovery,
         checkTypeId,
         checkAddDeptName,
@@ -1263,13 +1314,15 @@ export default {
         taskStatusName,
         deviceAreaName4: nameValue ? nameValue.name : '',
         updateTime: dateChecked ? dateChecked[0] ? dateChecked[0] : '' : '',
-        commandAddDate: dateChecked ? dateChecked[1] ? dateChecked[1] : '' : '',
-        orderType: '1'
+        commandAddDate: dateChecked ? dateChecked[1] ? dateChecked[1] : '' : ''
       }
+      data.orderType = '1'
+      data.pageSize = `${this.pageSize}`
+      data.pageNum = `${this.pageNum}`
       // console.log(JSON.stringify(data))
       this.$store.dispatch('fetchTaskList', data).then(() => {
         this.loading = false
-        this.$store.dispatch('actionsTaskCount')
+        this.$store.dispatch('actionsTaskCount', data)
       })
     },
     taskSearch() {

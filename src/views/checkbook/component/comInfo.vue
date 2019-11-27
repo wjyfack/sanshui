@@ -64,13 +64,6 @@ export default {
       deviceList: []
     }
   },
-  watch: {
-    transfe() {
-      if (this.transfe.list.length !== 0) {
-        this.deviceList = this.transfe.list
-      }
-    }
-  },
   mounted() {
     if (this.transfe.list.length !== 0) {
       this.deviceList = this.transfe.list

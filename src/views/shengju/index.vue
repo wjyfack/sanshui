@@ -427,7 +427,7 @@ export default {
       const [item] = this.status.filter(item => {
         return item.value === value
       })
-      return item.label
+      return !item ? '' : item.label
     },
     changeInfo(opt) {
       switch (~~opt) {

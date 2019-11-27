@@ -39,21 +39,26 @@
           @cell-click="cellClick">
           <el-table-column
             prop="deviceCertNo"
+            width="180"
             label="使用登记证"/>
           <el-table-column
             prop="companyUseName"
+            width="180"
             label="使用单位名称"/>
           <el-table-column
             prop="deviceLastTestResult"
+            width="250"
             label="上次检验结论"/>
           <el-table-column
-            label="任务要求">
+            label="任务要求"
+            width="250">
             <template slot-scope="scope">
               <el-input v-model="deviceList[scope.$index].checkIntro" placeholder="任务要求"/>
             </template>
           </el-table-column>
           <el-table-column
-            label="检验类型">
+            label="检验类型"
+            width="250">
             <template slot-scope="scope">
               <el-select v-model="deviceList[scope.$index].checkTypeId" placeholder="请选择">
                 <el-option
@@ -65,7 +70,8 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="最迟反馈时间">
+            label="最迟反馈时间"
+            width="250">
             <template slot-scope="scope">
               <el-date-picker
                 v-model="deviceList[scope.$index].checkResultEndDate"
@@ -75,7 +81,8 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="接收部门">
+            label="接收部门"
+            width="200">
             <template slot-scope="scope">
               <el-select v-model="deviceList[scope.$index].checkDeptId" placeholder="请选择" @change="deptChange">
                 <el-option
@@ -87,7 +94,8 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="任务状态">
+            label="任务状态"
+            width="400">
             <template slot-scope="scope">
               <task-check :arr="deviceList[scope.$index].selectTask" @send="sendStatus($event,scope.$index)" />
             </template>
@@ -245,8 +253,8 @@ export default {
         taskStatus,
         instructionStatus
       } = event
-      this.deviceList.taskStatus = taskStatus
-      this.deviceList.taskStatusName = instructionStatus
+      this.deviceList[index].taskStatus = taskStatus
+      this.deviceList[index].taskStatusName = instructionStatus
     },
     /** 指定接收部门 */
     selectDept(arr) {

@@ -82,7 +82,7 @@
                   :label="item.label"
                   :value="item.value"/>
               </el-select>
-              <el-select v-model="record.checkType2" placeholder="请选择">
+              <el-select v-model="record.checkType2" filterable allow-create placeholder="请选择">
                 <el-option
                   v-for="item in insprcType"
                   :key="item.value"
@@ -299,7 +299,7 @@ import taskCheck from '@/components/taskCheck/index'
 import { /** fetchBeforeTask, */ fetchAddDevice } from '@/api/shebei'
 import { fecthExamineTask } from '@/api/task'
 import { mapGetters } from 'vuex'
-import { status, addrCasc, danWeiType, baseUrl, taskType, inspectionType, IrregularitiesType } from '@/utils/config'
+import { status, addrCasc, danWeiType, baseUrl, taskType, IrregularitiesType } from '@/utils/config'
 import { getFormatDate, toViewer } from '@/utils/common'
 import addDevice from '@/components/addDevice/index'
 export default {
@@ -322,7 +322,7 @@ export default {
       downloadUrl: `${baseUrl}/file/download/create/`,
       danWeiType,
       taskType,
-      inspectionType,
+      // inspectionType,
       IrregularitiesType,
       dialogImageUrl: '',
       dialogVisible: false,
@@ -356,7 +356,8 @@ export default {
   computed: {
     ...mapGetters([
       'instructionModels',
-      'companyList'
+      'companyList',
+      'inspectionType'
     ])
   },
   watch: {
@@ -494,7 +495,7 @@ export default {
       // } del
 
       // checkType2有值
-      if (record.checkType2) this.insprcType = inspectionType
+      if (record.checkType2) this.insprcType = this.inspectionType
       if (record.checkDateStart || record.checkDateEnd) {
         // const tt = record.checkDateStart ? record.checkDateStart : ''
         const tts = record.checkDateEnd ? record.checkDateEnd : getFormatDate()
@@ -524,7 +525,7 @@ export default {
           this.insprcType = []
           break
         default:
-          this.insprcType = inspectionType
+          this.insprcType = this.inspectionType
       }
       this.record.checkType2 = ''
     },

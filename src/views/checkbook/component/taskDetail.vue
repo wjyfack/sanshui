@@ -19,10 +19,9 @@
       </div>
     </div>
     <div class="btn-group">
-      <el-button v-if="transfe.commandNo " size="mini" type="warning" @click="preview(4)">回执预览</el-button>
       <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(1)">检查记录预览</el-button>
       <el-button v-if="transfe.checkRecord && transfe.checkRecord.id " size="mini" type="warning" @click="preview(3)">关联设备预览</el-button>
-      <el-button v-if="transfe.commandNo" size="mini" type="warning" @click="preview(2)">指令书预览</el-button>
+      <el-button v-if="command.id" size="mini" type="warning" @click="preview(2)">指令书预览</el-button>
     </div>
     <el-dialog
       :visible.sync="dialogVisible"
@@ -95,9 +94,6 @@ export default {
           break
         case 3:
           url = encodeURI(`${this.printUrl}（三水）检查记录关联设备${checkNo}.jpg`)
-          break
-        case 4:
-          url = encodeURI(`${this.printUrl}${commandNo}.jpg`)
           break
       }
       // this.lookPic = true

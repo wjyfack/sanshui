@@ -159,17 +159,26 @@ export function fetchImportExcel(data, fn) {
   })
 }
 /** 各个任务状态数量 */
-export function fetchTaskCount(deviceArea3 = '7') {
+export function fetchTaskCount(data, deviceArea3 = '7') {
   return request({
     url: '/taskCheck/getTaskCount',
     method: 'post',
-    data: { deviceArea3 }
+    data: { ...data, deviceArea3 }
   })
 }
 /** 导出图片 */
 export function fetchTaskPic(data) {
   return request({
     url: '/file/downloadPictureForPDF/CheckRecord',
+    method: 'post',
+    responseType: 'blob',
+    data: data
+  })
+}
+/** excel导出检查记录 */
+export function fetchExcelRecord(data) {
+  return request({
+    url: '/excel/excel/export/checkRecord',
     method: 'post',
     responseType: 'blob',
     data: data

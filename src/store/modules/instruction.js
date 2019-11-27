@@ -1,6 +1,7 @@
 import {
   fetchInstructionList,
-  fetchTaskCount
+  fetchTaskCount,
+  fetchCheckCount
 } from '@/api/instruction'
 
 const instruction = { // 通用滴
@@ -20,6 +21,12 @@ const instruction = { // 通用滴
       instrStatus8: 0,
       instrStatusEnd: 0,
       instrStatusAll: 0
+    },
+    checkCount: {
+      checkStatus0: 0,
+      checkStatus1: 0,
+      checkStatus2: 0,
+      checkStatusAll: 0
     }
   },
   mutations: {
@@ -37,6 +44,9 @@ const instruction = { // 通用滴
     },
     SET_INSTRCOUNT: (state, instrCount) => {
       state.instrCount = instrCount
+    },
+    SET_CHECKCOUNT: (state, info) => {
+      state.checkCount = info
     }
   },
   actions: {
@@ -59,9 +69,9 @@ const instruction = { // 通用滴
     changeStatus({ commit }, data) {
       commit('SET_STATUS', data)
     },
-    actionsIntrcCount({ commit }) {
+    actionsIntrcCount({ commit }, data) {
       return new Promise((resolve, reject) => {
-        fetchTaskCount().then(response => {
+        fetchTaskCount(data).then(response => {
           // console.log(response)
           if (response.resultCode === '0000000') {
             const data = response.returnData
@@ -118,6 +128,41 @@ const instruction = { // 通用滴
             info.instrStatusEnd = info.instrStatus3 + info.instrStatus8
             // console.log(info)
             commit('SET_INSTRCOUNT', info)
+          }
+        })
+      })
+    },
+    actionsCheckCount({ commit }) {
+      return new Promise((resolve, reject) => {
+        fetchCheckCount().then(response => {
+          // console.log(response)
+          if (response.resultCode === '0000000') {
+            const data = response.returnData
+            const info = {
+              checkStatus0: 0,
+              checkStatus1: 0,
+              checkStatus2: 0,
+              checkStatusAll: 0
+            }
+            data.forEach(element => {
+              switch (element.status) {
+                case '1':
+                  info.checkStatus1 = element.total
+                  break
+                case '2':
+                  info.checkStatus2 = element.total
+                  break
+                case '0':
+                  info.checkStatus0 = element.total
+                  break
+              }
+            })
+            const checkStatusAll = data.reduce((tatol, item) => {
+              return tatol + item.total
+            }, 0)
+            info.checkStatusAll = checkStatusAll
+            // console.log(info)
+            commit('SET_CHECKCOUNT', info)
           }
         })
       })

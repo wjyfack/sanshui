@@ -39,6 +39,9 @@
           <el-table-column
             prop="deviceStatusName"
             label="设备状态"/>
+          <el-table-column
+            prop="deviceNextTestDate"
+            label="下次检验日期"/>
         </el-table>
       </div>
       <div class="title">手动新增关联设备</div>

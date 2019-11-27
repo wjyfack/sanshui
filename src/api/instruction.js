@@ -25,7 +25,10 @@ export function fetchRectify(data) {
   return request({
     url: '/taskCommand/command/audit',
     method: 'post',
-    data: data
+    data: {
+      ...data,
+      operateName: '监察指令书审核'
+    }
   })
 }
 /** 移交前查数据 */
@@ -72,10 +75,59 @@ export function fetchReview(data) {
   })
 }
 /** 各个指令书状态数量 */
-export function fetchTaskCount(deviceArea3 = '7') {
+export function fetchTaskCount(data, deviceArea3 = '7') {
   return request({
     url: '/taskCommand/getCommandCount',
     method: 'post',
+    data: { ...data, deviceArea3 }
+  })
+}
+/** 各个检查指令书状态数量 */
+export function fetchCheckCount(deviceArea3 = '7') {
+  return request({
+    url: '/taskCommand/getAduitCommandCount',
+    method: 'post',
     data: { deviceArea3 }
+  })
+}
+/** 指令书审核 */
+export function fetchTrialComm(data) {
+  return request({
+    url: '/taskCommand/trialCommand',
+    method: 'post',
+    data: data
+  })
+}
+/** 指令书反审核 */
+export function fetchAuditComm(data) {
+  return request({
+    url: '/taskCommand/counterAuditCommand',
+    method: 'post',
+    data: data
+  })
+}
+/** 删除指令书 */
+export function fetchDelComm(data) {
+  return request({
+    url: '/taskCommand/deleteCommand',
+    method: 'post',
+    data: data
+  })
+}
+/** excel导出指令书 */
+export function fetchExcelTaskCommand(data) {
+  return request({
+    url: '/excel/excel/export/taskCommand',
+    method: 'post',
+    responseType: 'blob',
+    data: data
+  })
+}
+/** 退回指令书 */
+export function fetchbackCommand(data) {
+  return request({
+    url: '/taskCommand/returnCommand',
+    method: 'post',
+    data: data
   })
 }

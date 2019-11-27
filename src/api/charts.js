@@ -2,10 +2,11 @@ import request from '@/utils/request'
 const deviceArea3 = '7'
 /** 设备统计 */
 export function fetchDeviceTotal(deviceArea4) {
+  const deviceStatusCode = '01'
   return request({
     url: '/indexTotoal/getDeviceTotal',
     method: 'post',
-    data: { deviceArea3, deviceArea4 }
+    data: { deviceArea3, deviceArea4, deviceStatusCode }
   })
 }
 /** 任务，指令书，安全率统计 */

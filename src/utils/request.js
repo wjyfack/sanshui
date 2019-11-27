@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message, MessageBox } from 'element-ui'
+import { Message, MessageBox, Loading } from 'element-ui'
 import store from '../store'
 import { baseUrl } from './config'
 import { getToken } from '@/utils/auth'
@@ -9,10 +9,16 @@ const service = axios.create({
   baseURL: baseUrl, // api 的 base_url
   timeout: 60000 // 请求超时时间
 })
-
+let loading = null
 // request拦截器
 service.interceptors.request.use(
   config => {
+    loading = Loading.service({
+      lock: true,
+      text: '加载中',
+      spinner: 'el-icon-loading',
+      background: 'rgba(0, 0, 0, 0.7)'
+    })
     if (store.getters.token) {
       config.headers['Access-Token'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
     }
@@ -31,6 +37,9 @@ service.interceptors.response.use(
     /**
      * resultCode为非 0000000 是抛错 可结合自己业务进行修改
      */
+    setTimeout(() => {
+      loading.close()
+    }, 300)
     const res = response.data
     // console.log(res)
     // if (res.resultCode !== '0000000') {
@@ -68,6 +77,7 @@ service.interceptors.response.use(
       type: 'error',
       duration: 5 * 1000
     })
+    loading.close()
     return Promise.reject(error)
   }
 )

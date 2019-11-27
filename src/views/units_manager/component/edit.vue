@@ -1,6 +1,6 @@
 <template>
   <div class="edit">
-    <el-form ref="form" :model="unit" :rules="unitForm" label-width="155px">
+    <el-form ref="unitForm" :model="unit" :rules="unitForm" label-width="155px">
       <el-row>
         <el-col :span="12">
           <el-form-item label="单位名称" prop="useName">

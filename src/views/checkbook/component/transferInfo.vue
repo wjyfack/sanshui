@@ -1,10 +1,9 @@
 <template>
   <div class="task-detail">
-    <!-- <el-button @click="() => {$message(instructionStatus)}">123</el-button> -->
     <div class="bianhao"><label for="">移交信息</label></div>
-    <div v-if="instructionStatus == 2 || instructionStatus == 1">
+    <div v-if="instructionStatus == 2">
       <el-row class="row">
-        <el-col v-if="instructionStatus == 2" :span="12" type="flex" class="col">
+        <el-col :span="12" type="flex" class="col">
           <span class="label"><span class="red">*</span>移交书编号</span>
           <el-input v-model="info.commandTransferNo" placeholder="移交书编号" class="input"/>
         </el-col>
@@ -14,31 +13,16 @@
         </el-col>
       </el-row>
       <el-row class="row">
-        <el-col :span="12" class="col">
-          <span class="label">移交书日期</span>
-          <el-date-picker
-            v-model="info.commandTransferDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择日期"/>
-        </el-col>
-        <el-col v-if="info.rejectReason" :span="12" class="col">
-          <span class="label"><span class="red">*</span>退回原因</span>
-          <el-input v-model="info.rejectReason" disabled class="input"/>
-        </el-col>
+        <span class="label">移交书日期</span>
+        <el-date-picker
+          v-model="info.commandTransferDate"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="选择日期"/>
       </el-row>
       <el-row class="row" type="flex">
         <span class="label"><span class="red">*</span>任务移交描述</span>
         <el-input v-model="info.commandTransferDesc" type="textarea" class="textarea"/>
-      </el-row>
-    </div>
-    <div v-if="instructionStatus == 1">
-      <el-row class="row" type="flex">
-        <span class="label"><span class="red">*</span>移交部门</span>
-        <el-radio-group v-model="transDept" class="textarea">
-          <el-radio :label="'机电科'">机电科</el-radio>
-          <el-radio :label="'锅炉科'">锅炉科</el-radio>
-        </el-radio-group>
       </el-row>
     </div>
     <div v-if="instructionStatus == 1">
@@ -70,7 +54,6 @@ export default {
     return {
       isShow: true,
       checkNo: '',
-      transDept: '机电科',
       info: {
         id: '',
         commandTransferNo: '', // 移交书编号
@@ -93,20 +76,17 @@ export default {
   },
   mounted() {
     this.changeStatus()
-    console.log(this.instructionStatus)
   },
   methods: {
     changeStatus() {
-      // console.log(this.instructionStatus)
+      console.log(this.instructionStatus)
       const {
         id,
         commandTransferNo,
         commandTransferFileCount,
         commandTransferDesc,
-        check,
-        rejectReason
+        check
       } = this.transfe
-      // console.log(commandTransferNo, this.transfe)
       if (check) {
         this.checkNo = check.checkNo
       }
@@ -120,10 +100,8 @@ export default {
         commandTransferNo,
         commandTransferFileCount: commandTransferFileCount === null ? '1' : commandTransferFileCount,
         commandTransferDate,
-        commandTransferDesc,
-        rejectReason
+        commandTransferDesc
       }
-      console.log(this.info)
       if (~~this.instructionStatus === 1) {
         this.isShow = false
       } else {
@@ -183,9 +161,6 @@ export default {
             return ''
           }
           data = { id, commandExecTaskAddReason, checkNo: this.checkNo, operateName: '镇街移交' }
-          // date: 11.15 2
-          // 修改 镇街移交传值2
-          data.transDept = this.transDept
           data.commandExecTaskStatus = '2'
         } else { // 移交
           data = {
@@ -215,35 +190,14 @@ export default {
           // data.commandExecTaskStatus = '7'
         }
       }
-      // console.log(data)
-      // return
       fetchTransferSave(data).then(res => {
+        this.$message.success(res.resultDesc)
         if (res.resultCode === '0000000') {
-          if (~~this.instructionStatus === 1) {
-            data = {
-              id,
-              // commandTransferNo, // 移交书编号
-              commandTransferFileCount, // 移交书材料
-              commandTransferDate, // 移交书日期
-              commandTransferDesc, // 任务移交描述
-              checkNo: this.checkNo,
-              companyUseNewName: this.transfe.companyUseNewName,
-              operateName: '区局移交'
-            }
-            data.commandExecTaskStatus = '4'
-            fetchTransferSave(data).then(res => {
-              this.$message.success(res.resultDesc)
-              this.closed()
-            })
-          } else {
-            this.$message.success(res.resultDesc)
-            this.closed()
-          }
+          this.closed()
         }
       })
     },
     closed() {
-      console.log('222')
       this.$emit('closed')
     }
   }

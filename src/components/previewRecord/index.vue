@@ -28,7 +28,7 @@
           <div class="stl_01" style="left:5.702em;top: 18.1129em; z-index:62; "><span class="stl_15 stl_11 stl_09" style="word-spacing:0.2512em;">被 检 查 &nbsp;</span></div>
           <div class="stl_01" style="left:5.702em;top: 19.4129em; "><span class="stl_15 stl_11 stl_09">单位情况 &nbsp;</span></div>
           <div class="stl_01" style="left:10.2242em;top: 18.1529em; z-index:89; "><span class="stl_15 stl_11 stl_09">地址</span><span class="stl_15 stl_11 stl_20">：</span><span class="stl_18 stl_11 stl_09">{{ info.useAddress }} &nbsp;</span></div>
-          <div class="stl_01" style="left:32.3717em;top: 18.1529em; z-index:95; "><span class="stl_15 stl_11 stl_21">组织机构代码： &nbsp;</span></div>
+          <div class="stl_01" style="left:32.3717em;top: 18.1529em; z-index:95; "><span class="stl_15 stl_11 stl_21">统一信用代码： &nbsp;</span></div>
           <div class="stl_01" style="left:32.3717em;top: 19.7929em; z-index:120; "><span class="stl_15 stl_11 stl_09">联系电话： &nbsp;</span></div>
           <div class="stl_01" style="left:10.2242em;top: 19.7929em; z-index:112; "><span class="stl_15 stl_11 stl_09">联系人： &nbsp;</span></div>
           <div class="stl_01" style="left:13.3383em;top: 19.8939em; "><span class="stl_18 stl_11 stl_09">{{ info.useContactMan }} &nbsp;</span></div>
