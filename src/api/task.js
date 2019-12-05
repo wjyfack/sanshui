@@ -184,3 +184,12 @@ export function fetchExcelRecord(data) {
     data: data
   })
 }
+/** 导入excel匹配的数据 */
+export function fetchTaskMore(data) {
+  return request({
+    url: '/taskCheck/exprotTask',
+    method: 'post',
+    data: data
+  })
+}
+

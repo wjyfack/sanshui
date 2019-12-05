@@ -79,10 +79,12 @@
             prop="commandReplyNo"
             label="回复书编号"/> -->
           <el-table-column
+            :formatter="formatDate"
             prop="commandDate"
             label="指令书日期"
             width="180"/>
           <el-table-column
+            :formatter="formatDate"
             prop="commandChangedEndDate"
             label="整改截止日期"
             width="180"/>

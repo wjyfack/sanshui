@@ -333,9 +333,9 @@ export default {
             deviceUseAddress: useAddress, // 使用单位地址
             // deviceIntro: devDetail, // 设备详情
             deviceUseID: id,
-            devicePhotos: this.phoneListString.split(',').map(item => {
+            devicePhotos: this.phoneListString.split('&').map(item => {
               return `/file/show/Device/${item}`
-            }).join(',')
+            }).join('&')
           }
           console.log(data)
           fetchAddDevice(data).then(response => {

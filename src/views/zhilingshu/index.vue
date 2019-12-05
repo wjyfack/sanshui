@@ -62,6 +62,7 @@
         </el-tabs>
         <el-table
           v-loading="loading"
+          key="theOnlayOne"
           :data="instructionList"
           :row-class-name="tableRowClassName"
           border
@@ -71,6 +72,7 @@
             type="selection"/>
           <el-table-column
             v-if="activeName == '1' && auths.sys_command_town_remove"
+            key="sys_command_town_remove"
             label="操作"
             width="350px">
             <template slot-scope="scope">
@@ -91,6 +93,7 @@
           </el-table-column>
           <el-table-column
             v-if="activeName == '2' && auths.sys_command_stay_remove"
+            key="sys_command_stay_remove"
             label="操作"
             width="350px">
             <template slot-scope="scope">
@@ -111,6 +114,7 @@
           </el-table-column>
           <el-table-column
             v-if="activeName == '4' && auths.sys_command_approval_remove"
+            key="sys_command_approval_remove"
             label="操作"
             width="180px">
             <template slot-scope="scope">
@@ -121,6 +125,7 @@
           </el-table-column>
           <el-table-column
             v-if="activeName == '5' && auths.sys_command__confirm_ratify"
+            key="sys_command__confirm_ratify"
             label="操作"
             width="180px">
             <template slot-scope="scope">
@@ -131,6 +136,7 @@
           </el-table-column>
           <el-table-column
             v-if="activeName == '6' && auths.sys_command_stay_deal"
+            key="sys_command_stay_deal"
             label="操作"
             width="180px">
             <template slot-scope="scope">
@@ -144,6 +150,7 @@
           </el-table-column>
           <el-table-column
             v-if="activeName == '7' && auths.sys_command_reply_audit"
+            key="sys_command_reply_audit"
             label="操作"
             width="180px">
             <template slot-scope="scope">
@@ -154,6 +161,7 @@
           </el-table-column>
           <el-table-column
             v-if="activeName == '8' && auths.sys_command_finish"
+            key="sys_command_finish"
             label="操作"
             width="200px">
             <template slot-scope="scope">
@@ -192,6 +200,7 @@
             prop="commandReplyNo"
             label="回复书编号"/> -->
           <el-table-column
+            :formatter="formatDate"
             prop="commandDate"
             label="指令书日期"
             width="180"/>

@@ -66,3 +66,12 @@ export function fetchUpdateDevice(data) {
     data: data
   })
 }
+/** 检验意见通知书详情 */
+export function fecthDel(data) {
+  return request({
+    url: '/core/inspection/delete',
+    method: 'post',
+    data: data
+  })
+}
+

@@ -30,7 +30,8 @@
           :data="instructionList"
           border
           style="width: 100%"
-          @selection-change="handleSelectionChange">
+          @selection-change="handleSelectionChange"
+          @cell-dblclick="detailShow">
           <el-table-column
             type="selection"/>
           <el-table-column
@@ -38,10 +39,12 @@
             width="180"
             label="编号"/>
           <el-table-column
+            :formatter="formatDate"
             prop="postDate"
             width="180"
             label="发出日期"/>
           <el-table-column
+            :formatter="formatDate"
             prop="receiveDate"
             width="180"
             label="接收日期"/>
@@ -70,14 +73,17 @@
             width="180"
             label="检验问题和意见"/>
           <el-table-column
+            :formatter="formatDate"
             prop="reExaminationDate"
             width="180"
             label="复检时间"/>
           <el-table-column
+            :formatter="formatDate"
             prop="inspectionReportDate"
             width="180"
             label="报检日期"/>
           <el-table-column
+            :formatter="formatDate"
             prop="inspectionReportDate"
             width="180"
             label="检验日期"/>
@@ -100,6 +106,7 @@
             <template slot-scope="scope">
               <el-button type="text" @click="edit(scope.row)">编辑</el-button>
               <el-button v-if="search.status == 1" type="text" @click="dealRow(scope.row)">处理</el-button>
+              <el-button v-if="search.status == 1" type="text" @click="delOption(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -275,35 +282,35 @@
             <el-form-item label="完成情况" prop="finshInfo">
               <el-input v-model="deiveForm.finshInfo" />
             </el-form-item>
-            <el-form-item label="检验意见通知书图片">
-              <div style="display:flex;">
-                <ul class="el-upload-list el-upload-list--picture-card">
-                  <li v-for="(item, index) in imgs" :key="index" class="el-upload-list__item is-success">
-                    <img :src="baseUrl+item" alt="" class="el-upload-list__item-thumbnail">
-                    <i class="el-icon-close"/>
-                    <span class="el-upload-list__item-actions">
-                      <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseUrl+item)">
-                        <i class="el-icon-zoom-in"/>
-                      </span>
-                      <span class="el-upload-list__item-delete" @click="hasHandelDelete(index)">
-                        <i class="el-icon-delete"/>
-                      </span>
-                    </span>
-                  </li>
-                </ul>
-                <el-upload
-                  :on-success="handleSuccess"
-                  :before-upload="beforeAvatarUpload"
-                  :action="imgUrl"
-                  class="avatar-uploader">
-                  <i class="el-icon-plus avatar-uploader-icon"/>
-                </el-upload>
-              </div>
-            </el-form-item>
           </div>
+          <el-form-item label="现场图片" required>
+            <div style="display:flex;">
+              <ul class="el-upload-list el-upload-list--picture-card">
+                <li v-for="(item, index) in imgs" :key="index" class="el-upload-list__item is-success">
+                  <img :src="baseUrl+item" alt="" class="el-upload-list__item-thumbnail">
+                  <i class="el-icon-close"/>
+                  <span class="el-upload-list__item-actions">
+                    <span class="el-upload-list__item-preview" @click="hasHandlePreview(baseUrl+item)">
+                      <i class="el-icon-zoom-in"/>
+                    </span>
+                    <span class="el-upload-list__item-delete" @click="hasHandelDelete(index)">
+                      <i class="el-icon-delete"/>
+                    </span>
+                  </span>
+                </li>
+              </ul>
+              <el-upload
+                :on-success="handleSuccess"
+                :before-upload="beforeAvatarUpload"
+                :action="imgUrl"
+                class="avatar-uploader">
+                <i class="el-icon-plus avatar-uploader-icon"/>
+              </el-upload>
+            </div>
+          </el-form-item>
         </el-form>
       </div>
-      <span slot="footer" class="dialog-footer">
+      <span v-if="!dialogDetailVisible" slot="footer" class="dialog-footer">
         <el-button @click="dialogNewVisible = false">取 消</el-button>
         <el-button type="primary" @click="addInspection">确 定</el-button>
       </span>
@@ -334,17 +341,19 @@
 <script>
 import { mapGetters } from 'vuex'
 // findDeviceForInspection
-import { fetchGetData, fetchAddData, fetchExcel, fetchDeal, fetchEdit, fetchInspectionDt } from '@/api/jiany'
+import { fetchGetData, fetchAddData, fetchExcel, fetchDeal, fetchEdit, fetchInspectionDt, fecthDel } from '@/api/jiany'
 import { baseUrl, inspectionTypeNames } from '@/utils/config'
 // import authorization from '@/mixins/authorization'
 import { toViewer, beforeUpload } from '@/utils/common'
 // import AddTask
 import AddJian from './components/AddJian'
+// import detail from './components/detail'
 import { getFormatDate } from '@/utils/common'
 export default {
   // mixins: [authorization],
   components: {
     AddJian
+    // detail
   },
   data() {
     return {
@@ -369,6 +378,7 @@ export default {
       dialogExcelVisible: false,
       isExcelLoading: false,
       dialogChuVisible: false,
+      dialogDetailVisible: false,
       isExcel: 1,
       deviceTotal: 0,
       deviceList: [],
@@ -382,15 +392,15 @@ export default {
       deviceInfo: {},
       deiveForm: {},
       rulesForm: {
-        inspectionNo: [{ required: true, message: '请填写检验意见通知书编号', trigger: 'blur' }],
-        postDate: [{ required: true, message: '请选择发出日期', trigger: 'change' }],
-        receiveDate: [{ required: true, message: '请选择接收日期', trigger: 'change' }],
-        inspectionTypeName: [{ required: true, message: '请选择检验类型名称', trigger: 'change' }],
-        inspectionProblem: [{ required: true, message: '请填写检验问题', trigger: 'blur' }],
-        reExaminationDate: [{ required: true, message: '请选择复验日期', trigger: 'change' }],
-        inspectionReportDate: [{ required: true, message: '请选择要求检验日期', trigger: 'change' }],
-        inspectionDate: [{ required: true, message: '请选择检验日期', trigger: 'change' }],
-        inspectionPeople: [{ required: true, message: '请填写跟进人', trigger: 'blur' }]
+        // inspectionNo: [{ required: true, message: '请填写检验意见通知书编号', trigger: 'blur' }],
+        // postDate: [{ required: true, message: '请选择发出日期', trigger: 'change' }],
+        // receiveDate: [{ required: true, message: '请选择接收日期', trigger: 'change' }],
+        // inspectionTypeName: [{ required: true, message: '请选择检验类型名称', trigger: 'change' }],
+        // inspectionProblem: [{ required: true, message: '请填写检验问题', trigger: 'blur' }],
+        // reExaminationDate: [{ required: true, message: '请选择复验日期', trigger: 'change' }],
+        // inspectionReportDate: [{ required: true, message: '请选择要求检验日期', trigger: 'change' }],
+        // inspectionDate: [{ required: true, message: '请选择检验日期', trigger: 'change' }],
+        // inspectionPeople: [{ required: true, message: '请填写跟进人', trigger: 'blur' }]
       },
       dealForm: {},
       isEdit: false,
@@ -399,7 +409,8 @@ export default {
       imgs: [],
       comInfo: {},
       editId: '',
-      deviceAInfo: {}
+      deviceAInfo: {},
+      detailInfo: {}
     }
   },
   computed: {
@@ -424,6 +435,51 @@ export default {
     this.fecthData()
   },
   methods: {
+    detailShow(row) {
+      const params = {
+        id: row.id
+      }
+      // this.editId = row.id
+      fetchInspectionDt(params).then(res => {
+        const {
+          returnData
+        } = res
+        const {
+          listDevice,
+          ...data
+        } = returnData
+        console.log(listDevice)
+        this.imgs = returnData.inspectionPhoto ? returnData.inspectionPhoto.split('&').filter(item => item) : []
+        this.deviceInfo = returnData
+        this.deviceAInfo.deviceUseAddress = returnData.deviceUseAddress
+        this.deviceAInfo.deviceUseContactMan = returnData.deviceUseContactMan
+        this.deviceAInfo.deviceUseContactManTel = returnData.deviceUseContactManTel
+        this.deviceAInfo.deviceUseID = returnData.deviceUseID
+        this.deviceAInfo.deviceUseName = returnData.deviceUseName
+        // console.log(data)
+        setTimeout(() => {
+          this.deiveForm = data
+        }, 1000)
+      }).finally(() => {
+        this.dialogNewVisible = true
+        this.dialogDetailVisible = true
+      })
+    },
+    delOption(row) {
+      this.$confirm('此操作将删除检查意见, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const params = {
+          id: row.id
+        }
+        fecthDel(params).then(res => {
+          this.$message.success(res.resultDesc)
+          this.fecthData()
+        })
+      })
+    },
     multiDeal() {
       if (this.multipleSelection.length !== 0) {
         const ids = this.multipleSelection.map(item => item.id).join()
@@ -485,7 +541,7 @@ export default {
         } else {
           this.isEdit = true
         }
-        this.imgs = returnData.inspectionPhoto ? returnData.inspectionPhoto.split(',') : []
+        this.imgs = returnData.inspectionPhoto ? returnData.inspectionPhoto.split('&').filter(item => item) : []
         this.deviceInfo = returnData
         this.deviceAInfo.deviceUseAddress = returnData.deviceUseAddress
         this.deviceAInfo.deviceUseContactMan = returnData.deviceUseContactMan
@@ -496,6 +552,7 @@ export default {
           listDevice,
           ...data
         } = returnData
+        this.imgs = (data.inspectionPhoto || '').split('&').filter(item => item)
         console.log(listDevice)
         // console.log(data)
         setTimeout(() => {
@@ -533,7 +590,8 @@ export default {
           this.$message('请选择指令书')
           return
         }
-        param = this.multipleSelection
+        param = {}
+        param.id = this.multipleSelection.map(item => item.id).join()
       } else {
         fileType = '2'
       }
@@ -574,12 +632,17 @@ export default {
         this.$message.error('请选择设备')
         return ''
       }
-
+      if (this.imgs.length === 0) {
+        this.$message.error('请上传图片')
+        return ''
+      }
+      // console.log(this.imgs)
+      // return ''
       this.$refs['ruleForms'].validate((valid) => {
         if (valid) {
           let params = {}
           if (!this.deiveForm.id) {
-            console.log(this.deiveForm, this.deviceAInfo)
+            // console.log(this.deiveForm, this.deviceAInfo)
             // if (!deviceUseID) {
             //   this.deiveForm = {
             //     ...this.deiveForm,
@@ -600,6 +663,7 @@ export default {
               ...this.deiveForm,
               ...this.deviceAInfo
             }
+            params.inspectionPhoto = this.imgs.join('&')
             // console.log(params)
             // return
             fetchAddData(params).then(res => {
@@ -615,7 +679,7 @@ export default {
             params = {
               ...this.deiveForm
             }
-            params.inspectionPhoto = this.imgs.join(',')
+            params.inspectionPhoto = this.imgs.join('&')
             // console.log(params)
             // return
             fetchEdit(params).then(res => {
@@ -706,6 +770,7 @@ export default {
       //   this.deviceList = list
       //   this.deviceTotal = total
       this.deviceInfo = null
+      this.imgs = []
       this.deiveForm = {
         inspectionReportDate: getFormatDate(),
         postDate: getFormatDate(),

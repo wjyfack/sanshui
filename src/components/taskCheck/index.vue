@@ -55,7 +55,7 @@ export default {
     clear() {
       this.taskStatus = ''
       this.instructionStatus = []
-      this.insprcType
+      // this.insprcType
       console.log('clear')
     },
     taskSelect(event) {

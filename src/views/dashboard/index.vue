@@ -362,6 +362,7 @@ export default {
             const deviceSrotName = data.map(item => {
               return item.deviceTypeName
             })
+            // console.log(data)
             const deviceSrotList = data.map(item => {
               return { value: item.value, name: item.deviceTypeName }
             })
@@ -407,6 +408,7 @@ export default {
     setNewDeviceEharts() { // 设备数量
       const deviceSrotName = this.deviceSrotName
       const deviceSrotList = this.deviceSrotList
+      // console.log(deviceSrotName, deviceSrotList)
       const zongleiChart = echarts.init(this.$refs.newZonglei)
       const colors = ['#FF9F40', '#FFCB48', '#5584FF', '#46BC15', '#7C6AF2', '#C95FF2', '#FF6383', '#F58383', '#B49BC0', '#B4946B']
       const option = {

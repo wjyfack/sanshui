@@ -58,7 +58,7 @@ export default {
   mounted() {
     const urlImgs = this.transfe.check.checkResultPhotoList
     if (urlImgs) {
-      this.urlImgs = urlImgs.split(',')
+      this.urlImgs = urlImgs.split('&')
     }
   },
   methods: {

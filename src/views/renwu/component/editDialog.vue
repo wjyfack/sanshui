@@ -1189,7 +1189,7 @@ export default {
         deviceType9Count: `${deviceType9Count}`,
         deviceType10Count: `${deviceType10Count}`,
         checkType,
-        checkType2: checkType2.join(','),
+        checkType2: (checkType2 || []).join(','),
         checkUseTypes: '' + checkUseTypes,
         checkUseTypeNames,
         // checkDateStart: checkDate,
@@ -1238,7 +1238,6 @@ export default {
       // return
       fectEditTask(data).then(res => {
         // console.log(res)
-        this.subLoading = false
         if (res.resultCode === '0000000') {
           this.$message({
             message: res.resultDesc,
@@ -1251,6 +1250,8 @@ export default {
             type: 'fail'
           })
         }
+      }).finally(() => {
+        this.subLoading = false
       })
     },
     getCheckResulTreatment(item) {

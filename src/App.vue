@@ -5,8 +5,10 @@
 </template>
 
 <script>
+// import directive from '@/mixins/directive'
 export default {
   name: 'App'
+  // mixins: [directive]
 }
 </script>
 

@@ -13,16 +13,18 @@
           </span>
         </span>
       </li>
+      <li>
+        <el-upload
+          :on-success="handleSuccess"
+          :action="imgurl"
+          :before-upload="beforeUpload"
+          :on-exceed="exceedLimit"
+          :show-file-list="false"
+          class="avatar-uploader">
+          <i class="el-icon-plus avatar-uploader-icon"/>
+        </el-upload>
+      </li>
     </ul>
-    <el-upload
-      :on-success="handleSuccess"
-      :action="imgurl"
-      :before-upload="beforeUpload"
-      :on-exceed="exceedLimit"
-      :show-file-list="false"
-      class="avatar-uploader">
-      <i class="el-icon-plus avatar-uploader-icon"/>
-    </el-upload>
   </div>
 </template>
 <script>
@@ -47,7 +49,7 @@ export default {
     },
     spit: {
       type: String,
-      default: ','
+      default: '&'
     }
   },
   data() {
@@ -68,7 +70,8 @@ export default {
       this.commandPhotoList = this.list ? this.list.split(this.spit).map(item => {
         const spl = item.split('/')
         return spl[spl.length - 1]
-      }) : []
+      }).filter(item => item) : []
+      // console.log(this.commandPhotoList, 111)
     },
     getImg(event) {
       console.log(event)

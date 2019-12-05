@@ -21,6 +21,7 @@
             <label class="label" for="">使用单位：</label>
             <el-input v-model="search.companyUseName" class="input" placeholder="请输入使用单位"/>
           </el-col>
+          <!-- v-if="activeName != 6" -->
           <el-col :span="8">
             <label class="label" for="">使用登记证：</label>
             <el-input v-model="search.deviceCertNo" class="input" placeholder="请输入使用登记证"/>
@@ -31,7 +32,7 @@
             <label class="label" for="">指令书编号：</label>
             <el-input v-model="search.commandNo" class="input" placeholder="请输入指令书编号"/>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <label class="label" for="">所属部门：</label>
             <el-select v-model="search.checkDeptID" clearable placeholder="请选择">
               <el-option
@@ -133,6 +134,7 @@
           <el-table-column
             v-if="activeStatus1 || activeStatus2"
             key="taskCreateTime"
+            :formatter="formatDate"
             prop="taskCreateTime"
             sortable
             label="任务生成日期"/>
@@ -283,7 +285,7 @@
     <el-dialog
       :visible.sync="dialogEndVisible"
       :before-close="handleClose"
-      width="50%"
+      width="70%"
       title="">
       <taskDetail :transfe="editTask" />
       <comInfo :transfe="editTask"/>
@@ -293,9 +295,15 @@
           <span>检查记录：</span>
           <img-loadc v-if="dialogEndVisible" :spit="'&'" :list="editTask.taskPhotoList" :imgurl="imgUrlRe" :imgshow="baseImgUrlRe" :limit="1" @sendimg="sendImgLoad"/>
         </div>
-        <div v-if="dialogEndVisible && editTask.command && editTask.command.id" class="imgLists-item">
-          <span>指令书：</span>
-          <img-loadi :imgurl="imgUrlCom" :spit="'&'" :list="editTask.taskCommandPhotoList" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
+        <div v-if="dialogEndVisible" class="imgLists-item">
+          <span>现场图片：</span>
+          <img-loadi v-if="dialogEndVisible" :imgurl="imgUrlCom" :spit="'&'" :list="editTask.checkResultPhotoList" :imgshow="baseImgUrlCom" :limit="1" @sendimg="sendImgLoad2"/>
+        </div>
+      </div>
+      <div class="imgLists" >
+        <div class="imgLists-item">
+          <span>指令书图片：</span>
+          <img-loadc v-if="dialogEndVisible" :spit="'&'" :list="editTask.taskCommandPhotoList" :imgurl="imgZhil" :imgshow="baseImgZhil" :limit="1" @sendimg="sendImgLoad3"/>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -363,6 +371,7 @@
         <el-button :loading="isDownloadingPic" type="primary" @click="toMakeDownloadPic">确 定</el-button>
       </span>
     </el-dialog>
+    <to-excel-task :show.sync="dialogToExcelVisble" :list="tasks" @change="fecthData"/>
   </div>
 </template>
 
@@ -385,6 +394,7 @@ import { fetchTaskDownload } from '@/api/common'
 import { toViewer } from '@/utils/common'
 import imgLoadc from '@/components/imgLoad/index'
 import imgLoadi from '@/components/imgLoad/index'
+import toExcelTask from './component/toExcelTask'
 export default {
   components: {
     deviceDetail,
@@ -396,7 +406,8 @@ export default {
     taskDetail,
     comInfo,
     imgLoadc,
-    imgLoadi
+    imgLoadi,
+    toExcelTask
   },
   mixins: [opLoading, authorization],
   data() {
@@ -412,8 +423,10 @@ export default {
       optDownload: 1,
       baseImgUrlRe: `${baseUrl}/file/show/CheckRecord/`,
       imgUrlRe: `${baseUrl}/file/upload/CheckRecord`,
-      baseImgUrlCom: `${baseUrl}/file/show/TaskCommand/`,
-      imgUrlCom: `${baseUrl}/file/upload/TaskCommand`,
+      baseImgUrlCom: `${baseUrl}/file/show/ScenePictures/`,
+      imgUrlCom: `${baseUrl}/file/upload/ScenePictures`,
+      baseImgZhil: `${baseUrl}/file/show/TaskCommand/`,
+      imgZhil: `${baseUrl}/file/upload/TaskCommand`,
       downloadUrl: `${baseUrl}/file/download/create/`,
       rectifyAddImgs: [], // 上传的图片
       isExcel: 1,
@@ -461,6 +474,7 @@ export default {
       dialogYulanVisible: false,
       dialogChuliVisible: false,
       dialogInfoVisible: false,
+      dialogToExcelVisble: false,
       activeName: '1',
       activeStatus1: true,
       activeStatus2: false,
@@ -481,7 +495,9 @@ export default {
       ],
       slides: [],
       inStucListString: '',
-      recordListString: ''
+      recordListString: '',
+      zhiLingShuString: '',
+      tasks: []
     }
   },
   computed: {
@@ -601,33 +617,49 @@ export default {
       // console.log(event)
       this.inStucListString = event
     },
+    sendImgLoad3(event) {
+      // console.log(event)
+      this.zhiLingShuString = event
+    },
     excelIn() {
-      const file = document.getElementById('files')
-      const ev = new MouseEvent('click')
-      file.dispatchEvent(ev)
+      // const file = document.getElementById('files')
+      const file = document.createElement('input')
+      file.type = 'file'
       // console.log(file, ev)
       file.onchange = (e) => {
         // console.log(e.currentTarget.files)
         this.toLoadExcel(e.currentTarget.files)
       }
+      const ev = new MouseEvent('click')
+      file.dispatchEvent(ev)
     },
     toLoadExcel(files) {
       const file = files[0]
       const lastName = file.name.split('.')
       if (lastName[lastName.length - 1] === 'xlsx' || lastName[lastName.length - 1] === 'xls') {
-        console.log(lastName, file)
+        // console.log(lastName, file)
         const formData = new FormData()
         formData.append('file', file)
         fetchImportExcel(formData, (e) => {
           console.log(e)
         }).then(res => {
           if (res.resultCode === '0000000') {
-            this.$message.success(res.resultDesc)
-            this.fecthData()
+            // this.$message.success(res.resultDesc)
+            // this.fecthData()
+            this.dialogToExcelVisble = true
+            const {
+              returnData
+            } = res
+            this.tasks = returnData
+            // this.dialogToExcelVisble = true
           } else {
             this.$message.error(res.resultDesc)
           }
         })
+        // .finally(() => {
+        //   this.dialogToExcelVisble = true
+        //   this.tasks = [1,2,3,56,7]
+        // })
       } else {
         this.$message.error('请选择xlsx或xls文件')
       }
@@ -905,8 +937,9 @@ export default {
           id,
           checkNo,
           // checkResultPhotoList,
-          taskCommandPhotoList: this.inStucListString,
+          checkResultPhotoList: this.inStucListString,
           taskPhotoList: this.recordListString,
+          taskCommandPhotoList: this.zhiLingShuString,
           operateName: '上传签名图片'
         }
 
@@ -980,11 +1013,14 @@ export default {
           }
           data.taskPhotoList = taskPhotoList
           data.taskCommandPhotoList = taskCommandPhotoList
+          this.recordListString = data.taskPhotoList
+          this.inStucListString = data.checkResultPhotoList
+          this.zhiLingShuString = data.taskCommandPhotoList
           this.editTask = data
           this.dialogEndVisible = true
           let commandPhotoList = []
           if (data.checkResultPhotoList !== null) {
-            commandPhotoList = data.checkResultPhotoList.split(',')
+            commandPhotoList = data.checkResultPhotoList.split('&').filter(item => item)
           }
           // if (data.command && data.command.commandProblemPhotoList) {
           //   commandPhotoList = data.command.commandProblemPhotoList.split(',')
@@ -999,6 +1035,7 @@ export default {
           // }
           // console.log(commandPhotoList)
           this.commandPhotoList = commandPhotoList // 现场图片
+          // console.log(this.commandPhotoList)
         } else {
           this.$message.error(res.resultDesc)
         }
@@ -1510,7 +1547,7 @@ export default {
 .table {
   width: 100%;
   padding-left: 1px;
-  padding-top: 1px;
+  padding-top: 3px;
 }
 #files {
   filter:alpha(opacity=0);opacity:0;width: 0;height: 0;

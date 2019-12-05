@@ -47,6 +47,18 @@ Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
 
+// Vue.directive('date', {
+//   inserted: function(el, binding, vnode) {
+//     // 聚焦元素
+//     console.log(el, binding, vnode)
+//   }
+// })
+Vue.prototype.formatDate = function(row, column, cellValue) {
+  // console.log(row, column, cellValue)
+  // var newDate = row.date== "" ? "-" : row.date.replace(/-/g,"/")
+  // return newDate
+  return (cellValue || '').substr(0, 10)
+}
 new Vue({
   el: '#app',
   router,

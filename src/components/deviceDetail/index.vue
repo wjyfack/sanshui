@@ -241,11 +241,11 @@ export default {
   },
   watch: {
     info: function() {
-      this.commandPhotoList = this.info.devicePhotos ? this.info.devicePhotos.split(',') : []
+      this.commandPhotoList = this.info.devicePhotos ? this.info.devicePhotos.split('&').filter(item => item) : []
     }
   },
   mounted() {
-    this.commandPhotoList = this.info.devicePhotos ? this.info.devicePhotos.split(',') : []
+    this.commandPhotoList = this.info.devicePhotos ? this.info.devicePhotos.split('&').filter(item => item) : []
   },
   methods: {
     hasHandlePreview(url) {

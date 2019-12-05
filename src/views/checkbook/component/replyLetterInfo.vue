@@ -102,9 +102,9 @@ export default {
     dataChange() {
       const urlImgs = this.transfe.commandExecTaskReplyIntroPhotoList
       if (urlImgs) {
-        this.urlImgs = urlImgs.split(',')
+        this.urlImgs = urlImgs.split('&').filter(item => item)
       }
-      console.log(this.urlImgs)
+      // console.log(this.urlImgs)
     },
     hasHandlePreview(url) {
       // this.dialogPreviewVisible = true

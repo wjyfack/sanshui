@@ -1,5 +1,6 @@
 
-export const baseUrl = 'https://www.casaba.top/sanshui_app-api' //'http://192.168.0.142:8607' //
+// export const baseUrl = 'http://192.168.0.142:8607'
+export const baseUrl = 'https://www.casaba.top/sanshui_app-api'
 export const refiyUrl = 'https://www.casaba.top/customer_app-api' // 'http://192.168.0.142:8507' //
 export const systemKey = 'dgrl44212haoakkewicenwwhnsja443'
 export const systemSign = 'sanshuiSafetyServer'

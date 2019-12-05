@@ -127,7 +127,7 @@ export default {
       if (commandExecTaskReplyIntroPhotoList === null) {
         this.commandExecTaskReplyIntroPhotoList = []
       } else {
-        this.commandExecTaskReplyIntroPhotoList = commandExecTaskReplyIntroPhotoList.split(',')
+        this.commandExecTaskReplyIntroPhotoList = commandExecTaskReplyIntroPhotoList.split('&').filter(item => item)
       }
       this.info.commandReplyNo = commandReplyNo
       this.info.id = id
@@ -154,7 +154,7 @@ export default {
       // const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.map(item => {
       //   return item.response.returnData
       // }).join(',')
-      const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.join(',')
+      const commandExecTaskReplyIntroPhotoList = this.commandExecTaskReplyIntroPhotoList.join('&')
       console.log(this.commandExecTaskReplyIntroPhotoList)
       if (!commandExecTaskReplyIntroPhotoList) {
         this.$message({ message: '请选择任务回复相册', type: 'error' })
