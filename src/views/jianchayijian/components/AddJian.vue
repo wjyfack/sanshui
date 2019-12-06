@@ -36,15 +36,15 @@
       <div class="device-info">
         <div class="info">
           <span>设备列表</span>
-          <el-select v-model="deviceType" clearable placeholder="设备类型" @change="changeDeviceTypeGet">
+          <!-- <el-select v-model="deviceType" clearable placeholder="设备类型" @change="changeDeviceTypeGet">
             <el-option
               v-for="item in equipmentAllType"
               :key="item.value"
               :label="item.label"
               :value="item.value"/>
-          </el-select>
-          <!--  <el-button icon="el-icon-plus" size="mini" type="primary" @click="showAddDevice">添加设备</el-button>
-          -->
+          </el-select> -->
+           <el-button icon="el-icon-plus" size="mini" type="primary" @click="showAddDevice">添加设备</el-button>
+         
         </div>
         <el-table
           ref="multishebeili"
@@ -122,7 +122,52 @@
       width="45%"
       title=""
       append-to-body>
-      <add-device v-if="DialogAddDevice" :device="device" @closed="changeDeviceType"/>
+      <div class="task">
+        <el-form ref="formds" :model="search" label-width="130px">
+          <div class="device-info">
+            <div class="info">
+              <span>系统导入关联设备</span>
+              <div class="info-search">
+                <el-input v-model="search.deviceCertNo" clearable placeholder="请输入使用登记证号" style="width:auto;"/>
+                <el-select v-model="search.deviceType1" clearable placeholder="请选择设备类型">
+                  <el-option
+                    v-for="item in equipmentAllType"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"/>
+                </el-select>
+                <el-button type="primary" size="mini" @click="clickSearch">搜索</el-button>
+              </div>
+            </div>
+            <el-table
+              ref="deviceMutl"
+              :data="noDeviceList"
+              height="250"
+              border
+              style=""
+              @selection-change="handleShowChange">
+              <el-table-column
+                type="selection"
+                width="55"/>
+              <el-table-column
+                prop="deviceName"
+                label="设备名称"/>
+              <el-table-column
+                prop="deviceProduceNo"
+                label="出厂编号"/>
+              <el-table-column
+                prop="deviceCertNo"
+                label="使用登记证号"/>
+              <el-table-column
+                prop="deviceStatusName"
+                label="设备状态"/>
+              <el-table-column
+                prop="deviceNextTestDate"
+                label="下次检验日期"/>
+            </el-table>
+          </div>
+        </el-form>
+      </div>
     </el-dialog>
     <edit-device :show.sync="dialogEdit" :infod="infoD" @change="updateD"/>
   </div>
@@ -167,6 +212,7 @@ export default {
   data() {
     return {
       info: {},
+      search: {},
       status,
       addrCasc,
       checkDate: '',
@@ -569,6 +615,9 @@ export default {
       } else {
         this.$refs.multipleTable.clearSelection()
       }
+    },
+    handleShowChange(val) {
+      this.yixuanSelection = val
     },
     handleSelectionChange(val) {
       this.multipleSelection = val

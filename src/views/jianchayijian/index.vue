@@ -228,14 +228,14 @@
               format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"/>
           </el-form-item>
-          <el-form-item label="接收日期" prop="receiveDate">
+          <!-- <el-form-item label="接收日期" prop="receiveDate">
             <el-date-picker
               v-model="deiveForm.receiveDate"
               type="date"
               placeholder="选择日期"
               format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"/>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="检验类型名称" prop="inspectionTypeName">
             <el-select v-model="deiveForm.inspectionTypeName" placeholder="请选择检验类型名称">
               <el-option
@@ -248,7 +248,7 @@
           <el-form-item label="检验问题" prop="inspectionProblem">
             <el-input v-model="deiveForm.inspectionProblem" />
           </el-form-item>
-          <el-form-item label="复验日期" prop="reExaminationDate">
+          <!-- <el-form-item label="复验日期" prop="reExaminationDate">
             <el-date-picker
               v-model="deiveForm.reExaminationDate"
               type="date"
@@ -271,7 +271,7 @@
               placeholder="选择日期"
               format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"/>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="跟进人" prop="inspectionPeople">
             <el-input v-model="deiveForm.inspectionPeople" />
           </el-form-item>

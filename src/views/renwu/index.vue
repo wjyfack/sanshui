@@ -13,22 +13,26 @@
       </el-tabs>
       <div class="search">
         <el-row class="row">
-          <el-col :span="8">
+          <el-col :span="6">
             <label class="label" for="">任务编号：</label>
             <el-input v-model="search.checkNo" class="input" placeholder="请输入任务编号"/>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <label class="label" for="">使用单位：</label>
             <el-input v-model="search.companyUseName" class="input" placeholder="请输入使用单位"/>
           </el-col>
-          <!-- v-if="activeName != 6" -->
-          <el-col :span="8">
+          <!-- " -->
+          <el-col v-if="activeName != 6" :span="8">
             <label class="label" for="">使用登记证：</label>
             <el-input v-model="search.deviceCertNo" class="input" placeholder="请输入使用登记证"/>
           </el-col>
+          <el-col v-else :span="8" style="display: flex;align-items: center;">
+            <label class="label" for="">任务状态：</label>
+            <task-check ref="taskCheckNativeRefs" @click.native="taskCheckNative" @send="getSend"/>
+          </el-col>
         </el-row>
         <el-row class="row">
-          <el-col :span="8">
+          <el-col :span="6">
             <label class="label" for="">指令书编号：</label>
             <el-input v-model="search.commandNo" class="input" placeholder="请输入指令书编号"/>
           </el-col>
@@ -43,38 +47,38 @@
             </el-select>
           </el-col>
           <el-col v-if="activeName == '1'" :span="8">
-            <el-button type="primary" @click="BatchWholesale">批量派发</el-button>
-            <el-button type="danger" @click="closedLoop">闭环</el-button>
-            <el-button type="danger" @click="taskOperation(1)">删除</el-button>
-            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
-            <el-button type="primary" @click="excelIn">Excel导入</el-button>
+            <el-button size="small" type="primary" @click="BatchWholesale">批量派发</el-button>
+            <el-button size="small" type="danger" @click="closedLoop">闭环</el-button>
+            <el-button size="small" type="danger" @click="taskOperation(1)">删除</el-button>
+            <el-button size="small" type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
+            <el-button size="small" type="primary" @click="excelIn">Excel导入</el-button>
             <input id="files" type="file" >
           </el-col>
           <el-col v-else-if="activeName == '2'" :span="8">
-            <el-button type="primary" @click="taskOperation(2)">批量接收</el-button>
-            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
+            <el-button size="small" type="primary" @click="taskOperation(2)">批量接收</el-button>
+            <el-button size="small" type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '3'" :span="8">
             <!-- <el-button type="primary" @click="dialogAddTask= true">新增</el-button> -->
-            <el-button type="danger" @click="closedLoop">闭环</el-button>
-            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
+            <el-button size="mini" type="danger" @click="closedLoop">闭环</el-button>
+            <el-button  size="mini" type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '4'" :span="8">
-            <el-button type="primary" @click="dialogAddTask= true">新增</el-button>
-            <el-button type="danger" @click="taskOperation(1)">删除</el-button>
-            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
+            <el-button size="small" type="primary" @click="dialogAddTask= true">新增</el-button>
+            <el-button size="small" type="danger" @click="taskOperation(1)">删除</el-button>
+            <el-button size="small" type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
           <el-col v-else-if="activeName == '5'" :span="8">
-            <el-button type="primary" @click="mutilEditDailog">编辑</el-button>
-            <el-button type="danger" @click="closedLoop">闭环</el-button>
-            <el-button type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
+            <el-button size="small" type="primary" @click="mutilEditDailog">编辑</el-button>
+            <el-button size="small" type="danger" @click="closedLoop">闭环</el-button>
+            <el-button size="small" type="primary" @click="dialogExcelVisible = true">导出Excel</el-button>
           </el-col>
-          <el-col v-else-if="activeName == '6'" :span="8">
-            <el-button type="primary" @click="downloadOpt(4)">导出检查记录</el-button>
-            <el-button type="primary" @click="downloadOpt(1)">检查记录表下载</el-button>
+          <el-col v-else-if="activeName == '6'" :span="12">
+            <el-button size="small" type="primary" @click="downloadOpt(4)">导出检查记录</el-button>
+            <el-button size="small" type="primary" @click="downloadOpt(1)">检查记录表下载</el-button>
             <el-button type="primary" @click="downloadOpt(2)">指令书下载</el-button>
-            <el-button type="primary" @click="downloadOpt(3)">指+检下载</el-button>
-            <el-button type="primary" @click="dialogDownloadPicVisible = true">图片下载</el-button>
+            <el-button size="small" type="primary" @click="downloadOpt(3)">指+检下载</el-button>
+            <el-button size="small" type="primary" @click="dialogDownloadPicVisible = true">图片下载</el-button>
           </el-col>
         </el-row>
         <el-row type="flex" justify="center" class="row">
@@ -376,6 +380,7 @@
 </template>
 
 <script>
+import taskCheck from '@/components/taskCheck/index'
 import deviceDetail from '@/components/deviceDetail'
 import searchDialog from './component/searchDialog'
 import addTaskDialog from './component/addTaskDialog'
@@ -407,7 +412,8 @@ export default {
     comInfo,
     imgLoadc,
     imgLoadi,
-    toExcelTask
+    toExcelTask,
+    taskCheck
   },
   mixins: [opLoading, authorization],
   data() {
@@ -520,6 +526,15 @@ export default {
     // }
   },
   methods: {
+    getSend(event) {
+      // console.log(event)
+      const { taskStatus, instructionStatus } = event
+      this.search.taskStatus = taskStatus
+      this.search.taskStatusName = instructionStatus
+    }, 
+    taskCheckNative() {
+      this.$refs.taskCheckNativeRefs.clear()
+    },
     toMakeDownloadPic() {
       // fetchTaskPic
       let data = {}
@@ -1372,6 +1387,9 @@ export default {
       this.search.deviceCertNo = '' // 使用登记证
       this.search.commandNo = '' // 指令书编号
       this.search.cont = '' // 所属镇街
+      this.search.taskStatus = ''
+      this.search.taskStatusName = ''
+      this.taskCheckNative()
       this.$message('重置成功')
     },
     pageSizeChange(event) {

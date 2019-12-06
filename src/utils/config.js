@@ -70,17 +70,17 @@ export const systemSign = 'sanshuiSafetyServer'
 //   }
 // ]
 export const inspectionTypeNames = [
+  // {
+  //   value: '不合格项整改',
+  //   label: '不合格项整改'
+  // },
   {
-    value: '不合格项整改',
-    label: '不合格项整改'
+    value: '检验不合格逾期不申请复检',
+    label: '检验不合格逾期不申请复检'
   },
   {
     value: '复检不合格',
     label: '复检不合格'
-  },
-  {
-    value: '不合格',
-    label: '不合格'
   }
 ]
 export const commandReceiptType = [
